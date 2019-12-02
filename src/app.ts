@@ -1,28 +1,21 @@
 import express from 'express'
-import { ApolloServer, gql } from 'apollo-server-express'
+import helmet from 'helmet'
 
-// Construct a schema, using GraphQL schema language
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`
+import { connectMongodb } from './config'
+import { authMiddleware } from './middlewares'
 
-// Provide resolver functions for your schema fields
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!'
-  }
-}
-
-const server = new ApolloServer({ typeDefs, resolvers })
-
+/**
+ * Express server instance
+ */
 const app = express()
 
-app.set('port', process.env.PORT || 4000)
-app.set('node_env', process.env.NODE_ENV)
-app.set('graphqlPath', server.graphqlPath)
+// connect to the database
+connectMongodb()
 
-server.applyMiddleware({ app })
+// secure apps by setting various HTTP headers
+app.use(helmet())
+
+// auth middleware
+app.use(authMiddleware.checkIfAuthenticated)
 
 export default app
