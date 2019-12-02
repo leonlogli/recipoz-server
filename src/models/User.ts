@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { firebaseAdmin } from '../config'
 
 export interface UserAdditionalInfo {
@@ -32,9 +30,9 @@ const User = {
    * @param fireBaseUser UserRecord from firebase
    */
   transform: (fireBaseUser: UserRecord): UserDocument => {
-    const { uid, passwordHash, passwordSalt, ...otherProps } = fireBaseUser
+    const { passwordHash: _ph, passwordSalt: _ps, ...otherProps } = fireBaseUser
 
-    return { uid, id: uid, ...otherProps }
+    return { id: fireBaseUser.uid, ...otherProps }
   }
 }
 
