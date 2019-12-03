@@ -1,15 +1,23 @@
 import { firebaseAdmin } from '../config'
 
+/**
+ * User additionnal info that aren't handled in the authentication
+ */
 export interface UserAdditionalInfo {
   coverImageUrl?: string
   gender?: string
   location?: string
   website?: string
-  aboutme?: string
+  aboutMe?: string
   socials?: string[]
 }
 
-export type Role = 'ADMIN' | 'USER'
+const userRoles = ['ADMIN', 'USER'] as const
+
+/**
+ * User roles
+ */
+export type Role = typeof userRoles[number]
 
 export type Token = {
   type?: string

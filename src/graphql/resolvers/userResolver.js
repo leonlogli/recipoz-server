@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-unused-vars */
 import { AuthenticationError } from 'apollo-server-express'
 import { userService, authService } from '../../services'
 
