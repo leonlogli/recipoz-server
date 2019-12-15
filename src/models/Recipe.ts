@@ -1,27 +1,31 @@
-import mongoose, { Schema, Document } from 'mongoose'
-
-import { RecipeStepDocument, recipeStepSchema } from './RecipeStep'
-import { CategoryDocument } from './Category'
-import { CuisineDocument } from './Cuisine'
-import { RecipeSourceDocument } from './RecipeSource'
-import { CommentDocument } from './Comment'
-import { RecipozUserDocument } from './RecipozUser'
-import { MealTypeDocument } from './MealType'
-import { MeasureUnitDocument } from './MeasureUnit'
-import { IngredientDocument } from './Ingredient'
-import { UtensilDocument } from './Utensil'
-import { nutritionSchema, NutritionDocument } from './Nutrition'
+import mongoose, { Document, Schema } from 'mongoose'
+import {
+  CategoryDocument,
+  CommentDocument,
+  IngredientDocument,
+  MeasureUnitDocument,
+  NutritionDocument,
+  nutritionSchema,
+  RecipeSourceDocument,
+  UserAccountDocument,
+  UtensilDocument
+} from '.'
+import { recipeStepSchema, RecipeStepDocument } from './RecipeStep'
 
 const { ObjectId } = Schema.Types
 
-const difficultyLevels = [
+export const difficultyLevels = [
   'TOO_EASY',
   'EASY',
   'DIFFICULT',
   'VERY_DIFFICULT'
 ] as const
 
-const costs = ['CHEAP', 'EXPENSIVE', 'VERY_EXPENSIVE'] as const
+export type DifficultyLevel = typeof difficultyLevels[number]
+
+export const costs = ['CHEAP', 'EXPENSIVE', 'VERY_EXPENSIVE'] as const
+
+export type Cost = typeof costs[number]
 
 type RecipeIngredient = {
   ingredient: IngredientDocument
@@ -38,32 +42,25 @@ export type RecipeDocument = Document & {
   name: string
   description?: string
   image: string
-  cuisines?: CuisineDocument[]
   servings?: number
-  source?: {
-    websiteSource: RecipeSourceDocument
-    recipeUrl: string
-  }
   readyInMinutes?: number
-  steps: RecipeStepDocument[]
+  steps?: RecipeStepDocument[]
   categories?: CategoryDocument[]
   tags: string[]
   ingredients: RecipeIngredient[]
   utensils?: RecipeUtensil[]
   isPrivate?: boolean
-  mealTypes?: MealTypeDocument
-  difficultyLevel?: typeof difficultyLevels[number]
-  cost?: typeof costs[number]
+  difficultyLevel?: DifficultyLevel
+  cost?: Cost
   additionalImages?: string[]
   nutrition?: NutritionDocument
   reviews?: CommentDocument[]
   reviewsCount: number
-  poster?: RecipozUserDocument
-  tryers?: RecipozUserDocument[]
-  // transcient field
-  totalTryers: number
-  totalReviews: number
-  totalfavorites: number
+  poster?: UserAccountDocument
+  source?: {
+    websiteSource: RecipeSourceDocument
+    recipeUrl: string
+  }
 }
 
 const recipeSchema = new Schema(
@@ -71,28 +68,21 @@ const recipeSchema = new Schema(
     name: { type: String, required: 'Name is mandatory' },
     description: String,
     categories: [{ type: ObjectId, ref: 'Category' }],
-    cuisines: [{ type: ObjectId, ref: 'Cuisine' }],
-    source: {
-      websiteSource: { type: ObjectId, ref: 'RecipeSource' },
-      recipeUrl: String
-    },
     image: { type: String, required: 'Image is mandatory' },
     servings: Number,
     readyInMinutes: Number,
     additionalImages: [String],
     steps: [recipeStepSchema],
-    tags: {
-      type: [String],
-      required: 'Tags are mandatory',
-      validate: [(v: string[]) => v.length < 6, '{PATH} exceeds the limit of 5']
+    poster: { type: ObjectId, ref: 'UserAccount' },
+    isPrivate: { type: Boolean, default: false },
+    viewsCount: Number,
+    difficultyLevel: { type: String, enum: difficultyLevels },
+    cost: { type: String, enum: costs },
+    nutrition: nutritionSchema,
+    source: {
+      websiteSource: { type: ObjectId, ref: 'RecipeSource' },
+      recipeUrl: String
     },
-    ingredients: [
-      {
-        ingredient: { type: mongoose.Schema.Types.ObjectId, ref: 'Ingredient' },
-        quantity: Number,
-        unit: { type: mongoose.Schema.Types.ObjectId, ref: 'MeasureUnit' }
-      }
-    ],
     utensils: [
       {
         utensil: { type: mongoose.Schema.Types.ObjectId, ref: 'Utensil' },
@@ -100,15 +90,13 @@ const recipeSchema = new Schema(
         unit: { type: mongoose.Schema.Types.ObjectId, ref: 'MeasureUnit' }
       }
     ],
-    poster: { type: ObjectId, ref: 'RecipozUser' },
-    tryers: [{ type: ObjectId, ref: 'RecipozUser' }],
-    isPrivate: { type: Boolean, default: false },
-    viewsCount: Number,
-    mealTypes: [{ type: ObjectId, ref: 'MealType' }],
-    difficultyLevel: { type: String, enum: difficultyLevels },
-    cost: { type: String, enum: costs },
-    nutrition: nutritionSchema,
-    reviews: [{ type: ObjectId, ref: 'Comment' }]
+    ingredients: [
+      {
+        ingredient: { type: mongoose.Schema.Types.ObjectId, ref: 'Ingredient' },
+        quantity: Number,
+        unit: { type: mongoose.Schema.Types.ObjectId, ref: 'MeasureUnit' }
+      }
+    ]
   },
   { timestamps: true }
 )

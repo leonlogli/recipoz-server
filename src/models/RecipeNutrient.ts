@@ -15,7 +15,7 @@ export interface RecipeNutrientDocument extends Document {
     amount: number
     unit: MeasureUnitDocument
   }
-  subNutrients: RecipeNutrientDocument[]
+  subNutrients?: RecipeNutrientDocument[]
 }
 
 const recipeNutrientSchema = new Schema({

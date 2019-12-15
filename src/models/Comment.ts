@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
-import { RecipozUserDocument } from './RecipozUser'
+import { UserAccountDocument, RecipeDocument } from '.'
 
 const { ObjectId } = Schema.Types
 
@@ -11,34 +11,33 @@ const reactionTypes = ['LIKE', 'LOVE', 'APPLAUD', 'LAUGH', 'CONFUSED'] as const
 
 type CommentReaction = {
   type: typeof reactionTypes[number]
-  user: RecipozUserDocument
+  user: UserAccountDocument
 }
 
 export interface CommentDocument extends Document {
-  user: RecipozUserDocument
+  user: UserAccountDocument
+  data: RecipeDocument
   content: string
   attachmentUrl?: string
   rating?: number
   replies?: CommentDocument[]
   reactions?: CommentReaction[]
-  mentionedUsers?: RecipozUserDocument[]
-  // unsaved fields
-  totalReplies: number
-  totalReactions: number
+  mentionedUsers?: UserAccountDocument[]
 }
 
 const commentSchema = new Schema(
   {
-    user: { type: ObjectId, ref: 'RecipozUser' },
+    user: { type: ObjectId, ref: 'UserAccount' },
+    data: { type: ObjectId, ref: 'Recipe' },
     rating: Number,
     content: { type: String, required: 'Content is mandatory' },
     attachmentUrl: String,
-    abuseRapporteurs: [{ type: ObjectId, ref: 'RecipozUser' }],
-    mentionedUsers: [{ type: ObjectId, ref: 'RecipozUser' }],
+    abuseRapporteurs: [{ type: ObjectId, ref: 'UserAccount' }],
+    mentionedUsers: [{ type: ObjectId, ref: 'UserAccount' }],
     reactions: [
       {
         type: { type: String, enum: reactionTypes, default: reactionTypes[0] },
-        user: { type: ObjectId, ref: 'RecipozUser' }
+        user: { type: ObjectId, ref: 'UserAccount', required: true }
       }
     ]
   },
@@ -47,6 +46,5 @@ const commentSchema = new Schema(
 
 commentSchema.add({ replies: [commentSchema] })
 
-export { commentSchema }
-
 export const Comment = mongoose.model<CommentDocument>('Comment', commentSchema)
+export default Comment
