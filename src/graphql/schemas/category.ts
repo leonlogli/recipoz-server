@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-express'
 export default gql`
   type Category {
     id: ID!
-    subCategory: SubCategory!
+    subCategory: SubCategory
     name: String!
     description: String
     thumbnail: String!
@@ -20,12 +20,23 @@ export default gql`
   }
 
   type SubCategory {
-    type: SubCategory!
+    type: SubCategoryType!
+    thumbnail: String
+  }
+
+  type PageableCategories {
+    categories: [Category!]
+    page: Int
+    pageCount: Int
+  }
+
+  input SubCategoryInput {
+    type: SubCategoryType!
     thumbnail: String
   }
 
   input CategoryInput {
-    subCategory: SubCategory!
+    subCategory: SubCategoryInput!
     name: String
     description: String
     thumbnail: String
@@ -37,7 +48,12 @@ export default gql`
 
   extend type Query {
     category(id: ID!): Category!
-    categories: [Category!]!
+    categories(sort: String): [Category!]
+    pagedCategories(
+      searchText: String
+      pageOptions: PageableInput
+      sort: String
+    ): PageableCategories!
   }
 
   extend type Mutation {

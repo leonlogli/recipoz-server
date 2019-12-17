@@ -1,3 +1,4 @@
 import userResolver from './userResolver'
+import categoryResolver from './categoryResolver'
 
-export default [userResolver]
+export default [userResolver, categoryResolver]

@@ -11,7 +11,7 @@ const subCategories = [
 ] as const
 
 export type CategoryDocument = mongoose.Document & {
-  subCategory: {
+  subCategory?: {
     type: typeof subCategories[number]
     thumbnail?: string
   }
@@ -22,13 +22,28 @@ export type CategoryDocument = mongoose.Document & {
 
 const categorySchema = new mongoose.Schema({
   subCategory: {
-    type: { type: String, enum: subCategories, unique: true },
+    type: { type: String, enum: subCategories },
     thumbnail: String
   },
   name: { type: String, required: 'Name is mandatory', unique: true },
   description: String,
   thumbnail: { type: String, required: 'Thumbnail is mandatory' }
 })
+
+categorySchema.index(
+  {
+    'subCategory.type': 'text',
+    name: 'text',
+    description: 'text'
+  },
+  {
+    weights: {
+      'subCategory.type': 3,
+      name: 2,
+      description: 1
+    }
+  }
+)
 
 export const Category = mongoose.model<CategoryDocument>(
   'Category',
