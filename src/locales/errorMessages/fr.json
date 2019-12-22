@@ -1,0 +1,5 @@
+{
+  "categoryName": {
+    "isMandatory" : "Le nom de la catégorie est obligatoire"
+  }
+}
