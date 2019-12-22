@@ -1,5 +1,6 @@
 {
   "categoryName": {
     "isMandatory" : "Le nom de la catégorie est obligatoire"
-  }
+  },
+  "categoryNotFound": "La catégorie est introuvable"
 }

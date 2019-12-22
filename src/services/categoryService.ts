@@ -1,3 +1,6 @@
+import { ApolloError } from 'apollo-server-express'
+import status from 'http-status'
+
 import { logger, DEFAULT_PAGE_SIZE } from '../config'
 import { Category, CategoryDocument } from '../models'
 import {
@@ -6,8 +9,12 @@ import {
   transformDocs,
   Pageable,
   isString,
-  transformSortDirectives
+  transformSortDirectives,
+  i18n
 } from '../utils'
+import { errorMessages } from '../constants'
+
+const { categoryNotFound } = errorMessages
 
 /**
  * Finds a single Category document by its id field
@@ -17,6 +24,10 @@ const getCategoryById = async (id: any) => {
   const category: CategoryDocument = await Category.findById(id)
     .lean()
     .exec()
+
+  if (!category) {
+    throw new ApolloError(i18n.t(categoryNotFound), status['404_NAME'])
+  }
 
   return transformDoc(category, true, 'name', 'description')
 }
@@ -29,6 +40,10 @@ const getCategory = async (criteria: any) => {
   const category: CategoryDocument = await Category.findOne(criteria)
     .lean()
     .exec()
+
+  if (!category) {
+    throw new ApolloError(i18n.t(categoryNotFound), status['404_NAME'])
+  }
 
   return transformDoc(category, true, 'name', 'description')
 }
@@ -126,23 +141,33 @@ const getCategories = async (criteria: any, options: Pageable) => {
 const addCategory = async (category: any) => {
   const createdCategory = await Category.create(category)
 
-  return transformDoc(createdCategory, false, 'name', 'description')
+  return transformDoc(createdCategory, true, 'name', 'description')
 }
 
 const updateCategory = async (id: any, category: CategoryDocument) => {
-  const updatedCategory = await Category.findByIdAndUpdate(id, {
-    $set: dotify(category)
-  })
+  const updatededCategory = await Category.findByIdAndUpdate(
+    id,
+    { $set: dotify(category) },
+    { new: true }
+  )
     .lean()
     .exec()
 
-  return transformDoc(updatedCategory, true, 'name', 'description')
+  if (!updatededCategory) {
+    throw new ApolloError(i18n.t(categoryNotFound), status['404_NAME'])
+  }
+
+  return transformDoc(updatededCategory, true, 'name', 'description')
 }
 
 const deleteCategory = async (id: any) => {
-  const createdCategory = await Category.findByIdAndDelete(id).exec()
+  const deletedCategory = await Category.findByIdAndDelete(id).exec()
 
-  return createdCategory
+  if (!deletedCategory) {
+    throw new ApolloError(i18n.t(categoryNotFound), status['404_NAME'])
+  }
+
+  return transformDoc(deletedCategory, true, 'name', 'description')
 }
 
 export default {
