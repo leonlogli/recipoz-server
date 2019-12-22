@@ -31,7 +31,7 @@ export type UserDocument = UserRecord & {
   id: string
 }
 
-const User = {
+export const User = {
   /**
    * Returns a formatted user from the specified firebase UserRecord
    *

@@ -1,15 +1,30 @@
-import categoryService from '../../services/categoryService'
+import { categoryService } from '../../services'
 
 export default {
   Query: {
     category: async (parent, { id }) => {
-      return categoryService.getCategory(id)
+      return categoryService.getCategoryById(id)
     },
-    categories: async (parent, { sort }) => {
-      return categoryService.categories(sort)
+    categoryBy: async (parent, { criteria }) => {
+      return categoryService.getCategory(criteria)
     },
-    pagedCategories: async (parent, { searchText, pageOptions, sort }) => {
-      return categoryService.getCategories(searchText, pageOptions, sort)
+    categories: async (parent, { criteria, sort }) => {
+      return categoryService.getCategories(criteria, { sort })
+    },
+    categoriesBy: async (parent, { criteria, sort }) => {
+      return categoryService.getCategories(criteria, { sort })
+    },
+    pagedCategories: async (parent, { criteria, options }) => {
+      return categoryService.getCategories(criteria, {
+        ...options,
+        paginate: true
+      })
+    },
+    pagedCategoriesBy: async (parent, { criteria, options }) => {
+      return categoryService.getCategories(criteria, {
+        ...options,
+        paginate: true
+      })
     }
   },
   Mutation: {

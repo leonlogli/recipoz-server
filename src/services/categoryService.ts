@@ -1,102 +1,142 @@
-import { Category } from '../models'
-import { Pageable } from '../utils/Util'
-import { logger } from '../config'
+import { logger, DEFAULT_PAGE_SIZE } from '../config'
+import { Category, CategoryDocument } from '../models'
+import {
+  dotify,
+  transformDoc,
+  transformDocs,
+  Pageable,
+  isString,
+  transformSortDirectives
+} from '../utils'
 
 /**
- * Finds a single document by its _id field
- * @param id value of _id to query by
+ * Finds a single Category document by its id field
+ * @param id document id
  */
-const getCategory = async (id: any) => {
-  const category = await Category.findById(id).exec()
+const getCategoryById = async (id: any) => {
+  const category: CategoryDocument = await Category.findById(id)
+    .lean()
+    .exec()
 
-  return category
+  return transformDoc(category, true, 'name', 'description')
 }
 
 /**
- * @param pageOptions page options.
- * @param _sort A collection of sort directives. (See Mongoose doc)
+ * Finds a single Category document by the specified criteria
+ * @param criteria query criteria
  */
-const getCategories = async (
-  searchText: string,
-  pageOptions?: Pageable,
-  sort?: string
-) => {
-  const page = pageOptions && pageOptions.page > 1 ? pageOptions.page : 1
-  const size = pageOptions && pageOptions.size > 0 ? pageOptions.size : 1
-  const textScore = { score: { $meta: 'textScore' } }
-  const searchConditions = {
-    $text: {
-      $search: searchText
-    }
-  }
-
-  let categories = await Category.find(
-    searchText ? searchConditions : {},
-    searchText ? textScore : {}
-  )
-    .limit(size)
-    .skip(size * (page - 1))
-    .sort(searchText ? textScore : sort)
+const getCategory = async (criteria: any) => {
+  const category: CategoryDocument = await Category.findOne(criteria)
+    .lean()
     .exec()
 
-  if (!categories.length) {
-    logger.info('Begining partial text search...')
-    const regex = new RegExp(searchText, 'i')
+  return transformDoc(category, true, 'name', 'description')
+}
 
-    categories = await Category.find({
-      $or: [
-        { 'subCategory.type': regex },
-        { name: regex },
-        { description: regex }
-      ]
-    }).exec()
+/**
+ * Finds paged categories by the specified criteria
+ * @param criteria query criteria
+ */
+const partiallySearchCategories = async (
+  searchText: string,
+  pageNumber?: number,
+  pageSize?: number
+) => {
+  const regex = new RegExp(searchText, 'i')
+  const conditions = {
+    $or: [
+      { 'subCategory.type': regex },
+      { 'name.en': regex },
+      { 'name.fr': regex },
+      { 'description.en': regex },
+      { 'description.fr': regex }
+    ]
   }
 
-  const count = await Category.countDocuments(
-    searchText ? searchConditions : {}
-  ).exec()
+  const query = Category.find(conditions).lean()
+
+  if (pageSize && pageNumber) {
+    query.limit(pageSize).skip(pageSize * (pageNumber - 1))
+  }
+
+  const categories = await query.exec()
+  const count = await Category.countDocuments(conditions).exec()
+
+  return { categories, count }
+}
+
+/**
+ * Finds paged categories by the specified criteria
+ * @param criteria query criteria
+ * @param options pagination informations
+ */
+const getCategories = async (criteria: any, options: Pageable) => {
+  let conditions = criteria || {}
+  const isSearchText = criteria && isString(criteria)
+
+  if (isSearchText) {
+    conditions = { $text: { $search: criteria } }
+  }
+
+  const { page, limit, sort, paginate } = options
+  const sortDirectives = transformSortDirectives(sort, 'name', 'description')
+  const pageNumber = page && page > 1 ? page : 1
+  const pageSize = limit && limit > 0 ? limit : DEFAULT_PAGE_SIZE
+  const textScore = { score: { $meta: 'textScore' } }
+
+  const query = Category.find(conditions, isSearchText ? textScore : {})
+    .sort(isSearchText ? textScore : sortDirectives)
+    .lean()
+
+  if (paginate) {
+    query.limit(pageSize).skip(pageSize * (pageNumber - 1))
+  }
+
+  let categories = await query.exec()
+  let count = await Category.countDocuments(conditions).exec()
+
+  if (!categories.length && isSearchText) {
+    logger.info('Begining partial text search...')
+    const data = await partiallySearchCategories(criteria, pageNumber, pageSize)
+    const { categories: _categories, count: _count } = data
+
+    categories = _categories
+    count = _count
+  }
+
+  categories = transformDocs(categories, true, 'name', 'description')
+
+  if (!page && !limit && !paginate) {
+    return categories
+  }
+
+  const pageCount = Math.ceil(count / pageSize)
 
   return {
     categories,
-    page,
-    pageCount: Math.ceil(count / size)
+    page: {
+      number: Math.min(pageNumber, pageCount),
+      size: pageSize,
+      count: pageCount,
+      totalItems: count
+    }
   }
 }
 
-const categories = async (sort?: string) => {
-  return Category.find()
-    .sort(sort)
-    .exec()
-}
-
-const findCategories = async (searchText: any) => {
-  const regex = new RegExp(searchText, 'i')
-
-  return Category.find({
-    $or: [
-      { 'subCategory.type': regex },
-      { name: regex },
-      { description: regex }
-    ]
-  }).exec((err, _categories) => {
-    return _categories
-  })
-}
-
-/**
- * Gets the user data for the user corresponding to a given email.
- * @param email The email corresponding to the user whose data to fetch.
- */
 const addCategory = async (category: any) => {
   const createdCategory = await Category.create(category)
 
-  return createdCategory
+  return transformDoc(createdCategory, false, 'name', 'description')
 }
 
-const updateCategory = async (id: any, category: any) => {
-  const updatedCategory = await Category.findByIdAndUpdate(id, category).exec()
+const updateCategory = async (id: any, category: CategoryDocument) => {
+  const updatedCategory = await Category.findByIdAndUpdate(id, {
+    $set: dotify(category)
+  })
+    .lean()
+    .exec()
 
-  return updatedCategory
+  return transformDoc(updatedCategory, true, 'name', 'description')
 }
 
 const deleteCategory = async (id: any) => {
@@ -106,11 +146,10 @@ const deleteCategory = async (id: any) => {
 }
 
 export default {
+  getCategoryById,
   getCategory,
   getCategories,
-  findCategories,
   addCategory,
   deleteCategory,
-  updateCategory,
-  categories
+  updateCategory
 }

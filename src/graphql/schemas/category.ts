@@ -24,21 +24,21 @@ export default gql`
     thumbnail: String
   }
 
-  type PageableCategories {
+  type PagedCategories {
     categories: [Category!]
-    page: Int
-    pageCount: Int
+    totalItems: Int!
+    page: Page!
   }
 
   input SubCategoryInput {
-    type: SubCategoryType!
+    type: SubCategoryType
     thumbnail: String
   }
 
   input CategoryInput {
-    subCategory: SubCategoryInput!
-    name: String
-    description: String
+    subCategory: SubCategoryInput
+    name: I18nInput
+    description: I18nInput
     thumbnail: String
   }
 
@@ -48,12 +48,14 @@ export default gql`
 
   extend type Query {
     category(id: ID!): Category!
-    categories(sort: String): [Category!]
-    pagedCategories(
-      searchText: String
-      pageOptions: PageableInput
-      sort: String
-    ): PageableCategories!
+    categoryBy(criteria: CategoryInput): Category!
+    categories(criteria: String, sort: String): [Category!]!
+    categoriesBy(criteria: CategoryInput, sort: String): [Category!]!
+    pagedCategories(criteria: String, options: PageableInput): PagedCategories!
+    pagedCategoriesBy(
+      criteria: CategoryInput
+      options: PageableInput
+    ): PagedCategories!
   }
 
   extend type Mutation {
