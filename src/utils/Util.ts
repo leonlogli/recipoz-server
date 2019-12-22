@@ -44,7 +44,7 @@ function transformDoc<T>(doc: T, lean?: boolean, ...i18nFields: string[]): T {
 
   if (i18nFields) {
     i18nFields.forEach(field => {
-      result[field] = toLocale(otherFields[field])
+      result[field] = toLocale((doc as any)[field])
     })
   }
 

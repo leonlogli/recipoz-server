@@ -31,7 +31,7 @@ export const toLocale = (record?: Record<SupportedLanguage, any>) => {
     return record
   }
 
-  const locale = i18n.currentLanguage.slice(0, 2) || APP_DEFAULT_LANGUAGE
+  const locale = i18n.currentLanguage.slice(0, 2) as SupportedLanguage
 
-  return record[locale as SupportedLanguage]
+  return record[locale] || record[APP_DEFAULT_LANGUAGE as SupportedLanguage]
 }
