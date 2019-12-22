@@ -12,7 +12,16 @@ if (fs.existsSync('.env')) {
   dotenv.config({ path: '.env.example' }) // you can delete this after you create your own .env file!
 }
 
-const { PORT, JWT_SECRET, JWT_EXPIRATION, NODE_ENV } = process.env
+const {
+  PORT,
+  JWT_SECRET,
+  JWT_EXPIRATION,
+  APP_DEFAULT_LANGUAGE,
+  NODE_ENV
+} = process.env
+
+/** Default items number per page */
+const DEFAULT_PAGE_SIZE = Number(process.env.DEFAULT_PAGE_SIZE)
 
 /** Indicates whether NODE_ENV is test */
 const TEST_ENV = NODE_ENV === 'test'
@@ -22,9 +31,6 @@ const PROD_ENV = NODE_ENV === 'production'
 
 /** Indicates whether NODE_ENV is development */
 const DEV_ENV = NODE_ENV === 'development'
-
-/** Data upload max limit in MB */
-const UPLOAD_LIMIT = 10
 
 /** Mongo db config */
 const MONGO = {
@@ -70,7 +76,9 @@ export {
   TEST_ENV,
   PROD_ENV,
   DEV_ENV,
-  UPLOAD_LIMIT,
+  /** App default language */
+  APP_DEFAULT_LANGUAGE,
+  DEFAULT_PAGE_SIZE,
   MONGO,
   FIREBASE
 }
