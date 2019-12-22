@@ -46,19 +46,19 @@
     "postpublish": "git push --tags"
   },
   "keywords": [
+    "apollo",
+    "graphql",
     "express",
     "node",
     "node.js",
     "mongodb",
     "mongoose",
-    "graphql",
     "es6",
     "es2020",
     "mocha",
     "istanbul",
     "nyc",
     "eslint",
-    "apollo",
     "typescript"
   ],
   "nyc": {

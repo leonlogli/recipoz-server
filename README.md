@@ -1,8 +1,8 @@
 # Food Recipe App with react
 
-Recipos os  a modern web application that allows users to create, save and share
-and explore food recipes. It's built with modern web front-end technologies
-such as next js, styled-components, redux... etc.
+Recipos is a modern web application that allows users to create, share and explore 
+food recipes. It's built with apollo graphql, express js and mongoose, typescript, etc...
+and has several features
 
 ## Features
 
