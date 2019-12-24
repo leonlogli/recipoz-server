@@ -1,8 +1,8 @@
 # Food Recipe App with react
 
 Recipos is a modern web application that allows users to create, share and explore 
-food recipes. It's built with apollo graphql, express js and mongoose, typescript, etc...
-and has several features
+food recipes. It's built with apollo graphql, express js and mongoose, typescript 
+and test sucessfully with mocha chai and sinon
 
 ## Features
 
