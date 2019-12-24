@@ -30,17 +30,19 @@
     "clean": "rimraf ./dist",
     "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpileOnly ./src/index.ts",
     "build": "yarn clean && tsc",
+    "preserve": "yarn build",
     "serve": "node .",
+    "prestart": "yarn build",
     "start": "cross-env NODE_ENV=production pm2 start ./dist/index.js",
     "stop": "pm2 stop all",
     "lint": "tsc --noEmit && eslint */**/*.{js,ts} --quiet",
     "lint:fix": "yarn lint --fix",
     "lint:watch": "yarn lint --watch",
-    "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text mocha --timeout 20000 --recursive src/tests",
-    "test:unit": "cross-env NODE_ENV=test mocha src/tests/unit",
-    "test:integration": "cross-env NODE_ENV=test mocha --timeout 20000 src/tests/integration",
-    "test:watch": "cross-env NODE_ENV=test mocha --watch src/tests/unit",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "cross-env NODE_ENV=test mocha --require ts-node/register --full-trace --bail --timeout 20000 --exit src/tests/**/*.test.ts",
+    "test:unit": "cross-env NODE_ENV=test mocha --exit -r ts-node/register src/tests/unit/**/*.test.ts",
+    "test:integration": "cross-env NODE_ENV=test mocha --timeout 20000 src/tests/integration/**/*.test.ts",
+    "test:watch": "yarn test:unit --watch",
+    "coverage": "nyc yarn test",
     "postcoverage": "open-cli coverage/lcov-report/index.html",
     "validate": "yarn lint && yarn test",
     "postpublish": "git push --tags"
@@ -61,19 +63,6 @@
     "eslint",
     "typescript"
   ],
-  "nyc": {
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "exclude": [
-      "**/*.d.ts"
-    ],
-    "reporter": [
-      "html"
-    ],
-    "all": true
-  },
   "dependencies": {
     "apollo-server-express": "^2.9.12",
     "cross-env": "^6.0.3",
@@ -103,12 +92,10 @@
     "@types/mongoose": "^5.5.32",
     "@types/node": "^12.12.14",
     "@types/node-fetch": "^2.5.4",
-    "@types/supertest": "^2.0.8",
     "@typescript-eslint/eslint-plugin": "^2.9.0",
     "@typescript-eslint/parser": "^2.9.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "coveralls": "^3.0.9",
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.7.0",
@@ -118,11 +105,12 @@
     "lint-staged": "^9.5.0",
     "mocha": "^6.2.2",
     "nyc": "^14.1.1",
+    "open-cli": "^5.0.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
     "sinon": "^7.5.0",
     "sinon-chai": "^3.3.0",
-    "supertest": "^4.0.2",
+    "ts-node": "^8.5.4",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.7.2"
   }
