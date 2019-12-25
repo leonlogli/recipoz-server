@@ -1,22 +1,20 @@
 # Food Recipe App with react
 
-Recipos is a modern web application that allows users to create, share and explore 
-food recipes. It's built with apollo graphql, express js and mongoose, typescript 
-and test sucessfully with mocha chai and sinon
+Recipoz is a modern web application built with apollo graphql server. 
+It allows users to create, share and explore food recipes.
 
 ## Features
 
-- Recipes List
+- Food Recipes
 - Categories
 - Ingredients
-- Recipes Details Screen
-- Photo Gallery
-- Detailed Description
-- Ingredients List
-- Recipes by Ingredient
-- Search with sorting & filtering
+- Paginations
+- Reviews
+- Search
+- Sorting & Filtering
 - User management
-- Oauth login
+- I18N & L10N
+- Notifications
 
 ## Quick Start
 
@@ -33,10 +31,12 @@ yarn start
 
 ```bash
 yarn test
+yarn test:unit
+yarn test:integration
 # Run the test watcher
 yarn test:watch
 # run test coverage
-yarn test:coverage
+yarn coverage
 ```
 
 ## ESLint
@@ -45,18 +45,4 @@ yarn test:coverage
 yarn lint
 # fix lint errors
 yarn lint:fix
-```
-
-## Run storybook
-
-```bash
-yarn storybook
-```
-
-## Deploying the app
-
-Deploy it to the cloud with [now](https://zeit.co/now) ([download](https://zeit.co/download))
-
-```bash
-now
 ```
