@@ -1,3 +1,4 @@
+import { isString } from 'util'
 import { APP_DEFAULT_LANGUAGE } from '../config'
 
 export const supportedLanguages = ['en', 'fr'] as const
@@ -27,11 +28,18 @@ export const i18n: I18N = {
  * @param record i18n object to format
  */
 export const toLocale = (record?: Record<SupportedLanguage, any>) => {
-  if (!record || typeof record === 'string' || record instanceof String) {
+  if (!record || isString(record)) {
     return record
   }
 
-  const locale = i18n.currentLanguage.slice(0, 2) as SupportedLanguage
+  let locale = APP_DEFAULT_LANGUAGE
 
-  return record[locale] || record[APP_DEFAULT_LANGUAGE as SupportedLanguage]
+  if (i18n.currentLanguage) {
+    locale = i18n.currentLanguage.slice(0, 2)
+  }
+
+  return (
+    record[locale as SupportedLanguage] ||
+    record[APP_DEFAULT_LANGUAGE as SupportedLanguage]
+  )
 }
