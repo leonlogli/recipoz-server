@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { isString } from '../../../utils'
+import { isString, dotify } from '../../../utils'
 
 describe('Util package', () => {
   describe('isString test', () => {
@@ -11,5 +11,11 @@ describe('Util package', () => {
       // eslint-disable-next-line no-new-wrappers
       expect(isString(new String('str'))).to.be.equal(true)
     })
+  })
+
+  it('should dotify object', () => {
+    const obj = { name: { en: 'value' } }
+
+    expect(dotify(obj)).to.eql({ 'name.en': 'value' })
   })
 })
