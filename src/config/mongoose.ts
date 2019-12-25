@@ -16,18 +16,16 @@ mongoose.connection.on('connected', () => {
   logger.info('Database connected successfully')
 })
 
-// print mongoose logs in dev env
-if (DEV_ENV) {
-  mongoose.set('debug', true)
-}
+// print mongoose logs only in dev env
+mongoose.set('debug', DEV_ENV)
 
 /**
  * Connect to mongo db
  *
  * @returns {mongoose.Connection} Mongoose connection
  */
-export const connectMongodb = () => {
-  mongoose.connect(MONGO.URI, {
+export const connectMongodb = (uri = MONGO.URI) => {
+  mongoose.connect(uri, {
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,

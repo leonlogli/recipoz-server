@@ -4,7 +4,7 @@ import { UserInputError as Error } from 'apollo-server-express'
 import { i18n, supportedLanguages } from '../utils'
 import { errorMessages } from '../constants'
 
-const subCategories = [
+export const subCategories = [
   'MEAL_TYPE',
   'DIET',
   'DISH_TYPE',

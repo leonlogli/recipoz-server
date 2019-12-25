@@ -141,7 +141,7 @@ const getCategories = async (criteria: any, options: Pageable) => {
 const addCategory = async (category: any) => {
   const createdCategory = await Category.create(category)
 
-  return transformDoc(createdCategory, true, 'name', 'description')
+  return transformDoc(createdCategory.toJSON(), true, 'name', 'description')
 }
 
 const updateCategory = async (id: any, category: CategoryDocument) => {

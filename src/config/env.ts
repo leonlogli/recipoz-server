@@ -1,16 +1,9 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import dotenv from 'dotenv'
-import fs from 'fs'
 import logger from './logger'
 
-// import .env variables
-if (fs.existsSync('.env')) {
-  logger.debug('Using .env file to supply config environment variables')
-  dotenv.config({ path: '.env' })
-} else {
-  logger.debug('Using .env.example file to supply config environment variables')
-  dotenv.config({ path: '.env.example' }) // you can delete this after you create your own .env file!
-}
+logger.debug('Using .env file to supply config environment variables')
+dotenv.config()
 
 const {
   PORT,
@@ -22,6 +15,9 @@ const {
 
 /** Default items number per page */
 const DEFAULT_PAGE_SIZE = Number(process.env.DEFAULT_PAGE_SIZE)
+
+/** Indicates whether to use mongoose in-memory databse for test instead of real database */
+const USE_MEMORY_TEST_DB = process.env.USE_MEMORY_TEST_DB === 'true'
 
 /** Indicates whether NODE_ENV is test */
 const TEST_ENV = NODE_ENV === 'test'
@@ -78,6 +74,7 @@ export {
   DEV_ENV,
   /** App default language */
   APP_DEFAULT_LANGUAGE,
+  USE_MEMORY_TEST_DB,
   DEFAULT_PAGE_SIZE,
   MONGO,
   FIREBASE

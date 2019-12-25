@@ -23,11 +23,10 @@ export const i18n: I18N = {
 
 /**
  * Formats i18n record by using the current locale.
- * Ex: { name { en: 'data' } } will be formatted to { name: 'data' }
- * in case the current locale is 'en'
+ * Ex: toLocale({ en: 'data', fr: 'données' }) == 'data' in case the current locale is 'en'
  * @param record i18n object to format
  */
-export const toLocale = (record?: Record<SupportedLanguage, any>) => {
+export const toLocale = (record: any) => {
   if (!record || isString(record)) {
     return record
   }

@@ -19,7 +19,6 @@
     ],
     "reporter": [
         "html",
-        "text",
-        "text-summary"
+        "text"
     ]
 }
