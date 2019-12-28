@@ -6,7 +6,6 @@ logger.debug('Using .env file to supply config environment variables')
 dotenv.config()
 
 const {
-  PORT,
   JWT_SECRET,
   JWT_EXPIRATION,
   APP_DEFAULT_LANGUAGE,
@@ -27,6 +26,8 @@ const PROD_ENV = NODE_ENV === 'production'
 
 /** Indicates whether NODE_ENV is development */
 const DEV_ENV = NODE_ENV === 'development'
+
+const PORT = TEST_ENV ? process.env.TEST_PORT : process.env.PORT
 
 /** Mongo db config */
 const MONGO = {
@@ -66,7 +67,6 @@ const JWT = {
 export {
   /** Node process env */
   NODE_ENV,
-  /** Server port */
   PORT,
   JWT,
   TEST_ENV,
