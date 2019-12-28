@@ -36,7 +36,7 @@ yarn test:integration
 # Run the test watcher
 yarn test:watch
 # run test coverage
-yarn coverage
+yarn test:coverage
 ```
 
 ## ESLint
