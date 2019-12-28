@@ -19,3 +19,5 @@ app.listen(PORT, () => {
     `App is running at http://localhost:${PORT}${apolloServer.graphqlPath} in ${NODE_ENV} mode`
   )
 })
+
+export { apolloServer }
