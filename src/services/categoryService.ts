@@ -167,7 +167,7 @@ const deleteCategory = async (id: any) => {
     throw new ApolloError(i18n.t(categoryNotFound), status['404_NAME'])
   }
 
-  return transformDoc(deletedCategory, true, 'name', 'description')
+  return transformDoc(deletedCategory.toJSON(), true, 'name', 'description')
 }
 
 export default {
