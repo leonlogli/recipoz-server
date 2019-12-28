@@ -42,8 +42,8 @@
     "test:unit": "cross-env NODE_ENV=test mocha --exit -r ts-node/register src/tests/unit/**/*.test.ts",
     "test:integration": "cross-env NODE_ENV=test mocha --timeout 20000 src/tests/integration/**/*.test.ts",
     "test:watch": "yarn test:unit --watch",
-    "coverage": "yarn test && nyc report",
-    "postcoverage": "open-cli coverage/lcov-report/index.html",
+    "test:coverage": "yarn test && nyc report",
+    "posttest:coverage": "open-cli coverage/lcov-report/index.html",
     "validate": "yarn lint && yarn test",
     "postpublish": "git push --tags"
   },
@@ -64,7 +64,7 @@
     "typescript"
   ],
   "dependencies": {
-    "apollo-server-express": "^2.9.12",
+    "apollo-server-express": "^2.9.15",
     "cross-env": "^6.0.3",
     "dot-object": "^2.1.2",
     "dotenv": "^8.2.0",
@@ -95,7 +95,7 @@
     "@types/node-fetch": "^2.5.4",
     "@typescript-eslint/eslint-plugin": "^2.9.0",
     "@typescript-eslint/parser": "^2.9.0",
-    "apollo-server-testing": "^2.9.14",
+    "apollo-server-integration-testing": "^2.3.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^6.7.2",
@@ -103,6 +103,7 @@
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-prettier": "^3.1.1",
+    "graphql-tag": "^2.10.1",
     "husky": "^3.1.0",
     "lint-staged": "^9.5.0",
     "mocha": "^6.2.2",
