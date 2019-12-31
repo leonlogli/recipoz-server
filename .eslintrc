@@ -8,8 +8,7 @@
   ],
   "parserOptions": {
     "ecmaVersion": 2020,
-    "sourceType": "module",
-    "project": "./tsconfig.json"
+    "sourceType": "module"
   },
   "env": {
     "node": true,
@@ -73,6 +72,14 @@
       { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
     ]
   },
+  "overrides": [
+    {
+      "files": ["*.test.ts", "*.test.js"],
+      "rules": {
+        "no-unused-expressions": 0
+      }
+    }
+  ],
   "settings": {
     "import/resolver": {
       "node": {
