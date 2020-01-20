@@ -1,13 +1,15 @@
 import { ApolloError } from 'apollo-server-express'
 import status from 'http-status'
 import mongoose, { Model } from 'mongoose'
+
 import {
   DocTransformOptions,
   dotify,
   i18n,
   QueryOptions,
-  transformDoc
-} from '.'
+  transformDoc,
+  Filter
+} from '..'
 
 export type ModelBaseOptions = {
   modelName: string
@@ -34,60 +36,11 @@ export type QueryFindOptions = {
 abstract class ModelBase {
   protected model: Model<any>
 
+  protected filterBuilder: Filter
+
   constructor(protected options: ModelBaseOptions) {
     this.model = mongoose.model(this.options.modelName)
-  }
-
-  get errorMessages() {
-    return this.options.errorMessages
-  }
-
-  get defaultPopulatePaths() {
-    return this.options.defaultPopulatePaths
-  }
-
-  get docTransformOptions() {
-    return this.options.docTransformOptions
-  }
-
-  get i18nFields() {
-    return this.docTransformOptions.i18nFields
-  }
-
-  get subDocs() {
-    return this.docTransformOptions.refDocs
-  }
-
-  get modelName() {
-    return this.options.modelName
-  }
-
-  get partialSearchFields() {
-    return this.options.partialSearchFields
-  }
-
-  get dataNotFound() {
-    const { dataNotFound } = this.options.errorMessages
-
-    return new ApolloError(i18n.t(dataNotFound), status['404_NAME'])
-  }
-
-  get dataToDeleteNotFound() {
-    const { dataNotFound, dataToDeleteNotFound } = this.options.errorMessages
-
-    return new ApolloError(
-      i18n.t(dataToDeleteNotFound || dataNotFound),
-      status['404_NAME']
-    )
-  }
-
-  get dataToUpdateNotFound() {
-    const { dataNotFound, dataToUpdateNotFound } = this.options.errorMessages
-
-    return new ApolloError(
-      i18n.t(dataToUpdateNotFound || dataNotFound),
-      status['404_NAME']
-    )
+    this.filterBuilder = new Filter(this.docTransformOptions)
   }
 
   abstract async findById(id: any): Promise<any>
@@ -125,6 +78,58 @@ abstract class ModelBase {
     return deletedCategory
       ? transformDoc(deletedCategory.toJSON(), this.docTransformOptions)
       : null
+  }
+
+  get errorMessages() {
+    return this.options.errorMessages
+  }
+
+  get defaultPopulatePaths() {
+    return this.options.defaultPopulatePaths
+  }
+
+  get docTransformOptions() {
+    return this.options.docTransformOptions
+  }
+
+  get i18nFields() {
+    return this.docTransformOptions.i18nFields
+  }
+
+  get refDocs() {
+    return this.docTransformOptions.refDocs
+  }
+
+  get modelName() {
+    return this.options.modelName
+  }
+
+  get partialSearchFields() {
+    return this.options.partialSearchFields
+  }
+
+  get dataNotFound() {
+    const { dataNotFound } = this.options.errorMessages
+
+    return new ApolloError(i18n.t(dataNotFound), status['404_NAME'])
+  }
+
+  get dataToDeleteNotFound() {
+    const { dataNotFound, dataToDeleteNotFound } = this.options.errorMessages
+
+    return new ApolloError(
+      i18n.t(dataToDeleteNotFound || dataNotFound),
+      status['404_NAME']
+    )
+  }
+
+  get dataToUpdateNotFound() {
+    const { dataNotFound, dataToUpdateNotFound } = this.options.errorMessages
+
+    return new ApolloError(
+      i18n.t(dataToUpdateNotFound || dataNotFound),
+      status['404_NAME']
+    )
   }
 }
 

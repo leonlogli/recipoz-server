@@ -25,11 +25,15 @@ const buildSortDirectives = (sort?: string, ...i18nFields: string[]) => {
     .join(' ')
 }
 
+/**
+ * Convert sort directives to object.
+ * Ex: sortDirectivesToObject('title -name') returns { title: 1, name: -1 }
+ * @param sortDirectives sort directives. Ex: 'title -name'
+ */
 const sortDirectivesToObject = (sortDirectives?: string) => {
   if (!sortDirectives) {
     return {}
   }
-
   const result: any = {}
 
   sortDirectives.split(' ').forEach(item => {

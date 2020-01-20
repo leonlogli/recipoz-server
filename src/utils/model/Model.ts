@@ -1,16 +1,16 @@
 import {
-  buildFilterQuery,
   sortDirectivesToObject,
   dotify,
   isString,
   QueryOptions,
   transformDoc,
   transformDocs,
-  buildQueryOptions,
   buildListDataResponse
-} from '.'
-import { logger } from '../config'
+} from '..'
+import { logger, DEFAULT_PAGE_SIZE } from '../../config'
 import ModelBase, { QueryFindOptions } from './ModelBase'
+import { buildSortDirectives } from '../sortHelper'
+import { Page } from '../docUtils'
 
 class Model extends ModelBase {
   private buildFindArgs = (criteria: any, sort?: string, filter?: any) => {
@@ -65,8 +65,28 @@ class Model extends ModelBase {
     return buildListDataResponse(data, count, page)
   }
 
+  private buildQueryOptions = async (queryOpts: QueryOptions) => {
+    if (!queryOpts) {
+      return {}
+    }
+    const sort = buildSortDirectives(queryOpts.sort, ...this.i18nFields)
+    let { page, filter } = queryOpts
+
+    filter = filter && (await this.filterBuilder.build(filter))
+
+    if (queryOpts.page) {
+      const { number, size } = queryOpts.page
+
+      page = {} as Page
+      page.number = number && number > 1 ? number : 1
+      page.size = size && size > 0 ? size : DEFAULT_PAGE_SIZE
+    } else page = undefined
+
+    return { sort, filter, page }
+  }
+
   find = async (criteria: any, options: QueryOptions) => {
-    const opts = await buildQueryOptions(options, this.docTransformOptions)
+    const opts = await this.buildQueryOptions(options)
     const { page, filter, sort } = opts
     const findArgs = this.buildFindArgs(criteria, sort, filter)
     const { data, count } = await this.findDocs(findArgs, page)
@@ -89,7 +109,7 @@ class Model extends ModelBase {
   }
 
   findOne = async (criteria: any, filter: string[]) => {
-    const filterExp = await buildFilterQuery(filter, this.docTransformOptions)
+    const filterExp = await this.filterBuilder.build(filter)
     const data = await this.model
       .findOne({ ...dotify(criteria), ...filterExp }, null, {
         populate: this.defaultPopulatePaths

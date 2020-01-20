@@ -1,13 +1,6 @@
 import mongoose from 'mongoose'
 
-import {
-  toLocale,
-  hasOwnProperty,
-  isString,
-  buildSortDirectives,
-  buildFilterQuery
-} from '.'
-import { DEFAULT_PAGE_SIZE } from '../config'
+import { toLocale, hasOwnProperty, isString } from '.'
 
 /**
  * Abstract interface for pagination information.
@@ -31,28 +24,6 @@ export interface QueryOptions {
 export type DocTransformOptions = {
   refDocs?: Record<string, string>[]
   i18nFields: string[]
-}
-
-const buildQueryOptions = async (
-  queryOpts: QueryOptions,
-  opts: DocTransformOptions
-) => {
-  if (!queryOpts) {
-    return {}
-  }
-  const sort = buildSortDirectives(queryOpts.sort, ...opts.i18nFields)
-  const filter = await buildFilterQuery(queryOpts.filter as any, opts)
-  let page
-
-  if (queryOpts.page) {
-    const { number, size } = queryOpts.page
-
-    page = {} as Page
-    page.number = number && number > 1 ? number : 1
-    page.size = size && size > 0 ? size : DEFAULT_PAGE_SIZE
-  } else page = undefined
-
-  return { sort, filter, page }
 }
 
 /**
@@ -122,7 +93,7 @@ const buildListDataResponse = (content: any[], count = 0, page?: Page) => {
   }
 }
 
-const findIds = async (criteria: any, modelName: string) => {
+const findDocAndSelectOnlyIds = async (criteria: any, modelName: string) => {
   return mongoose
     .model(modelName)
     .find(criteria, '_id', { lean: true })
@@ -133,6 +104,5 @@ export {
   transformDoc,
   transformDocs,
   buildListDataResponse,
-  buildQueryOptions,
-  findIds
+  findDocAndSelectOnlyIds
 }
