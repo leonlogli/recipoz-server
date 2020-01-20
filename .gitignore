@@ -49,3 +49,4 @@ jspm_packages
 # Others
 .python-version
 .netlify
+.vscode/settings.json
