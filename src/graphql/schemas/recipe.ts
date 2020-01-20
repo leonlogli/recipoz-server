@@ -23,13 +23,13 @@ export default gql`
 
   type RecipeIngredient {
     ingredient: Ingredient
-    quantity: number
+    quantity: Float
     unit: MeasureUnit
   }
 
   type RecipeUtensil {
     utensil: Utensil
-    quantity: number
+    quantity: Float
   }
 
   enum Cost {
