@@ -1,6 +1,6 @@
 {
-  "categoryName": {
-    "isMandatory" : "Le nom de la catégorie est obligatoire"
-  },
-  "categoryNotFound": "La catégorie est introuvable"
+  "categoryNameIsMandatory": "Le nom de la catégorie est obligatoire",
+  "categoryNotFound": "La catégorie est introuvable",
+  "categoryToUpdateNotFound": "La catégorie que vous essayez de mettre à jour est introuvable",
+  "categoryToDeleteNotFound": "La catégorie que vous essayez de supprimer est introuvable"
 }

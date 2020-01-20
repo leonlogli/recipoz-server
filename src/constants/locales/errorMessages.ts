@@ -1,6 +1,6 @@
 export default {
-  categoryName: {
-    isMandatory: 'categoryName.isMandatory'
-  },
-  categoryNotFound: 'categoryNotFound'
+  categoryNameIsMandatory: 'categoryNameIsMandatory',
+  categoryNotFound: 'categoryNotFound',
+  categoryToUpdateNotFound: 'categoryToUpdateNotFound',
+  categoryToDeleteNotFound: 'categoryToDeleteNotFound'
 }
