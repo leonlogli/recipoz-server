@@ -5,25 +5,25 @@ export default {
     category: async (parent, { id }) => {
       return categoryService.getCategoryById(id)
     },
-    categoryBy: async (parent, { criteria }) => {
-      return categoryService.getCategory(criteria)
+    categoryBy: async (parent, { criteria, filter }) => {
+      return categoryService.getCategory(criteria, filter)
     },
-    categories: async (parent, { criteria, sort }) => {
-      return categoryService.getCategories(criteria, { sort })
+    categories: async (parent, { criteria, options }) => {
+      return categoryService.getCategories(criteria, options)
     },
-    categoriesBy: async (parent, { criteria, sort }) => {
-      return categoryService.getCategories(criteria, { sort })
+    categoriesBy: async (parent, { criteria, options }) => {
+      return categoryService.getCategories(criteria, options)
     },
     pagedCategories: async (parent, { criteria, options }) => {
       return categoryService.getCategories(criteria, {
         ...options,
-        paginate: true
+        page: options.page || {}
       })
     },
     pagedCategoriesBy: async (parent, { criteria, options }) => {
       return categoryService.getCategories(criteria, {
         ...options,
-        paginate: true
+        page: options.page || {}
       })
     }
   },

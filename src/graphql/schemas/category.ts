@@ -3,42 +3,32 @@ import { gql } from 'apollo-server-express'
 export default gql`
   type Category {
     id: ID!
-    subCategory: SubCategory
+    parentCategory: ParentCategory
     name: String!
     description: String
     thumbnail: String!
   }
 
-  enum SubCategoryType {
-    MEAL_TYPE
-    DIET
-    DISH_TYPE
-    SEASONAL
-    COOKING_STYLE
-    HEALTH
-    CUISINE
-  }
-
-  type SubCategory {
-    type: SubCategoryType!
+  type ParentCategory {
+    id: ID
+    name: String
+    description: String
     thumbnail: String
   }
 
   type PagedCategories {
-    categories: [Category!]
-    totalItems: Int!
+    """
+    list of categories on this page
+    """
+    content: [Category!]
     page: Page!
-  }
-
-  input SubCategoryInput {
-    type: SubCategoryType
-    thumbnail: String
+    totalElements: Int!
   }
 
   input CategoryInput {
-    subCategory: SubCategoryInput
-    name: I18nInput
-    description: I18nInput
+    parentCategory: ID
+    name: I18n
+    description: I18n
     thumbnail: String
   }
 
@@ -48,13 +38,16 @@ export default gql`
 
   extend type Query {
     category(id: ID!): Category!
-    categoryBy(criteria: CategoryInput): Category!
-    categories(criteria: String, sort: String): [Category!]!
-    categoriesBy(criteria: CategoryInput, sort: String): [Category!]!
-    pagedCategories(criteria: String, options: PageableInput): PagedCategories!
+    categoryBy(criteria: CategoryInput, filter: [String]): Category!
+    categories(criteria: String, options: QueryOptions): [Category!]!
+    categoriesBy(criteria: CategoryInput, options: QueryOptions): [Category!]!
+    pagedCategories(
+      criteria: String
+      options: PagedQueryOptions
+    ): PagedCategories!
     pagedCategoriesBy(
       criteria: CategoryInput
-      options: PageableInput
+      options: PagedQueryOptions
     ): PagedCategories!
   }
 

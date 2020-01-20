@@ -4,21 +4,10 @@ import { UserInputError as Error } from 'apollo-server-express'
 import { i18n, supportedLanguages } from '../utils'
 import { errorMessages } from '../constants'
 
-export const subCategories = [
-  'MEAL_TYPE',
-  'DIET',
-  'DISH_TYPE',
-  'SEASONAL',
-  'COOKING_STYLE',
-  'HEALTH',
-  'CUISINE'
-] as const
+const { ObjectId } = Schema.Types
 
 export type CategoryDocument = Document & {
-  subCategory?: {
-    type: typeof subCategories[number]
-    thumbnail?: string
-  }
+  parentCategory?: CategoryDocument
   name: {
     en?: string
     fr?: string
@@ -31,10 +20,7 @@ export type CategoryDocument = Document & {
 }
 
 const categorySchema = new Schema({
-  subCategory: {
-    type: { type: String, enum: subCategories },
-    thumbnail: String
-  },
+  parentCategory: { type: ObjectId, ref: 'Category' },
   name: {
     en: {
       type: String,
@@ -60,16 +46,16 @@ const categorySchema = new Schema({
 
 categorySchema.index(
   {
-    'subCategory.type': 'text',
+    parentCategory: 'text',
     'name.en': 'text',
     'name.fr': 'text',
     'description.en': 'text'
   },
   {
     weights: {
-      'subCategory.type': 3,
-      name: 2,
-      description: 1
+      parentCategory: 1,
+      name: 3,
+      description: 2
     }
   }
 )
@@ -80,7 +66,7 @@ categorySchema.pre('validate', function validate(next) {
 
   return isValid
     ? next()
-    : next(new Error(i18n.t(errorMessages.categoryName.isMandatory)))
+    : next(new Error(i18n.t(errorMessages.categoryNameIsMandatory)))
 })
 
 export const Category = mongoose.model<CategoryDocument>(
