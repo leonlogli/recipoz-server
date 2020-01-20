@@ -1,2 +1,6 @@
 export * from './Util'
+export * from './docUtils'
 export * from './i18n'
+export * from './filterHelper'
+export * from './sortHelper'
+export * from './Model'
