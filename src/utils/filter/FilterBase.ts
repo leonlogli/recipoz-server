@@ -1,4 +1,5 @@
-import { DocTransformOptions, i18n, supportedLanguages } from '..'
+import { DocTransformOptions, i18n } from '..'
+import { isSupportedLanguage } from '../i18n'
 
 /**
  * Base class that handles filter operators and basic 'path & value' extractor
@@ -29,25 +30,28 @@ class FilterBase {
 
   constructor(protected options: DocTransformOptions) {}
 
-  protected convertFilterValue = (filter: FilterOperator, value: string) => {
-    switch (filter) {
+  protected convertFilterValue = (op: FilterOperator, value: string) => {
+    if (!op || !value) {
+      return null
+    }
+    switch (op) {
       case 'gt':
       case 'gte':
       case 'lt':
       case 'lte':
       case 'size':
-        return { [`$${filter}`]: Number(value) }
+        return { [`$${op}`]: Number(value) }
       case 'mod':
-        return { [`$${filter}`]: value.split(',').map(v => Number(v.trim())) }
+        return { [`$${op}`]: value.split(',').map(v => Number(v.trim())) }
       case 'in':
       case 'all':
       case 'nin':
-        return { [`$${filter}`]: value.split(',') }
+        return { [`$${op}`]: value.split(',') }
       case 'exists':
-        return { [`$${filter}`]: value === 'true' }
+        return { [`$${op}`]: value === 'true' }
       case 'eq':
       case 'ne':
-        return { [`$${filter}`]: value }
+        return { [`$${op}`]: value }
       case 'like':
         return { $regex: new RegExp(value, 'i') }
       case 'sw':
@@ -61,13 +65,11 @@ class FilterBase {
 
   protected formatIfI18nPath = (path: string) => {
     let _path = path
-    const pathLastElement: any = _path.split('.').pop()
-    const isI18nFieldPath = this.i18nFields.includes(pathLastElement)
+    const language: any = _path.split('.').pop()
+    const isI18nFieldPath = this.i18nFields.includes(language)
 
-    if (isI18nFieldPath) {
-      if (!supportedLanguages.some(lang => pathLastElement === lang)) {
-        _path = `${_path}.${i18n.currentLanguage}`
-      }
+    if (isI18nFieldPath && !isSupportedLanguage(language)) {
+      _path = `${_path}.${i18n.currentLanguage}`
     }
 
     return _path
@@ -76,28 +78,33 @@ class FilterBase {
   protected extractFilterElements = (filter: string) => {
     let value
     let path = ''
-    let invertFilterExp
-    const filterOperator = FilterBase.operators.find(exp =>
-      filter.includes(`${exp}:`)
-    )
-    let usedFilterIndex = filter.indexOf(`.${filterOperator}:`)
+    let operator: any
+    let invertOp = false
+    const filterParts = filter.split(':')
 
-    if (usedFilterIndex === -1) {
-      usedFilterIndex = filter.indexOf(`.!${filterOperator}:`)
-      invertFilterExp = true
-    }
+    if (filterParts.length === 2) {
+      value = filterParts[1].trim()
+      operator = filterParts[0].split('.').pop()
+      invertOp = operator?.startsWith('!')
 
-    if (filterOperator && usedFilterIndex !== -1) {
-      path = filter.substring(0, usedFilterIndex)
-      value = path && filter.substring(filter.indexOf(':') + 1, filter.length)
-      value = this.convertFilterValue(filterOperator, value)
-      if (invertFilterExp) {
+      operator = FilterBase.operators.find(
+        op => (invertOp ? `!${op}` : op) === operator
+      )
+
+      if (operator) {
+        path = filterParts[0].slice(0, -(operator.length + (invertOp ? 2 : 1)))
+      } else if (!invertOp) {
+        operator = 'eq'
+        path = filterParts[0]
+      }
+
+      value = this.convertFilterValue(operator as any, value)
+      if (invertOp && value) {
         value = { $not: value }
       }
     }
-    path = this.formatIfI18nPath(path)
 
-    return { filterOperator, path, value }
+    return { operator, value, path: this.formatIfI18nPath(path) }
   }
 
   get refDocs() {
