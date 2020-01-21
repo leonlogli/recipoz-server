@@ -4,14 +4,24 @@ import dotObject from 'dot-object'
  * Convert object to dotted-key/value pair
  * @param object object to convert
  */
-function dotify<T>(object?: T): T | undefined {
-  const { dot } = dotObject
-
+const dotify = (object?: any) => {
   if (!object) {
-    return object
+    return {}
   }
 
-  return dot(object)
+  return dotObject.dot(object)
+}
+
+/**
+ * Converts an object with dotted-key/value pairs to it's expanded version
+ * @param dotedObject object to convert
+ */
+const toNestedObject = (dotedObject?: Record<string, any>): any => {
+  if (!dotedObject) {
+    return {}
+  }
+
+  return dotObject.object(dotedObject)
 }
 
 const isString = (val: any) => {
@@ -27,4 +37,4 @@ const hasOwnProperty = (object: any, propertyKey: string) => {
   return Object.prototype.hasOwnProperty.call(object, propertyKey)
 }
 
-export { dotify, isString, hasOwnProperty }
+export { dotify, toNestedObject, isString, hasOwnProperty }
