@@ -29,14 +29,6 @@ class FilterBase {
 
   constructor(protected options: DocTransformOptions) {}
 
-  get refDocs() {
-    return this.options.refDocs
-  }
-
-  get i18nFields() {
-    return this.options.i18nFields
-  }
-
   protected convertFilterValue = (filter: FilterOperator, value: string) => {
     switch (filter) {
       case 'gt':
@@ -69,9 +61,11 @@ class FilterBase {
 
   protected formatIfI18nPath = (path: string) => {
     let _path = path
+    const pathLastElement: any = _path.split('.').pop()
+    const isI18nFieldPath = this.i18nFields.includes(pathLastElement)
 
-    if (this.i18nFields.includes(_path)) {
-      if (!supportedLanguages.some(lang => _path.split('.').pop() === lang)) {
+    if (isI18nFieldPath) {
+      if (!supportedLanguages.some(lang => pathLastElement === lang)) {
         _path = `${_path}.${i18n.currentLanguage}`
       }
     }
@@ -104,6 +98,14 @@ class FilterBase {
     path = this.formatIfI18nPath(path)
 
     return { filterOperator, path, value }
+  }
+
+  get refDocs() {
+    return this.options.refDocs
+  }
+
+  get i18nFields() {
+    return this.options.i18nFields
   }
 }
 
