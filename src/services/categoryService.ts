@@ -9,12 +9,7 @@ const {
 } = errorMessages
 
 const docTransformOptions: DocTransformOptions = {
-  i18nFields: [
-    'name',
-    'description',
-    'parentCategory.name',
-    'parentCategory.description'
-  ],
+  i18nFields: ['name', 'description'],
   refDocs: [{ parentCategory: 'Category' }]
 }
 
