@@ -110,11 +110,14 @@ class Model extends ModelBase {
 
   findOne = async (criteria: any, filter: string[]) => {
     const filterExp = await this.filterBuilder.build(filter)
+    const conditions = { ...dotify(criteria), ...filterExp }
+    const options = { populate: this.defaultPopulatePaths, lean: true }
+
+    if (!Object.entries(conditions).length) {
+      throw this.dataNotFound
+    }
     const data = await this.model
-      .findOne({ ...dotify(criteria), ...filterExp }, null, {
-        populate: this.defaultPopulatePaths
-      })
-      .lean()
+      .findOne(conditions, null, options)
       .orFail(this.dataNotFound)
       .exec()
 
