@@ -2,25 +2,16 @@ import { categoryService } from '../../services'
 
 export default {
   Query: {
-    category: async (parent, { id }) => {
+    categoryById: async (parent, { id }) => {
       return categoryService.getCategoryById(id)
     },
-    categoryBy: async (parent, { criteria, filter }) => {
+    category: async (parent, { criteria, filter }) => {
       return categoryService.getCategory(criteria, filter)
     },
     categories: async (parent, { criteria, options }) => {
       return categoryService.getCategories(criteria, options)
     },
-    categoriesBy: async (parent, { criteria, options }) => {
-      return categoryService.getCategories(criteria, options)
-    },
     pagedCategories: async (parent, { criteria, options }) => {
-      return categoryService.getCategories(criteria, {
-        ...options,
-        page: options.page || {}
-      })
-    },
-    pagedCategoriesBy: async (parent, { criteria, options }) => {
       return categoryService.getCategories(criteria, {
         ...options,
         page: options.page || {}

@@ -37,16 +37,11 @@ export default gql`
   #################################################
 
   extend type Query {
-    category(id: ID!): Category!
-    categoryBy(criteria: CategoryInput, filter: [String]): Category!
+    categoryById(id: ID!): Category!
+    category(criteria: CategoryInput, filter: [String]): Category!
     categories(criteria: String, options: QueryOptions): [Category!]!
-    categoriesBy(criteria: CategoryInput, options: QueryOptions): [Category!]!
     pagedCategories(
       criteria: String
-      options: PagedQueryOptions
-    ): PagedCategories!
-    pagedCategoriesBy(
-      criteria: CategoryInput
       options: PagedQueryOptions
     ): PagedCategories!
   }
