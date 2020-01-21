@@ -74,10 +74,7 @@ describe('filter query', () => {
   })
 
   it('should return empty object for bad filter expressions provided', async () => {
-    const result = await filterBuilder.build([
-      'name.en:lt:ali',
-      'title.as:abalo'
-    ])
+    const result = await filterBuilder.build(['name.en:lt:ali', 'title:post:'])
 
     expect(result).to.eql({})
   })
