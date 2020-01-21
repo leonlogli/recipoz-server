@@ -4,10 +4,10 @@ import { errorMessages } from '../../../constants'
 describe('isString test', () => {
   it('should dotify object', () => {
     expect(errorMessages).to.eql({
-      categoryName: {
-        isMandatory: 'categoryName.isMandatory'
-      },
-      categoryNotFound: 'categoryNotFound'
+      categoryNameIsMandatory: 'categoryNameIsMandatory',
+      categoryNotFound: 'categoryNotFound',
+      categoryToUpdateNotFound: 'categoryToUpdateNotFound',
+      categoryToDeleteNotFound: 'categoryToDeleteNotFound'
     })
   })
 })
