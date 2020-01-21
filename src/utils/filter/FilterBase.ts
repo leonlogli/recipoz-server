@@ -44,9 +44,9 @@ class FilterBase {
       case 'lt':
       case 'lte':
       case 'size':
-        return { [`$${filter}`]: Number(value) || value }
+        return { [`$${filter}`]: Number(value) }
       case 'mod':
-        return { [`$${filter}`]: value.split(',').map(v => Number(v) || v) }
+        return { [`$${filter}`]: value.split(',').map(v => Number(v.trim())) }
       case 'in':
       case 'all':
       case 'nin':
@@ -54,6 +54,7 @@ class FilterBase {
       case 'exists':
         return { [`$${filter}`]: value === 'true' }
       case 'eq':
+      case 'ne':
         return { [`$${filter}`]: value }
       case 'like':
         return { $regex: new RegExp(value, 'i') }

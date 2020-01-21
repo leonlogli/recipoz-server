@@ -54,7 +54,7 @@ abstract class ModelBase {
       .populate(this.options.defaultPopulatePaths)
       .execPopulate()
 
-    return transformDoc(createdCategory.toJSON(), this.docTransformOptions)
+    return transformDoc(createdCategory.toJSON(), this.i18nFields)
   }
 
   update = async (id: any, category: any) => {
@@ -65,7 +65,7 @@ abstract class ModelBase {
       .orFail(this.dataToUpdateNotFound)
       .exec()
 
-    return transformDoc(updatededCategory, this.docTransformOptions)
+    return transformDoc(updatededCategory, this.i18nFields)
   }
 
   delete = async (id: any) => {
@@ -76,7 +76,7 @@ abstract class ModelBase {
       .exec()
 
     return deletedCategory
-      ? transformDoc(deletedCategory.toJSON(), this.docTransformOptions)
+      ? transformDoc(deletedCategory.toJSON(), this.i18nFields)
       : null
   }
 

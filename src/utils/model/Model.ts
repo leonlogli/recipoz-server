@@ -42,7 +42,7 @@ class Model extends ModelBase {
     if (page) {
       query.limit(page.size).skip(page.size * (page.number - 1))
     }
-    const data = transformDocs(await query.exec(), this.docTransformOptions)
+    const data = transformDocs(await query.exec(), this.i18nFields)
 
     if (page && data.length) {
       count = await this.model.countDocuments(conditions).exec()
@@ -105,7 +105,7 @@ class Model extends ModelBase {
       .orFail(this.dataNotFound)
       .exec()
 
-    return transformDoc(data, this.docTransformOptions)
+    return transformDoc(data, this.i18nFields)
   }
 
   findOne = async (criteria: any, filter: string[]) => {
@@ -118,7 +118,7 @@ class Model extends ModelBase {
       .orFail(this.dataNotFound)
       .exec()
 
-    return transformDoc(data, this.docTransformOptions)
+    return transformDoc(data, this.i18nFields)
   }
 }
 
