@@ -31,14 +31,8 @@ export const toLocale = (record: any) => {
     return record
   }
 
-  let locale = APP_DEFAULT_LANGUAGE
-
-  if (i18n.currentLanguage) {
-    locale = i18n.currentLanguage.slice(0, 2)
-  }
-
   return (
-    record[locale as SupportedLanguage] ||
-    record[APP_DEFAULT_LANGUAGE as SupportedLanguage]
+    record[i18n.currentLanguage as SupportedLanguage] ||
+    record[i18n.currentLanguage.slice(0, 2) as SupportedLanguage]
   )
 }

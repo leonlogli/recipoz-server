@@ -19,6 +19,7 @@ app.use(helmet())
 // auth middleware
 app.use(authMiddleware.checkIfAuthenticated)
 
+// i18n middleware
 app.use(i18nextHandler, (req, res, next) => {
   i18n.currentLanguage = req.language as any
   i18n.t = req.t
