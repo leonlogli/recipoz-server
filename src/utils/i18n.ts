@@ -16,7 +16,11 @@ export type I18N = {
   t: (key: string, options?: any) => string
 }
 
-export const i18n: I18N = {
+const isSupportedLanguage = (language: string) => {
+  return supportedLanguages.some(lang => language === lang)
+}
+
+const i18n: I18N = {
   currentLanguage: APP_DEFAULT_LANGUAGE as any,
   t: () => ''
 }
@@ -26,7 +30,7 @@ export const i18n: I18N = {
  * Ex: toLocale({ en: 'data', fr: 'données' }) == 'data' in case the current locale is 'en'
  * @param record i18n object to format
  */
-export const toLocale = (record: any) => {
+const toLocale = (record: any) => {
   if (!record || isString(record)) {
     return record
   }
@@ -36,3 +40,5 @@ export const toLocale = (record: any) => {
     record[i18n.currentLanguage.slice(0, 2) as SupportedLanguage]
   )
 }
+
+export { i18n, toLocale, isSupportedLanguage }
