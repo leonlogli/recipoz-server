@@ -69,7 +69,9 @@ function transformDoc<T>(doc: any, i18nFields: string[]): T {
   if (!doc) {
     return doc
   }
-  const dotedDoc = dotify(doc)
+  // Dotify doc directly leads to unexpected result because _id is BSON Object.
+  // So we parse doc after stringifying it
+  const dotedDoc = dotify(JSON.parse(JSON.stringify(doc)))
   const _i18nFields = formatI18NFieldsArg(i18nFields)
 
   if (_i18nFields) {
