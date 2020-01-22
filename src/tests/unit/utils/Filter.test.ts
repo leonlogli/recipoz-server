@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { Filter } from '../../../utils'
+import { Filter } from '../../../utils/filter'
 
 describe('filter query', () => {
   const filterBuilder = new Filter({

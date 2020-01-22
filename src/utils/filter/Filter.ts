@@ -84,6 +84,9 @@ class Filter extends FilterBase {
   }
 
   build = async (filterCriteria: string[]) => {
+    if (!filterCriteria) {
+      return filterCriteria
+    }
     const result: any = {}
 
     for (const filter of filterCriteria) {
