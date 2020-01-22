@@ -16,13 +16,13 @@ export default gql`
     thumbnail: String
   }
 
-  type PagedCategories {
+  type Categories {
     """
-    list of categories on this page
+    Category list
     """
-    content: [Category!]
-    page: Page!
-    totalElements: Int!
+    content: [Category!]!
+    page: Page
+    totalElements: Int
   }
 
   input CategoryInput {
@@ -39,11 +39,8 @@ export default gql`
   extend type Query {
     categoryById(id: ID!): Category!
     category(criteria: CategoryInput, filter: [String]): Category!
-    categories(criteria: String, options: QueryOptions): [Category!]!
-    pagedCategories(
-      criteria: String
-      options: PagedQueryOptions
-    ): PagedCategories!
+    categories(criteria: CategoryInput, options: QueryOptions): Categories!
+    searchCategories(criteria: Search!, options: QueryOptions): Categories!
   }
 
   extend type Mutation {

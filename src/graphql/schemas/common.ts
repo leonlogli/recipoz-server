@@ -19,10 +19,9 @@ export default gql`
   }
 
   """
-  Pageable query criteria options
+  Query criteria options
   """
-  input PagedQueryOptions {
-    page: PageInput
+  input QueryOptions {
     """
     Sort directives: Ex: "name title" for ASC and "-name -title" for DESC
     """
@@ -34,20 +33,10 @@ export default gql`
     Ex: ["quantity.lt:50", "title.like:cook", "name.in:Ahmed,John", "quantity.!gte:50"]
     """
     filter: [String]
-  }
-
-  """
-  Query criteria options
-  """
-  input QueryOptions {
-    sort: String
     """
-    Filter criteria expressions. Any criteria expression is in the form 'field.operator:value'
-    where operator is one of 'exists', 'gt', 'gte', 'lt', 'all', 'in', 'nin', 'ne', 'like',
-    'size', 'eq', 'sw', 'ew' or any of these operatore prefixed by '!'
-    Ex: ["quantity.lt:50", "title.like:cook", "name.in:Ahmed,John", "quantity.!gte:50"]
+    Page infos
     """
-    filter: [String]
+    page: PageInput
   }
 
   """
@@ -56,5 +45,15 @@ export default gql`
   input I18n {
     en: String
     fr: String
+  }
+
+  input Search {
+    searchText: String!
+    searchType: SearchType
+  }
+
+  enum SearchType {
+    FULL_TEXT
+    PARTIAL_TEXT
   }
 `

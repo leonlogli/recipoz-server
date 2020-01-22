@@ -11,11 +11,8 @@ export default {
     categories: async (parent, { criteria, options }) => {
       return categoryService.getCategories(criteria, options)
     },
-    pagedCategories: async (parent, { criteria, options }) => {
-      return categoryService.getCategories(criteria, {
-        ...options,
-        page: options.page || {}
-      })
+    searchCategories: async (parent, { criteria, options }) => {
+      return categoryService.getCategories(criteria, options)
     }
   },
   Mutation: {
