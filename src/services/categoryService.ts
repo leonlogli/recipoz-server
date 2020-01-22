@@ -22,7 +22,7 @@ const partialSearchFields = [
 
 const categoryModel = new Model({
   modelName: 'Category',
-  defaultPopulatePaths: 'parentCategory',
+  populatePaths: 'parentCategory',
   docTransformOptions,
   partialSearchFields,
   errorMessages: {

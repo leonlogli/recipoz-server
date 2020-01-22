@@ -14,7 +14,7 @@ import {
 export type ModelBaseOptions = {
   modelName: string
   docTransformOptions: DocTransformOptions
-  defaultPopulatePaths: any
+  populatePaths: any
   partialSearchFields: string[]
   errorMessages: {
     dataNotFound: string
@@ -51,7 +51,7 @@ abstract class ModelBase {
 
   create = async (category: any) => {
     const createdCategory = await (await this.model.create(category))
-      .populate(this.options.defaultPopulatePaths)
+      .populate(this.options.populatePaths)
       .execPopulate()
 
     return transformDoc(createdCategory.toJSON(), this.i18nFields)
@@ -60,7 +60,7 @@ abstract class ModelBase {
   update = async (id: any, category: any) => {
     const updatededCategory = await this.model
       .findByIdAndUpdate(id, { $set: dotify(category) }, { new: true })
-      .populate(this.options.defaultPopulatePaths)
+      .populate(this.options.populatePaths)
       .lean()
       .orFail(this.dataToUpdateNotFound)
       .exec()
@@ -71,7 +71,7 @@ abstract class ModelBase {
   delete = async (id: any) => {
     const deletedCategory = await this.model
       .findByIdAndDelete(id)
-      .populate(this.options.defaultPopulatePaths)
+      .populate(this.options.populatePaths)
       .orFail(this.dataToDeleteNotFound)
       .exec()
 
@@ -84,8 +84,8 @@ abstract class ModelBase {
     return this.options.errorMessages
   }
 
-  get defaultPopulatePaths() {
-    return this.options.defaultPopulatePaths
+  get populatePaths() {
+    return this.options.populatePaths
   }
 
   get docTransformOptions() {

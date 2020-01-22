@@ -123,23 +123,6 @@ function transformDocs<T>(docs: T[], i18nFields: string[]): T[] {
   return docs.map(doc => transformDoc(doc, i18nFields))
 }
 
-const buildListDataResponse = (content: any[], count = 0, page?: Page) => {
-  if (!page) {
-    return content
-  }
-  const pageCount = Math.ceil(count / page.size)
-
-  return {
-    content,
-    page: {
-      number: page.number,
-      size: page.size,
-      count: pageCount
-    },
-    totalElements: count
-  }
-}
-
 const findDocAndSelectOnlyIds = async (criteria: any, modelName: string) => {
   return mongoose
     .model(modelName)
@@ -147,10 +130,4 @@ const findDocAndSelectOnlyIds = async (criteria: any, modelName: string) => {
     .exec()
 }
 
-export {
-  transformDoc,
-  transformDocs,
-  buildListDataResponse,
-  findDocAndSelectOnlyIds,
-  getRefPaths
-}
+export { transformDoc, transformDocs, findDocAndSelectOnlyIds, getRefPaths }
