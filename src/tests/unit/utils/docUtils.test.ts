@@ -1,16 +1,17 @@
 import { expect } from 'chai'
-import {
-  transformDoc,
-  transformDocs,
-  buildListDataResponse
-} from '../../../utils'
+import { transformDoc, transformDocs } from '../../../utils/docUtils'
 
 describe('doc utils', () => {
   it('should transform i18n doc', () => {
-    const doc = { _id: 1, name: { en: 'value', fr: 'valeur' }, age: 19 }
-    const result = transformDoc(doc, ['name'])
+    const doc = {
+      _id: 1,
+      name: { en: 'value', fr: 'valeur' },
+      title: { fr: 'titre' },
+      age: 19
+    }
+    const result = transformDoc(doc, ['name', 'title'])
 
-    expect(result).to.eql({ id: 1, name: 'value', age: 19 })
+    expect(result).to.eql({ id: 1, name: 'value', title: 'titre', age: 19 })
   })
 
   it('should transform nullable doc', () => {
@@ -95,23 +96,5 @@ describe('doc utils', () => {
       },
       { id: 2, name: 'value 2', age: 31 }
     ])
-  })
-
-  it('should build pageable response', () => {
-    const categories = [{ name: 'value 1' }, { name: 'value 2' }]
-    const result = buildListDataResponse(categories, 100, {
-      number: 1,
-      size: 20
-    })
-
-    expect(result).to.eql({
-      content: [{ name: 'value 1' }, { name: 'value 2' }],
-      page: {
-        number: 1,
-        size: 20,
-        count: 5
-      },
-      totalElements: 100
-    })
   })
 })
