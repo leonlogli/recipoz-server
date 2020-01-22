@@ -2,32 +2,23 @@ import { expect } from 'chai'
 
 import { ADD_CATEGORY, DELETE_CATEGORY, UPDATE_CATEGORY } from './graph'
 import { apolloClient as _ } from '../_.test'
-import { category } from './data'
+import { vege as category, addCategory } from './data'
 
 describe('Category graph ', () => {
   it('should save category', async () => {
     const res: any = await _.mutate(ADD_CATEGORY, { variables: { category } })
 
-    expect(res.data.addCategory).to.deep.include({
-      subCategory: { type: 'HEALTH' },
-      name: 'Vegetarian',
-      thumbnail: 'https://cloudinary.com/Vegetarian.jpg'
-    })
+    expect(res.data.addCategory).to.deep.include({ name: 'Vegetarian' })
   })
 
   it('should update category', async () => {
-    const m: any = await _.mutate(ADD_CATEGORY, { variables: { category } })
-    const { id } = m.data.addCategory
+    const id = await addCategory(category)
 
     const res: any = await _.mutate(UPDATE_CATEGORY, {
       variables: { id, category: { name: { en: 'Diabetic' } } }
     })
 
-    expect(res.data.updateCategory).to.deep.include({
-      subCategory: { type: 'HEALTH' },
-      name: 'Diabetic',
-      thumbnail: 'https://cloudinary.com/Vegetarian.jpg'
-    })
+    expect(res.data.updateCategory).to.deep.include({ name: 'Diabetic' })
   })
 
   it('should report error when updating non-existent category', async () => {
@@ -39,8 +30,7 @@ describe('Category graph ', () => {
   })
 
   it('should delete category', async () => {
-    const m: any = await _.mutate(ADD_CATEGORY, { variables: { category } })
-    const idOfCategoryToDelete = m.data.addCategory.id
+    const idOfCategoryToDelete = await addCategory(category)
 
     const res: any = await _.mutate(DELETE_CATEGORY, {
       variables: { id: idOfCategoryToDelete }
