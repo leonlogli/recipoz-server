@@ -12,9 +12,9 @@ import { Page } from '../docUtils'
 
 class Model extends ModelBase {
   private buildFindArgs = (criteria: any, sort?: string, filter?: any) => {
-    const { searchText, searchType } = criteria
+    const { searchText, searchType } = criteria || {}
     let projection
-    let conditions = { ...criteria, ...filter }
+    let conditions = { ...dotify(criteria), ...filter }
     let options = {
       sort: { ...sortDirectivesToObject(sort) },
       populate: this.populatePaths,
