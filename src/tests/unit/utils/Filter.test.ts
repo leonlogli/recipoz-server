@@ -18,7 +18,8 @@ describe('filter query', () => {
       'email.ew:com',
       'ingredient.!like:Onion',
       'tel.exists:true',
-      'tel.sw:06'
+      'tel.sw:06',
+      'tel:0606060606'
     ])
 
     expect(result).to.eql({
@@ -31,7 +32,7 @@ describe('filter query', () => {
       location: { $regex: /^South/i },
       email: { $regex: /com$/i },
       ingredient: { $not: { $regex: /Onion/i } },
-      tel: { $exists: true, $regex: /^06/i }
+      tel: { $exists: true, $regex: /^06/i, $eq: '0606060606' }
     })
   })
 
@@ -62,19 +63,23 @@ describe('filter query', () => {
   it('should build filter that contains multiple, meta operators', async () => {
     const result = await filterBuilder.build([
       'name.in:ahmed,ali',
-      'or:[quantity.gte:5;number.mod:2,0]',
+      'or:[quantity.gt:5;number.mod:2,0]',
       'and:[quantity.lt:5;number.mod:3,1]'
     ])
 
     expect(result).to.eql({
       name: { $in: ['ahmed', 'ali'] },
-      $or: [{ quantity: { $gte: 5 } }, { number: { $mod: [2, 0] } }],
+      $or: [{ quantity: { $gt: 5 } }, { number: { $mod: [2, 0] } }],
       $and: [{ quantity: { $lt: 5 } }, { number: { $mod: [3, 1] } }]
     })
   })
 
   it('should return empty object for bad filter expressions provided', async () => {
-    const result = await filterBuilder.build(['name.en:lt:ali', 'title:post:'])
+    const result = await filterBuilder.build([
+      'name.en:lt:ali',
+      'title',
+      'title.ab:node:'
+    ])
 
     expect(result).to.eql({})
   })
