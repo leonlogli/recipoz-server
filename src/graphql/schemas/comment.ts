@@ -4,7 +4,7 @@ export default gql`
   type Comment {
     id: ID!
     user: UserAccount!
-    on: ComentData!
+    onData: ComentData!
     content: String!
     attachmentUrl: String
     rating: Float
@@ -32,7 +32,7 @@ export default gql`
 
   input CommentInput {
     user: ID!
-    on: ID!
+    onData: ID!
     content: String
     attachmentUrl: String
     rating: Float

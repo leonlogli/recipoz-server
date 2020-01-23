@@ -17,7 +17,7 @@ type CommentReaction = {
 
 export type CommentDocument = Document & {
   user: UserAccountDocument
-  on: CategoryDocument | RecipeDocument
+  onData: CategoryDocument | RecipeDocument
   content: string
   attachmentUrl?: string
   rating?: number
@@ -29,7 +29,7 @@ export type CommentDocument = Document & {
 const commentSchema = new Schema(
   {
     user: { type: ObjectId, ref: 'UserAccount' },
-    on: { type: ObjectId, required: true, refPath: 'onModel' },
+    onData: { type: ObjectId, required: true, refPath: 'onModel' },
     onModel: { type: String, required: true, enum: ['Category', 'Recipe'] },
     rating: Number,
     content: { type: String, required: 'Content is mandatory' },
