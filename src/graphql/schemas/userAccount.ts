@@ -3,50 +3,29 @@ import { gql } from 'apollo-server-express'
 export default gql`
   type UserAccount {
     id: ID!
-    user: ID!
-    dailyRecipeViewCount: Int
-    followers: [UserAccount!]
-    followings: [UserAccount!]
-    addedRecipes: [Recipe!]
-    favoriteRecipes: [Recipe!]
-    triedRrecipes: [Recipe!]
-    preferences: Preference
-    setting: Setting
-  }
-
-  type UserAccountResponse {
-    id: ID!
     user: User!
-    dailyRecipeViewCount: Int
     followers: [UserAccount!]
     followings: [UserAccount!]
     addedRecipes: [Recipe!]
     favoriteRecipes: [Recipe!]
     triedRrecipes: [Recipe!]
-    preferences: Preference
-    setting: Setting
+    settings: Settings
   }
 
-  type Preference {
+  type Preferences {
     recipeCategories: [Category!]
   }
 
-  type Setting {
+  type Settings {
     notificationTypes: NotificationType
     language: SupportedLanguage
-    theme: string
+    theme: String
+    preferences: Preferences
   }
 
   input UserAccountInput {
-    user: User
-    dailyRecipeViewCount: Int
-    followers: [UserAccount!]
-    followings: [UserAccount!]
-    addedRecipes: [Recipe!]
-    favoriteRecipes: [Recipe!]
-    triedRrecipes: [Recipe!]
-    preferences: Preference
-    setting: Setting
+    user: ID!
+    settings: Settings
   }
 
   #################################################
@@ -59,7 +38,7 @@ export default gql`
   }
 
   extend type Mutation {
-    addUserAccount(userAccount: UserAccountInput): UserAccountResponse!
+    createUserAccount(userAccount: UserAccountInput): UserAccount!
     deleteUserAccount(id: ID!): ID!
     updateUserAccount(
       id: ID!

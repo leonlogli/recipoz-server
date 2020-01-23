@@ -8,6 +8,12 @@ export default gql`
     displayName: String
     phoneNumber: String
     photoURL: String
+    coverImageUrl: String
+    gender: String
+    location: String
+    website: String
+    aboutMe: String
+    socials: [String]
     disabled: Boolean!
     metadata: UserMetadata!
     providerData: [UserInfo!]
@@ -16,8 +22,10 @@ export default gql`
     tenantId: String
   }
 
-  # The user's custom claims object if available, typically used to define
-  # user roles and propagated to an authenticated user's ID token.
+  """
+  The user's custom claims object if available, typically used to define
+  user roles and propagated to an authenticated user's ID token.
+  """
   type CustomClaims {
     roles: [UserRole!]
   }
@@ -27,14 +35,18 @@ export default gql`
     USER
   }
 
-  # Additional metadata about the user.
+  """
+  Additional metadata about the user.
+  """
   type UserMetadata {
     lastSignInTime: String!
     creationTime: String!
   }
 
-  # Interface representing a user's info from a third-party identity
-  # provider such as Google or Facebook.
+  """
+  Interface representing a user's info from a third-party identity
+  provider such as Google or Facebook.
+  """
   type UserInfo {
     uid: String
     displayName: String
@@ -50,6 +62,15 @@ export default gql`
     expiresIn: String
   }
 
+  input UserInput {
+    email: String
+    password: String
+    phoneNumber: String
+    displayName: String
+    photoURL: String
+    emailVerified: boolean
+  }
+
   #################################################
   #      QUERY, MUTATION & SUBSCRIBTION
   #################################################
@@ -60,6 +81,6 @@ export default gql`
   }
 
   extend type Mutation {
-    register(email: String!, password: String!): User!
+    register(user: UserInput!): User!
   }
 `

@@ -18,13 +18,13 @@ export type UserAccountDocument = Document & {
   addedRecipes?: RecipeDocument[]
   favoriteRecipes?: RecipeDocument[]
   triedRrecipes?: RecipeDocument[]
-  preferences: {
-    recipeCategories?: CategoryDocument[]
-  }
-  setting: {
+  settings: {
     notificationTypes?: NotificationType[]
     language?: string
     theme?: string
+    preferences: {
+      recipeCategories?: CategoryDocument[]
+    }
   }
 }
 
@@ -37,13 +37,13 @@ const userAccountSchema = new Schema(
     addedRecipes: [{ type: ObjectId, ref: 'Recipe' }],
     favoriteRecipes: [{ type: ObjectId, ref: 'Recipe' }],
     triedRrecipes: [{ type: ObjectId, ref: 'Recipe' }],
-    preferences: {
-      recipeCategories: [{ type: ObjectId, ref: 'Category' }]
-    },
-    setting: {
+    settings: {
       notificationTypes: { type: [String], enum: notificationTypes },
       language: String,
-      theme: String
+      theme: String,
+      preferences: {
+        recipeCategories: [{ type: ObjectId, ref: 'Category' }]
+      }
     }
   },
   { timestamps: true }
