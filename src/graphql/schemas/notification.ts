@@ -3,10 +3,10 @@ import { gql } from 'apollo-server-express'
 export default gql`
   type Notification {
     id: ID!
-    notificationType: NotificationType!
+    type: NotificationType!
     actor: UserAccount!
     me: UserAccount!
-    data: NotificationData
+    data: NotificationData!
     unread: Boolean!
   }
 
@@ -22,10 +22,10 @@ export default gql`
   }
 
   input NotificationInput {
-    notificationType: NotificationType!
-    sourceUser: UserAccount!
-    comment: Comment
-    recipe: Recipe
+    data: ID
+    me: ID!
+    type: NotificationType!
+    actor: UserAccount!
     unread: Boolean
   }
 
@@ -39,8 +39,8 @@ export default gql`
   }
 
   extend type Mutation {
-    addNotification(Notification: NotificationInput): Notification!
-    updateNotification(id: ID!, Notification: NotificationInput): Notification!
+    addNotification(notification: NotificationInput): Notification!
+    updateNotification(id: ID!, notification: NotificationInput): Notification!
     deleteNotification(id: ID!): ID!
   }
 `

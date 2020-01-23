@@ -16,7 +16,7 @@ export const notificationTypes = [
 export type NotificationType = typeof notificationTypes[number]
 
 export type NotificationDocument = Document & {
-  notificationType: NotificationType
+  type: NotificationType
   actor: UserAccountDocument
   me: UserAccountDocument
   data: CommentDocument | RecipeDocument
@@ -25,20 +25,12 @@ export type NotificationDocument = Document & {
 
 const notificationSchema = new Schema(
   {
-    notificationType: { type: String, enum: notificationTypes },
-    data: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      refPath: 'dataModel'
-    },
-    dataModel: {
-      type: String,
-      required: true,
-      enum: ['Comment', 'Recipe']
-    },
+    type: { type: String, enum: notificationTypes },
     me: { type: ObjectId, ref: 'UserAccount' },
     actor: { type: ObjectId, ref: 'UserAccount' },
-    unread: { type: Boolean, default: true }
+    unread: { type: Boolean, default: true },
+    data: { type: ObjectId, refPath: 'dataModel' },
+    dataModel: { type: String, required: true, enum: ['Comment', 'Recipe'] }
   },
   { timestamps: true }
 )
