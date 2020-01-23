@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
 import { UserAccountDocument, RecipeDocument } from '.'
+import { CategoryDocument } from './Category'
 
 const { ObjectId } = Schema.Types
 
@@ -14,9 +15,9 @@ type CommentReaction = {
   user: UserAccountDocument
 }
 
-export interface CommentDocument extends Document {
+export type CommentDocument = Document & {
   user: UserAccountDocument
-  data: RecipeDocument
+  on: CategoryDocument | RecipeDocument
   content: string
   attachmentUrl?: string
   rating?: number
@@ -28,7 +29,8 @@ export interface CommentDocument extends Document {
 const commentSchema = new Schema(
   {
     user: { type: ObjectId, ref: 'UserAccount' },
-    data: { type: ObjectId, ref: 'Recipe' },
+    on: { type: ObjectId, required: true, refPath: 'onModel' },
+    onModel: { type: String, required: true, enum: ['Category', 'Recipe'] },
     rating: Number,
     content: { type: String, required: 'Content is mandatory' },
     attachmentUrl: String,
