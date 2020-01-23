@@ -9,6 +9,7 @@ const {
   JWT_SECRET,
   JWT_EXPIRATION,
   APP_DEFAULT_LANGUAGE,
+  ADMIN_EMAIL,
   NODE_ENV
 } = process.env
 
@@ -74,6 +75,7 @@ export {
   DEV_ENV,
   /** App default language */
   APP_DEFAULT_LANGUAGE,
+  ADMIN_EMAIL,
   USE_MEMORY_TEST_DB,
   DEFAULT_PAGE_SIZE,
   MONGO,
