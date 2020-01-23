@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import {
   CategoryDocument,
-  CommentDocument,
   IngredientDocument,
   MeasureUnitDocument,
   NutritionDocument,
@@ -27,13 +26,13 @@ export const costs = ['CHEAP', 'EXPENSIVE', 'VERY_EXPENSIVE'] as const
 
 export type Cost = typeof costs[number]
 
-type RecipeIngredient = {
+export type RecipeIngredient = {
   ingredient: IngredientDocument
   quantity: number
   unit: MeasureUnitDocument
 }
 
-type RecipeUtensil = {
+export type RecipeUtensil = {
   utensil: UtensilDocument
   quantity: number
 }
@@ -46,7 +45,6 @@ export type RecipeDocument = Document & {
   readyInMinutes?: number
   steps?: RecipeStepDocument[]
   categories?: CategoryDocument[]
-  tags: string[]
   ingredients: RecipeIngredient[]
   utensils?: RecipeUtensil[]
   isPrivate?: boolean
@@ -54,8 +52,6 @@ export type RecipeDocument = Document & {
   cost?: Cost
   additionalImages?: string[]
   nutrition?: NutritionDocument
-  reviews?: CommentDocument[]
-  reviewsCount: number
   poster?: UserAccountDocument
   source?: {
     websiteSource: RecipeSourceDocument
@@ -75,7 +71,6 @@ const recipeSchema = new Schema(
     steps: [recipeStepSchema],
     poster: { type: ObjectId, ref: 'UserAccount' },
     isPrivate: { type: Boolean, default: false },
-    viewsCount: Number,
     difficultyLevel: { type: String, enum: difficultyLevels },
     cost: { type: String, enum: costs },
     nutrition: nutritionSchema,
