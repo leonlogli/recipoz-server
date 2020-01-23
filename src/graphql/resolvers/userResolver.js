@@ -10,13 +10,13 @@ export default {
 
       return userService.getUser(id)
     },
-    getAccessToken: async (parent, { authToken }) => {
+    accessToken: async (parent, { authToken }) => {
       return authService.getAccessToken(authToken)
     }
   },
   Mutation: {
-    register: async (parent, { email, password }) => {
-      return authService.register({ email, password })
+    register: async (parent, { user }) => {
+      return authService.register(user)
     }
   }
 }

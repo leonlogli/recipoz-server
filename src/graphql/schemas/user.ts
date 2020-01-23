@@ -68,7 +68,7 @@ export default gql`
     phoneNumber: String
     displayName: String
     photoURL: String
-    emailVerified: boolean
+    emailVerified: Boolean
   }
 
   #################################################
@@ -77,7 +77,7 @@ export default gql`
 
   extend type Query {
     user(id: ID!): User!
-    getAccessToken(authToken: String!): Token!
+    accessToken(authToken: String!): Token!
   }
 
   extend type Mutation {
