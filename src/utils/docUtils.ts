@@ -156,7 +156,7 @@ function transformDoc<T>(doc: any, i18nFields: string[]): T {
  * @param i18nFields i18n fields
  */
 function transformDocs<T>(docs: T[], i18nFields: string[]): T[] {
-  if (!docs) {
+  if (!docs || !docs.length) {
     return docs
   }
 
