@@ -40,7 +40,7 @@
     "lint:watch": "yarn lint --watch",
     "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=lcov mocha --require ts-node/register --full-trace --bail --timeout 60000 --exit src/tests/**/*.test.ts",
     "test:unit": "cross-env NODE_ENV=test mocha --exit -r ts-node/register src/tests/unit/**/*.test.ts",
-    "test:integration": "cross-env NODE_ENV=test mocha --timeout 60000 src/tests/integration/**/*.test.ts",
+    "test:integration": "cross-env NODE_ENV=test mocha --exit -r ts-node/register --timeout 60000 src/tests/integration/**/*.test.ts",
     "test:watch": "yarn test:unit --watch",
     "test:coverage": "yarn test && nyc report",
     "posttest:coverage": "open-cli coverage/lcov-report/index.html",
