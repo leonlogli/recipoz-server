@@ -4,7 +4,8 @@ import {
   dotify,
   toLocale,
   i18n,
-  hasOwnProperty
+  hasOwnProperty,
+  toNestedObject
 } from '../../../utils'
 
 describe('utils', () => {
@@ -29,11 +30,19 @@ describe('utils', () => {
     })
   })
 
-  describe('isString test', () => {
+  describe('object test', () => {
     it('should dotify object', () => {
       const obj = { name: { en: 'value' } }
 
       expect(dotify(obj)).to.eql({ 'name.en': 'value' })
+      expect(dotify(null)).to.eql({})
+    })
+
+    it('should convert doted object to nested one', () => {
+      const obj = { 'name.en': 'value' }
+
+      expect(toNestedObject(obj)).to.eql({ name: { en: 'value' } })
+      expect(toNestedObject(undefined)).to.eql({})
     })
   })
 
