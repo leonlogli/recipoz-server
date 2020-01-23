@@ -1,7 +1,24 @@
 import { expect } from 'chai'
-import { transformDoc, transformDocs } from '../../../utils/docUtils'
+import {
+  transformDoc,
+  transformDocs,
+  getRefPaths
+} from '../../../utils/docUtils'
 
 describe('doc utils', () => {
+  it('should get ref doc paths', () => {
+    const res = getRefPaths({
+      i18nFields: [],
+      refDocs: [
+        { 'author/book': 'Author/Book' },
+        { 'profile.userInfo': 'UserInfo' }
+      ]
+    })
+
+    expect(res).to.eql(['author/book', 'profile.userInfo'])
+    expect(getRefPaths({ i18nFields: [] })).to.eql([])
+  })
+
   it('should transform i18n doc', () => {
     const doc = {
       _id: 1,
@@ -16,6 +33,7 @@ describe('doc utils', () => {
 
   it('should transform nullable doc', () => {
     expect(transformDoc(null, ['name'])).to.equal(null)
+    expect(transformDocs([], ['name'])).to.eql([])
   })
 
   it('should transform i18n doc with deep sub docs', () => {
