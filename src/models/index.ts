@@ -1,6 +1,6 @@
 export * from './User'
 export * from './Category'
-export * from './CategoryTracking'
+export * from './Tracking'
 export * from './Comment'
 export * from './Ingredient'
 export * from './MeasureUnit'

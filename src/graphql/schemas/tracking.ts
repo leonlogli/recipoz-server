@@ -1,24 +1,26 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
-  type CategoryTracking {
+  type Tracking {
     id: ID!
-    user: ID!
-    category: ID!
+    user: UserAccount!
+    data: TrackingData
     viewCount: Int
   }
+
+  union TrackingData = Category | Recipe
 
   #################################################
   #      QUERY, MUTATION & SUBSCRIBTION
   #################################################
 
   extend type Query {
-    categoryTracking(id: ID!): CategoryTracking!
-    categoryTrackings: [CategoryTracking!]!
+    Tracking(id: ID!): Tracking!
+    Trackings: [Tracking!]!
   }
 
   extend type Mutation {
-    incrementCategoryView(user: ID!, category: ID!): CategoryTracking!
-    deleteCategoryTracking(id: ID!): ID!
+    incrementDataViewCount(value: Int, data: ID!, user: ID): Tracking!
+    deleteTracking(id: ID!): ID!
   }
 `
