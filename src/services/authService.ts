@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken'
 import { ApolloError, AuthenticationError } from 'apollo-server-express'
-import { firebaseAdmin, logger, JWT } from '../config'
+
+import { firebaseAdmin, logger, JWT, ADMIN_EMAIL } from '../config'
 import { Role, User, UserDocument, Token } from '../models'
+import userService from './userService'
 
 const auth = firebaseAdmin.auth()
 
@@ -16,18 +18,22 @@ const isAdmin = (user: UserDocument): boolean => {
   return userRoles.includes('ADMIN')
 }
 
-/**
- * Overide user roles
- * @param user the user
- * @param roles the user role. Ex: 'ADMIN', 'USER'
- */
-const setRoles = async (user: UserDocument, roles: Role | [Role]) => {
+const addRoles = async (user: UserDocument, ...roles: Role[]) => {
   const claims: any = user.customClaims
   const userRoles = (claims && claims.roles) || []
-  const _roles = typeof roles === 'string' ? [roles] : roles
 
   auth.setCustomUserClaims(user.uid, {
-    roles: [...new Set([...userRoles, ..._roles])]
+    roles: [...new Set([...userRoles, ...roles])]
+  })
+}
+
+const removeRoles = async (user: UserDocument, ...roles: Role[]) => {
+  const claims: any = user.customClaims
+  const userRoles = (claims && claims.roles) || []
+  const _roles = userRoles.filter((role: Role) => !roles.includes(role))
+
+  auth.setCustomUserClaims(user.uid, {
+    roles: _roles
   })
 }
 
@@ -49,25 +55,25 @@ const register = async (data: firebaseAdmin.auth.CreateRequest) => {
 const getAccessToken = (authToken: string) => {
   return auth
     .verifyIdToken(authToken, true)
-    .then(payload => {
+    .then(async payload => {
       // authToken is valid. Generate access_token
+      const { uid: id, roles } = payload
       const accessToken = jwt.sign(
-        {
-          id: payload.uid,
-          roles: payload.roles,
-          iat: Math.floor(Date.now() / 1000)
-        },
+        { id, roles, iat: Math.floor(Date.now() / 1000) },
         JWT.SECRET,
         { expiresIn: JWT.EXPIRATION }
       )
+      const token = { type: 'Bearer', accessToken, expiresIn: JWT.EXPIRATION }
 
-      const token: Token = {
-        type: 'Bearer',
-        accessToken,
-        expiresIn: JWT.EXPIRATION
+      if (!roles.includes('USER')) {
+        const user = await userService.getUser(payload.uid)
+
+        if (user.email && user.email.trim() && user.email === ADMIN_EMAIL) {
+          addRoles(user, 'USER', 'ADMIN')
+        } else addRoles(user, 'USER')
       }
 
-      return token
+      return token as Token
     })
     .catch(error => {
       if (error.code === 'auth/id-token-revoked') {
@@ -106,5 +112,6 @@ export default {
   getAccessToken,
   isAdmin,
   revokeRefreshTokens,
-  setRoles
+  addRoles,
+  removeRoles
 }

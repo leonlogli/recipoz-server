@@ -4,7 +4,7 @@ import { AuthenticationError } from 'apollo-server-express'
 
 import { JWT } from '../config'
 
-const extractaccessToken = (req: any, res: Response, next: NextFunction) => {
+const extractAccessToken = (req: any, res: Response, next: NextFunction) => {
   const { authorization } = req.headers
   const authArray = authorization ? authorization.split(' ') : []
   const hasToken = authArray[0] === 'Bearer' || authArray[0] === 'JWT'
@@ -17,7 +17,7 @@ const extractaccessToken = (req: any, res: Response, next: NextFunction) => {
  * Ensure there is a valid accessToken in the request header.
  */
 const checkIfAuthenticated = (req: any, res: Response, next: NextFunction) => {
-  extractaccessToken(req, res, async () => {
+  extractAccessToken(req, res, async () => {
     try {
       const payload: any = jwt.verify(req.accessToken, JWT.SECRET)
 
