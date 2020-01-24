@@ -2,5 +2,9 @@
   "categoryNameIsMandatory": "Category name is mandatory",
   "categoryNotFound": "The category cannot be found",
   "categoryToUpdateNotFound": "The category you are trying to update cannot be found",
-  "categoryToDeleteNotFound": "The category you are trying to delete cannot be found"
+  "categoryToDeleteNotFound": "The category you are trying to delete cannot be found",
+  "ingredientNameIsMandatory": "Ingredient name is mandatory",
+  "ingredientNotFound": "The ingredient cannot be found",
+  "ingredientToUpdateNotFound": "The ingredient you are trying to update cannot be found",
+  "ingredientToDeleteNotFound": "The ingredient you are trying to remove cannot be found"
 }

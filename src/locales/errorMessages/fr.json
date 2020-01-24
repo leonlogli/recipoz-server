@@ -2,5 +2,9 @@
   "categoryNameIsMandatory": "Le nom de la catégorie est obligatoire",
   "categoryNotFound": "La catégorie est introuvable",
   "categoryToUpdateNotFound": "La catégorie que vous essayez de mettre à jour est introuvable",
-  "categoryToDeleteNotFound": "La catégorie que vous essayez de supprimer est introuvable"
+  "categoryToDeleteNotFound": "La catégorie que vous essayez de supprimer est introuvable",
+  "ingredientNameIsMandatory": "Le nom de l'ingrédient est obligatoire",
+  "ingredientNotFound": "L'ingrédient est introuvable",
+  "ingredientToUpdateNotFound": "L'ingrédient que vous essayez de mettre à jour est introuvable",
+  "ingredientToDeleteNotFound": "L'ingrédient que vous essayez de supprimer est introuvable"
 }
