@@ -7,7 +7,11 @@ describe('isString test', () => {
       categoryNameIsMandatory: 'categoryNameIsMandatory',
       categoryNotFound: 'categoryNotFound',
       categoryToUpdateNotFound: 'categoryToUpdateNotFound',
-      categoryToDeleteNotFound: 'categoryToDeleteNotFound'
+      categoryToDeleteNotFound: 'categoryToDeleteNotFound',
+      ingredientNameIsMandatory: 'ingredientNameIsMandatory',
+      ingredientNotFound: 'ingredientNotFound',
+      ingredientToDeleteNotFound: 'ingredientToDeleteNotFound',
+      ingredientToUpdateNotFound: 'ingredientToUpdateNotFound'
     })
   })
 })
