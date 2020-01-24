@@ -1,10 +1,10 @@
-import mongoose from 'mongoose'
+import mongoose, { Document } from 'mongoose'
 import { UserInputError as Error } from 'apollo-server-express'
 
 import { errorMessages } from '../constants'
 import { supportedLanguages, i18n } from '../utils'
 
-export type IngredientDocument = mongoose.Document & {
+export type IngredientDocument = Document & {
   name: {
     en?: string
     fr?: string
@@ -58,12 +58,20 @@ ingredientSchema.index(
 )
 
 ingredientSchema.pre('validate', function validate(next) {
-  const { name } = this as IngredientDocument
-  const isValid = supportedLanguages.some(lang => Boolean(name[lang]))
+  const { name, image } = this as IngredientDocument
+  const nameIsValid = supportedLanguages.some(
+    lang => name[lang] && name[lang]?.trim()
+  )
 
-  return isValid
-    ? next()
-    : next(new Error(i18n.t(errorMessages.ingredient.nameIsMandatory)))
+  if (!nameIsValid) {
+    return next(new Error(i18n.t(errorMessages.ingredient.nameIsMandatory)))
+  }
+
+  if (!image || !image.trim()) {
+    return next(new Error(i18n.t(errorMessages.ingredient.imageIsMandatory)))
+  }
+
+  return next()
 })
 
 export const Ingredient = mongoose.model<IngredientDocument>(
