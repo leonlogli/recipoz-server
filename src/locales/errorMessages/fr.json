@@ -6,5 +6,9 @@
   "ingredientNameIsMandatory": "Le nom de l'ingrédient est obligatoire",
   "ingredientNotFound": "L'ingrédient est introuvable",
   "ingredientToUpdateNotFound": "L'ingrédient que vous essayez de mettre à jour est introuvable",
-  "ingredientToDeleteNotFound": "L'ingrédient que vous essayez de supprimer est introuvable"
+  "ingredientToDeleteNotFound": "L'ingrédient que vous essayez de supprimer est introuvable",
+  "measureUnitNameIsMandatory": "Le nom de l'unité de mesure est obligatoire",
+  "measureUnitNotFound": "L'unité de mesure est introuvable",
+  "measureUnitToUpdateNotFound": "L'unité de mesure que vous essayez de mettre à jour est introuvable",
+  "measureUnitToDeleteNotFound": "L'unité de mesure que vous essayez de supprimer est introuvable"
 }

@@ -6,5 +6,9 @@
   "ingredientNameIsMandatory": "Ingredient name is mandatory",
   "ingredientNotFound": "The ingredient cannot be found",
   "ingredientToUpdateNotFound": "The ingredient you are trying to update cannot be found",
-  "ingredientToDeleteNotFound": "The ingredient you are trying to remove cannot be found"
+  "ingredientToDeleteNotFound": "The ingredient you are trying to remove cannot be found",
+  "measureUnitNameIsMandatory": "Measure unit name is mandatory",
+  "measureUnitNotFound": "The measure unit cannot be found",
+  "measureUnitToUpdateNotFound": "The measure unit you are trying to update cannot be found",
+  "measureUnitToDeleteNotFound": "The measure unit you are trying to remove cannot be found"
 }
