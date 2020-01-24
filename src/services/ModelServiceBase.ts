@@ -1,6 +1,6 @@
 import { ApolloError } from 'apollo-server-express'
 import status from 'http-status'
-import mongoose, { Model } from 'mongoose'
+import { Model } from 'mongoose'
 
 import {
   DocTransformOptions,
@@ -8,13 +8,13 @@ import {
   i18n,
   QueryOptions,
   transformDoc,
-  Filter
-} from '..'
+  Filter,
+  getRefPaths
+} from '../utils'
 
-export type ModelBaseOptions = {
-  modelName: string
+export type ModelServiceBaseOptions = {
+  model: Model<any>
   docTransformOptions: DocTransformOptions
-  populatePaths: any
   partialSearchFields: string[]
   errorMessages: {
     dataNotFound: string
@@ -33,13 +33,10 @@ export type QueryFindOptions = {
 /**
  * Base model with basic mutation methods
  */
-abstract class ModelBase {
-  protected model: Model<any>
-
+abstract class ModelServiceBase {
   protected filterBuilder: Filter
 
-  constructor(protected options: ModelBaseOptions) {
-    this.model = mongoose.model(this.options.modelName)
+  constructor(protected options: ModelServiceBaseOptions) {
     this.filterBuilder = new Filter(this.docTransformOptions)
   }
 
@@ -50,32 +47,39 @@ abstract class ModelBase {
   abstract async find(criteria: any, options: QueryOptions): Promise<any>
 
   create = async (category: any) => {
-    const createdCategory = await (await this.model.create(category))
-      .populate(this.options.populatePaths)
-      .execPopulate()
+    const createdCategory = await this.model.create(category)
 
-    return transformDoc(createdCategory, this.i18nFields)
+    if (this.populatePaths) {
+      createdCategory.populate(this.populatePaths)
+    }
+
+    return transformDoc(await createdCategory.execPopulate(), this.i18nFields)
   }
 
   update = async (id: any, category: any) => {
-    const updatededCategory = await this.model
+    const query = this.model
       .findByIdAndUpdate(id, { $set: dotify(category) }, { new: true })
-      .populate(this.options.populatePaths)
       .lean()
       .orFail(this.dataToUpdateNotFound)
-      .exec()
 
-    return transformDoc(updatededCategory, this.i18nFields)
+    if (this.populatePaths) {
+      query.populate(this.populatePaths)
+    }
+
+    return transformDoc(await query.exec(), this.i18nFields)
   }
 
   delete = async (id: any) => {
-    const deletedCategory = await this.model
+    const query = this.model
       .findByIdAndDelete(id)
-      .populate(this.options.populatePaths)
+      .lean()
       .orFail(this.dataToDeleteNotFound)
-      .exec()
 
-    return transformDoc(deletedCategory, this.i18nFields)
+    if (this.populatePaths) {
+      query.populate(this.populatePaths)
+    }
+
+    return transformDoc(await query.exec(), this.i18nFields)
   }
 
   get errorMessages() {
@@ -83,7 +87,7 @@ abstract class ModelBase {
   }
 
   get populatePaths() {
-    return this.options.populatePaths
+    return getRefPaths(this.options.docTransformOptions)[0]
   }
 
   get docTransformOptions() {
@@ -98,8 +102,8 @@ abstract class ModelBase {
     return this.docTransformOptions.refDocs
   }
 
-  get modelName() {
-    return this.options.modelName
+  get model() {
+    return this.options.model
   }
 
   get partialSearchFields() {
@@ -131,5 +135,5 @@ abstract class ModelBase {
   }
 }
 
-export { ModelBase }
-export default ModelBase
+export { ModelServiceBase }
+export default ModelServiceBase

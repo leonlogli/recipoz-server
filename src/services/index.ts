@@ -1,3 +1,6 @@
 export { default as userService } from './userService'
 export { default as categoryService } from './categoryService'
+export { default as ingredientService } from './ingredientService'
 export { default as authService } from './authService'
+export * from './ModelService'
+export * from './ModelServiceBase'

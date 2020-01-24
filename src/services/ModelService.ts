@@ -4,13 +4,13 @@ import {
   QueryOptions,
   transformDoc,
   transformDocs
-} from '..'
-import { DEFAULT_PAGE_SIZE } from '../../config'
-import ModelBase, { QueryFindOptions } from './ModelBase'
-import { buildSortDirectives } from '../sortHelper'
-import { Page } from '../docUtils'
+} from '../utils'
+import { DEFAULT_PAGE_SIZE } from '../config'
+import ModelServiceBase, { QueryFindOptions } from './ModelServiceBase'
+import { buildSortDirectives } from '../utils/sortHelper'
+import { Page } from '../utils/docUtils'
 
-class Model extends ModelBase {
+class ModelService extends ModelServiceBase {
   private buildFindArgs = (criteria: any, sort?: string, filter?: any) => {
     const { searchText, searchType } = criteria || {}
     let projection
@@ -18,6 +18,7 @@ class Model extends ModelBase {
     let options = {
       sort: { ...sortDirectivesToObject(sort) },
       populate: this.populatePaths,
+      ...(Boolean(this.populatePaths) && { populate: this.populatePaths }),
       lean: true
     }
 
@@ -82,8 +83,10 @@ class Model extends ModelBase {
 
   findById = async (id: any) => {
     const data = await this.model
-      .findById(id, null, { populate: this.populatePaths })
-      .lean()
+      .findById(id, null, {
+        lean: true,
+        ...(Boolean(this.populatePaths) && { populate: this.populatePaths })
+      })
       .orFail(this.dataNotFound)
       .exec()
 
@@ -93,7 +96,10 @@ class Model extends ModelBase {
   findOne = async (criteria: any, filter: string[]) => {
     const filterExp = await this.filterBuilder.build(filter)
     const conditions = { ...dotify(criteria), ...filterExp }
-    const options = { populate: this.populatePaths, lean: true }
+    const options = {
+      ...(Boolean(this.populatePaths) && { populate: this.populatePaths }),
+      lean: true
+    }
 
     if (!Object.entries(conditions).length) {
       throw this.dataNotFound
@@ -120,5 +126,5 @@ class Model extends ModelBase {
   }
 }
 
-export { Model }
-export default Model
+export { ModelService }
+export default ModelService

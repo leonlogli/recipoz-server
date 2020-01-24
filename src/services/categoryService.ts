@@ -1,11 +1,12 @@
 import { errorMessages } from '../constants'
-import { CategoryDocument } from '../models'
-import { Model, QueryOptions, DocTransformOptions } from '../utils'
+import { CategoryDocument, Category } from '../models'
+import { QueryOptions, DocTransformOptions } from '../utils'
+import ModelService from './ModelService'
 
 const {
-  categoryNotFound,
-  categoryToDeleteNotFound,
-  categoryToUpdateNotFound
+  categoryNotFound: dataNotFound,
+  categoryToDeleteNotFound: dataToDeleteNotFound,
+  categoryToUpdateNotFound: dataToUpdateNotFound
 } = errorMessages
 
 const docTransformOptions: DocTransformOptions = {
@@ -20,16 +21,11 @@ const partialSearchFields = [
   'description.fr'
 ]
 
-const categoryModel = new Model({
-  modelName: 'Category',
-  populatePaths: 'parentCategory',
+const categoryModel = new ModelService({
+  model: Category,
   docTransformOptions,
   partialSearchFields,
-  errorMessages: {
-    dataNotFound: categoryNotFound,
-    dataToDeleteNotFound: categoryToDeleteNotFound,
-    dataToUpdateNotFound: categoryToUpdateNotFound
-  }
+  errorMessages: { dataNotFound, dataToDeleteNotFound, dataToUpdateNotFound }
 })
 
 const getCategoryById = async (id: any) => {
