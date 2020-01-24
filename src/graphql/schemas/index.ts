@@ -3,6 +3,7 @@ import { gql } from 'apollo-server-express'
 import userSchema from './user'
 import category from './category'
 import ingredient from './ingredient'
+import measureUnit from './measureUnit'
 import common from './common'
 
 const linkSchema = gql`
@@ -14,4 +15,11 @@ const linkSchema = gql`
   }
 `
 
-export default [linkSchema, common, userSchema, category, ingredient]
+export default [
+  linkSchema,
+  common,
+  userSchema,
+  category,
+  ingredient,
+  measureUnit
+]

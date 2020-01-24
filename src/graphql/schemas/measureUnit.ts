@@ -7,7 +7,7 @@ export default gql`
     description: String
   }
 
-  type Categories {
+  type MeasureUnits {
     """
     MeasureUnit list
     """
@@ -17,8 +17,8 @@ export default gql`
   }
 
   input MeasureUnitInput {
-    name: String
-    description: String
+    name: I18n
+    description: I18n
   }
 
   #################################################
@@ -31,8 +31,8 @@ export default gql`
     measureUnits(
       criteria: MeasureUnitInput
       options: QueryOptions
-    ): MeasureUnit!
-    searchMeasureUnits(criteria: Search!, options: QueryOptions): MeasureUnit!
+    ): MeasureUnits!
+    searchMeasureUnits(criteria: Search!, options: QueryOptions): MeasureUnits!
   }
 
   extend type Mutation {
