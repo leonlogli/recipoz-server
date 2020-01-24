@@ -46,16 +46,17 @@ const categorySchema = new Schema({
 
 categorySchema.index(
   {
-    parentCategory: 'text',
     'name.en': 'text',
     'name.fr': 'text',
-    'description.en': 'text'
+    'description.en': 'text',
+    'description.fr': 'text'
   },
   {
     weights: {
-      parentCategory: 1,
-      name: 3,
-      description: 2
+      'name.en': 3,
+      'name.fr': 3,
+      'description.en': 2,
+      'description.fr': 2
     }
   }
 )
