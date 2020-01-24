@@ -4,10 +4,10 @@ import { QueryOptions, DocTransformOptions } from '../utils'
 import ModelService from './ModelService'
 
 const {
-  ingredientNotFound: dataNotFound,
-  ingredientToDeleteNotFound: dataToDeleteNotFound,
-  ingredientToUpdateNotFound: dataToUpdateNotFound
-} = errorMessages
+  notFound: dataNotFound,
+  deleteNotFound: dataToDeleteNotFound,
+  updateNotFound: dataToUpdateNotFound
+} = errorMessages.ingredient
 
 const docTransformOptions: DocTransformOptions = {
   i18nFields: ['name', 'description']

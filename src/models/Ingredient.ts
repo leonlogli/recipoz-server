@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import { UserInputError as Error } from 'apollo-server-express'
+
 import { errorMessages } from '../constants'
 import { supportedLanguages, i18n } from '../utils'
 
@@ -61,7 +63,7 @@ ingredientSchema.pre('validate', function validate(next) {
 
   return isValid
     ? next()
-    : next(new Error(i18n.t(errorMessages.ingredientNameIsMandatory)))
+    : next(new Error(i18n.t(errorMessages.ingredient.nameIsMandatory)))
 })
 
 export const Ingredient = mongoose.model<IngredientDocument>(

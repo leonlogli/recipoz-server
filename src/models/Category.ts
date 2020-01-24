@@ -67,7 +67,7 @@ categorySchema.pre('validate', function validate(next) {
 
   return isValid
     ? next()
-    : next(new Error(i18n.t(errorMessages.categoryNameIsMandatory)))
+    : next(new Error(i18n.t(errorMessages.category.nameIsMandatory)))
 })
 
 export const Category = mongoose.model<CategoryDocument>(
