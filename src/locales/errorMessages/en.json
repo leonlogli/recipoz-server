@@ -1,14 +1,21 @@
 {
   "categoryNameIsMandatory": "Category name is mandatory",
+  "categoryThumbnailIsMandatory": "Category thumbnail is mandatory",
   "categoryNotFound": "The category cannot be found",
   "categoryToUpdateNotFound": "The category you are trying to update cannot be found",
   "categoryToDeleteNotFound": "The category you are trying to delete cannot be found",
   "ingredientNameIsMandatory": "Ingredient name is mandatory",
+  "ingredientImageIsMandatory": "Ingredient image is mandatory",
   "ingredientNotFound": "The ingredient cannot be found",
   "ingredientToUpdateNotFound": "The ingredient you are trying to update cannot be found",
   "ingredientToDeleteNotFound": "The ingredient you are trying to remove cannot be found",
   "measureUnitNameIsMandatory": "Measure unit name is mandatory",
   "measureUnitNotFound": "The measure unit cannot be found",
   "measureUnitToUpdateNotFound": "The measure unit you are trying to update cannot be found",
-  "measureUnitToDeleteNotFound": "The measure unit you are trying to remove cannot be found"
+  "measureUnitToDeleteNotFound": "The measure unit you are trying to remove cannot be found",
+  "utensilNameIsMandatory": "Utensil name is mandatory",
+  "utensilImageIsMandatory": "Utensil image is mandatory",
+  "utensilNotFound": "The utensil cannot be found",
+  "utensilToUpdateNotFound": "The utensil you are trying to update cannot be found",
+  "utensilToDeleteNotFound": "The utensil you are trying to remove cannot be found"
 }
