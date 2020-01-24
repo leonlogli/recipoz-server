@@ -62,12 +62,20 @@ categorySchema.index(
 )
 
 categorySchema.pre('validate', function validate(next) {
-  const { name } = this as CategoryDocument
-  const isValid = supportedLanguages.some(lang => Boolean(name[lang]))
+  const { name, thumbnail } = this as CategoryDocument
+  const nameIsValid = supportedLanguages.some(
+    lang => name[lang] && name[lang]?.trim()
+  )
 
-  return isValid
-    ? next()
-    : next(new Error(i18n.t(errorMessages.category.nameIsMandatory)))
+  if (!nameIsValid) {
+    return next(new Error(i18n.t(errorMessages.category.nameIsMandatory)))
+  }
+
+  if (!thumbnail || !thumbnail.trim()) {
+    return next(new Error(i18n.t(errorMessages.category.thumbnailIsMandatory)))
+  }
+
+  return next()
 })
 
 export const Category = mongoose.model<CategoryDocument>(
