@@ -30,6 +30,13 @@ describe('isString test', () => {
         notFound: 'measureUnitNotFound',
         updateNotFound: 'measureUnitToUpdateNotFound',
         deleteNotFound: 'measureUnitToDeleteNotFound'
+      },
+      nutrient: {
+        nameIsMandatory: 'nutrientNameIsMandatory',
+        codeIsMandatory: 'nutrientCodeIsMandatory',
+        notFound: 'nutrientNotFound',
+        updateNotFound: 'nutrientToUpdateNotFound',
+        deleteNotFound: 'nutrientToDeleteNotFound'
       }
     })
   })

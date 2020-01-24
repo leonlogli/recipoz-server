@@ -17,5 +17,10 @@
   "utensilImageIsMandatory": "Utensil image is mandatory",
   "utensilNotFound": "The utensil cannot be found",
   "utensilToUpdateNotFound": "The utensil you are trying to update cannot be found",
-  "utensilToDeleteNotFound": "The utensil you are trying to remove cannot be found"
+  "utensilToDeleteNotFound": "The utensil you are trying to remove cannot be found",
+  "nutrientNameIsMandatory": "Nutrient name is mandatory",
+  "nutrientCodeIsMandatory": "Nutrient code is mandatory",
+  "nutrientNotFound": "The nutrient cannot be found",
+  "nutrientToUpdateNotFound": "The nutrient you are trying to update cannot be found",
+  "nutrientToDeleteNotFound": "The nutrient you are trying to remove cannot be found"
 }
