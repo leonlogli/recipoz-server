@@ -50,7 +50,7 @@ export const SEARCH_CATEGORIES = gql`
 `
 
 export const ADD_CATEGORY = gql`
-  mutation addCategory($category: CategoryInput) {
+  mutation addCategory($category: CategoryInput!) {
     addCategory(category: $category) {
       id
       name
@@ -59,7 +59,7 @@ export const ADD_CATEGORY = gql`
 `
 
 export const UPDATE_CATEGORY = gql`
-  mutation updateCategory($id: ID!, $category: CategoryInput) {
+  mutation updateCategory($id: ID!, $category: CategoryInput!) {
     updateCategory(id: $id, category: $category) {
       id
       name
