@@ -7,8 +7,17 @@ export default gql`
     code: String!
   }
 
+  type Nutrients {
+    """
+    Nutrient list
+    """
+    content: [Nutrient!]!
+    page: Page
+    totalElements: Int
+  }
+
   input NutrientInput {
-    name: String
+    name: I18n
     code: String
   }
 
@@ -17,13 +26,15 @@ export default gql`
   #################################################
 
   extend type Query {
-    nutrient(id: ID!): Nutrient!
-    nutrients: [Nutrient!]!
+    nutrientById(id: ID!): Nutrient!
+    nutrient(criteria: NutrientInput, filter: [String]): Nutrient!
+    nutrients(criteria: NutrientInput, options: QueryOptions): Nutrients!
+    searchNutrients(criteria: Search!, options: QueryOptions): Nutrients!
   }
 
   extend type Mutation {
-    addNutrient(nutrient: NutrientInput): Nutrient!
-    updateNutrient(id: ID!, nutrient: NutrientInput): Nutrient!
-    deleteNutrient(id: ID!): ID!
+    addNutrient(nutrient: NutrientInput!): Nutrient!
+    updateNutrient(id: ID!, nutrient: NutrientInput!): Nutrient!
+    deleteNutrient(id: ID!): Nutrient!
   }
 `
