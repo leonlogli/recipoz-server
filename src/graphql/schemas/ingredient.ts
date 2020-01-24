@@ -8,9 +8,18 @@ export default gql`
     image: String
   }
 
+  type Ingredients {
+    """
+    Ingredient list
+    """
+    content: [Ingredient!]!
+    page: Page
+    totalElements: Int
+  }
+
   input IngredientInput {
-    name: String
-    description: String
+    name: I18n
+    description: I18n
     image: String
   }
 
@@ -19,13 +28,15 @@ export default gql`
   #################################################
 
   extend type Query {
-    ingredient(id: ID!): Ingredient!
-    ingredients: [Ingredient!]!
+    ingredientById(id: ID!): Ingredient!
+    ingredient(criteria: IngredientInput, filter: [String]): Ingredient!
+    ingredients(criteria: IngredientInput, options: QueryOptions): Ingredients!
+    searchIngredients(criteria: Search!, options: QueryOptions): Ingredients!
   }
 
   extend type Mutation {
-    addIngredient(ingredient: IngredientInput): Ingredient!
-    updateIngredient(id: ID!, ingredient: IngredientInput): Ingredient!
-    deleteIngredient(id: ID!): ID!
+    addIngredient(ingredient: IngredientInput!): Ingredient!
+    updateIngredient(id: ID!, ingredient: IngredientInput!): Ingredient!
+    deleteIngredient(id: ID!): Ingredient!
   }
 `
