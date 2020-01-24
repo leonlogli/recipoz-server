@@ -4,6 +4,7 @@ import userSchema from './user'
 import category from './category'
 import ingredient from './ingredient'
 import measureUnit from './measureUnit'
+import utensil from './utensil'
 import common from './common'
 
 const linkSchema = gql`
@@ -21,5 +22,6 @@ export default [
   userSchema,
   category,
   ingredient,
-  measureUnit
+  measureUnit,
+  utensil
 ]

@@ -8,9 +8,18 @@ export default gql`
     image: String
   }
 
+  type Utensils {
+    """
+    Utensil list
+    """
+    content: [Utensil!]!
+    page: Page
+    totalElements: Int
+  }
+
   input UtensilInput {
-    name: String
-    description: String
+    name: I18n
+    description: I18n
     image: String
   }
 
@@ -19,13 +28,15 @@ export default gql`
   #################################################
 
   extend type Query {
-    utensil(id: ID!): Utensil!
-    utensils: [Utensil!]!
+    utensilById(id: ID!): Utensil!
+    utensil(criteria: UtensilInput, filter: [String]): Utensil!
+    utensils(criteria: UtensilInput, options: QueryOptions): Utensils!
+    searchUtensils(criteria: Search!, options: QueryOptions): Utensils!
   }
 
   extend type Mutation {
-    addUtensil(utensil: UtensilInput): Utensil!
-    updateUtensil(id: ID!, utensil: UtensilInput): Utensil!
-    deleteUtensil(id: ID!): ID!
+    addUtensil(utensil: UtensilInput!): Utensil!
+    updateUtensil(id: ID!, utensil: UtensilInput!): Utensil!
+    deleteUtensil(id: ID!): Utensil!
   }
 `
