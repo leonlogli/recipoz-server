@@ -7,7 +7,6 @@ export default gql`
     description: String
     image: String
     servings: Int
-    source: Source
     readyInMinutes: Int
     steps: [RecipeStep!]
     categories: [Category!]
@@ -19,6 +18,20 @@ export default gql`
     additionalImages: [String]
     nutrition: Nutrition
     poster: UserAccount
+    from: RecipeSource
+  }
+
+  enum Cost {
+    CHEAP
+    EXPENSIVE
+    VERY_EXPENSIVE
+  }
+
+  enum DifficultyLevel {
+    TOO_EASY
+    EASY
+    DIFFICULT
+    VERY_DIFFICULT
   }
 
   type RecipeIngredient {
@@ -32,28 +45,15 @@ export default gql`
     quantity: Float
   }
 
-  enum Cost {
-    CHEAP
-    EXPENSIVE
-    VERY_EXPENSIVE
+  type RecipeSource {
+    source: Source
+    url: String
   }
 
   type RecipeStep {
     number: Int!
     instructions: String!
     image: String
-  }
-
-  enum DifficultyLevel {
-    TOO_EASY
-    EASY
-    DIFFICULT
-    VERY_DIFFICULT
-  }
-
-  type Source {
-    websiteSource: RecipeSource!
-    recipeUrl: String!
   }
 
   type Nutrition {

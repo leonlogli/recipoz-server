@@ -1,15 +1,15 @@
 import mongoose, { Document, Schema } from 'mongoose'
+
 import {
   CategoryDocument,
   IngredientDocument,
   MeasureUnitDocument,
   NutritionDocument,
   nutritionSchema,
-  RecipeSourceDocument,
+  SourceDocument,
   UserAccountDocument,
   UtensilDocument
 } from '.'
-import { recipeStepSchema, RecipeStepDocument } from './RecipeStep'
 
 const { ObjectId } = Schema.Types
 
@@ -37,6 +37,17 @@ export type RecipeUtensil = {
   quantity: number
 }
 
+export type RecipeStepDocument = {
+  number: number
+  instructions: string
+  image?: string
+}
+
+export type RecipeSourceDocument = {
+  source?: SourceDocument
+  url?: string
+}
+
 export type RecipeDocument = Document & {
   name: string
   description?: string
@@ -53,10 +64,7 @@ export type RecipeDocument = Document & {
   additionalImages?: string[]
   nutrition?: NutritionDocument
   poster?: UserAccountDocument
-  source?: {
-    websiteSource: RecipeSourceDocument
-    recipeUrl: string
-  }
+  from?: RecipeSourceDocument
 }
 
 const recipeSchema = new Schema(
@@ -65,19 +73,26 @@ const recipeSchema = new Schema(
     description: String,
     categories: [{ type: ObjectId, ref: 'Category' }],
     image: { type: String, required: 'Image is mandatory' },
+    video: String,
     servings: Number,
     readyInMinutes: Number,
     additionalImages: [String],
-    steps: [recipeStepSchema],
     poster: { type: ObjectId, ref: 'UserAccount' },
     isPrivate: { type: Boolean, default: false },
     difficultyLevel: { type: String, enum: difficultyLevels },
     cost: { type: String, enum: costs },
     nutrition: nutritionSchema,
-    source: {
-      websiteSource: { type: ObjectId, ref: 'RecipeSource' },
-      recipeUrl: String
+    from: {
+      source: { type: ObjectId, ref: 'Source' },
+      url: String
     },
+    steps: [
+      {
+        number: { type: Number, required: 'Step number is mandatory' },
+        instructions: { type: String, required: 'Instruction is mandatory' },
+        image: String
+      }
+    ],
     utensils: [
       {
         utensil: { type: mongoose.Schema.Types.ObjectId, ref: 'Utensil' },
