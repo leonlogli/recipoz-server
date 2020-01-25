@@ -1,5 +1,5 @@
 import { errorMessages } from '../constants'
-import { UtensilDocument, Utensil } from '../models'
+import { Utensil } from '../models'
 import { QueryOptions, DocTransformOptions } from '../utils'
 import ModelService from './ModelService'
 
@@ -43,7 +43,7 @@ const addUtensil = async (utensil: any) => {
   return utensilModel.create(utensil)
 }
 
-const updateUtensil = async (id: any, utensil: UtensilDocument) => {
+const updateUtensil = async (id: any, utensil: any) => {
   return utensilModel.update(id, utensil)
 }
 

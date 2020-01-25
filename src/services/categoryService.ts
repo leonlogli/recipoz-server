@@ -1,5 +1,5 @@
 import { errorMessages } from '../constants'
-import { CategoryDocument, Category } from '../models'
+import { Category } from '../models'
 import { QueryOptions, DocTransformOptions } from '../utils'
 import ModelService from './ModelService'
 
@@ -44,7 +44,7 @@ const addCategory = async (category: any) => {
   return categoryModel.create(category)
 }
 
-const updateCategory = async (id: any, category: CategoryDocument) => {
+const updateCategory = async (id: any, category: any) => {
   return categoryModel.update(id, category)
 }
 

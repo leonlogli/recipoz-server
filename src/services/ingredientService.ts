@@ -1,5 +1,5 @@
 import { errorMessages } from '../constants'
-import { IngredientDocument, Ingredient } from '../models'
+import { Ingredient } from '../models'
 import { QueryOptions, DocTransformOptions } from '../utils'
 import ModelService from './ModelService'
 
@@ -43,7 +43,7 @@ const addIngredient = async (ingredient: any) => {
   return ingredientModel.create(ingredient)
 }
 
-const updateIngredient = async (id: any, ingredient: IngredientDocument) => {
+const updateIngredient = async (id: any, ingredient: any) => {
   return ingredientModel.update(id, ingredient)
 }
 

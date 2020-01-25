@@ -1,5 +1,5 @@
 import { errorMessages } from '../constants'
-import { NutrientDocument, Nutrient } from '../models'
+import { Nutrient } from '../models'
 import { QueryOptions, DocTransformOptions } from '../utils'
 import ModelService from './ModelService'
 
@@ -39,7 +39,7 @@ const addNutrient = async (nutrient: any) => {
   return nutrientModel.create(nutrient)
 }
 
-const updateNutrient = async (id: any, nutrient: NutrientDocument) => {
+const updateNutrient = async (id: any, nutrient: any) => {
   return nutrientModel.update(id, nutrient)
 }
 

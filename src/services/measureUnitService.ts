@@ -1,5 +1,5 @@
 import { errorMessages } from '../constants'
-import { MeasureUnitDocument, MeasureUnit } from '../models'
+import { MeasureUnit } from '../models'
 import { QueryOptions, DocTransformOptions } from '../utils'
 import ModelService from './ModelService'
 
@@ -43,7 +43,7 @@ const addMeasureUnit = async (measureUnit: any) => {
   return measureUnitModel.create(measureUnit)
 }
 
-const updateMeasureUnit = async (id: any, measureUnit: MeasureUnitDocument) => {
+const updateMeasureUnit = async (id: any, measureUnit: any) => {
   return measureUnitModel.update(id, measureUnit)
 }
 
