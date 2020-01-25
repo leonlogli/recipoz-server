@@ -15,10 +15,10 @@ describe('Nutrient graph ', () => {
     const id = await addNutrient(nutrient)
 
     const res: any = await _.mutate(UPDATE_NUTRIENT, {
-      variables: { id, nutrient: { name: { en: 'Calcium' } } }
+      variables: { id, nutrient: { name: { en: 'Vitamin B' } } }
     })
 
-    expect(res.data.updateNutrient).to.deep.include({ name: 'Calcium' })
+    expect(res.data.updateNutrient).to.deep.include({ name: 'Vitamin B' })
   })
 
   it('should delete Nutrient', async () => {
