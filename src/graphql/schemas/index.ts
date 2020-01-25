@@ -6,6 +6,7 @@ import ingredient from './ingredient'
 import measureUnit from './measureUnit'
 import utensil from './utensil'
 import nutrient from './nutrient'
+import source from './source'
 import common from './common'
 
 const linkSchema = gql`
@@ -25,5 +26,6 @@ export default [
   ingredient,
   measureUnit,
   utensil,
-  nutrient
+  nutrient,
+  source
 ]

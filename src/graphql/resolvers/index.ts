@@ -4,6 +4,7 @@ import ingredientResolver from './ingredientResolver'
 import measureUnitResolver from './measureUnitResolver'
 import utensilResolver from './utensilResolver'
 import nutrientResolver from './nutrientResolver'
+import sourceResolver from './sourceResolver'
 
 export default [
   userResolver,
@@ -11,5 +12,6 @@ export default [
   ingredientResolver,
   measureUnitResolver,
   utensilResolver,
-  nutrientResolver
+  nutrientResolver,
+  sourceResolver
 ]
