@@ -32,5 +32,12 @@ export default {
     notFound: 'nutrientNotFound',
     updateNotFound: 'nutrientToUpdateNotFound',
     deleteNotFound: 'nutrientToDeleteNotFound'
+  },
+  source: {
+    nameIsMandatory: 'sourceNameIsMandatory',
+    websiteIsMandatory: 'sourceWebsiteIsMandatory',
+    notFound: 'sourceNotFound',
+    updateNotFound: 'sourceToUpdateNotFound',
+    deleteNotFound: 'sourceToDeleteNotFound'
   }
 }

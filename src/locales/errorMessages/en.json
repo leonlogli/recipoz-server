@@ -22,5 +22,10 @@
   "nutrientCodeIsMandatory": "Nutrient code is mandatory",
   "nutrientNotFound": "The nutrient cannot be found",
   "nutrientToUpdateNotFound": "The nutrient you are trying to update cannot be found",
-  "nutrientToDeleteNotFound": "The nutrient you are trying to remove cannot be found"
+  "nutrientToDeleteNotFound": "The nutrient you are trying to remove cannot be found",
+  "sourceNameIsMandatory": "The name of the recipe source is mandatory",
+  "sourceWebsiteIsMandatory": "The website of the recipe source is mandatory",
+  "sourceNotFound": "The recipe source cannot be found",
+  "sourceToUpdateNotFound": "The recipe source you are trying to update cannot be found",
+  "sourceToDeleteNotFound": "The recipe source you are trying to remove cannot be found"
 }

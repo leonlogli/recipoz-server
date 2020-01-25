@@ -22,5 +22,10 @@
   "nutrientCodeIsMandatory": "Le code du nutriment est obligatoire",
   "nutrientNotFound": "Le nutriment est introuvable",
   "nutrientToUpdateNotFound": "Le nutriment que vous essayez de mettre à jour est introuvable",
-  "nutrientToDeleteNotFound": "Le nutriment que vous essayez de supprimer est introuvable"
+  "nutrientToDeleteNotFound": "Le nutriment que vous essayez de supprimer est introuvable",
+  "sourceNameIsMandatory": "Le nom de la source de recette est obligatoire",
+  "sourceCodeIsMandatory": "Le code de la source de recette est obligatoire",
+  "sourceNotFound": "La source de recette est introuvable",
+  "sourceToUpdateNotFound": "Le source recette que vous essayez de mettre à jour est introuvable",
+  "sourceToDeleteNotFound": "La source de recette que vous essayez de supprimer est introuvable"
 }
