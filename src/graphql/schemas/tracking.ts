@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-express'
 export default gql`
   type Tracking {
     id: ID!
-    user: UserAccount!
+    user: Account!
     data: TrackingData
     viewCount: Int
   }
@@ -15,8 +15,8 @@ export default gql`
   #################################################
 
   extend type Query {
-    Tracking(id: ID!): Tracking!
-    Trackings: [Tracking!]!
+    tracking(id: ID!): Tracking!
+    trackings: [Tracking!]!
   }
 
   extend type Mutation {

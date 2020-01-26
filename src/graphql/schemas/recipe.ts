@@ -17,7 +17,7 @@ export default gql`
     cost: Cost
     additionalImages: [String]
     nutrition: Nutrition
-    poster: UserAccount
+    postedBy: Account
     from: RecipeSource
   }
 
@@ -56,22 +56,26 @@ export default gql`
     image: String
   }
 
-  type Nutrition {
-    totalCalory: Float
-    totalDailyValue: Float
-    nutrients: [RecipeNutrient!]
+  input RecipeIngredientInput {
+    ingredient: ID
+    quantity: Float
+    unit: ID
   }
 
-  type RecipeNutrientQuantity {
-    amount: Float!
-    unit: MeasureUnit!
+  input RecipeUtensilInput {
+    utensil: ID
+    quantity: Float
   }
 
-  type RecipeNutrient {
-    nutrient: Nutrient!
-    quantity: RecipeNutrientQuantity!
-    dailyValue: RecipeNutrientQuantity!
-    subNutrients: [RecipeNutrient!]
+  input RecipeSourceInput {
+    source: ID
+    url: String
+  }
+
+  input RecipeStepInput {
+    number: Int!
+    instructions: String!
+    image: String
   }
 
   input RecipeInput {
@@ -79,18 +83,18 @@ export default gql`
     description: String
     image: String
     servings: Int
-    source: Source
+    source: RecipeSourceInput
     readyInMinutes: Int
-    steps: [RecipeStep!]
+    steps: [RecipeStepInput!]
     categories: [ID!]
-    ingredients: [RecipeIngredient!]
-    utensils: [RecipeUtensil!]
+    ingredients: [RecipeIngredientInput!]
+    utensils: [RecipeUtensilInput!]
     isPrivate: Boolean
     difficultyLevel: DifficultyLevel
     cost: Cost
     additionalImages: [String]
-    nutrition: Nutrition
-    poster: ID
+    nutrition: NutritionInput
+    postedBy: ID
   }
 
   #################################################

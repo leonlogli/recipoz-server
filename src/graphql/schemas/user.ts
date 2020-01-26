@@ -1,6 +1,9 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
+  """
+  Firebase auth user
+  """
   type User {
     id: ID!
     email: String
@@ -11,23 +14,17 @@ export default gql`
     coverImageUrl: String
     gender: String
     location: String
+    language: [String!]
+    theme: String
     website: String
     aboutMe: String
-    socials: [String]
+    socials: [String!]
     disabled: Boolean!
     metadata: UserMetadata!
     providerData: [UserInfo!]
-    customClaims: CustomClaims
+    roles: [UserRole!]
     tokensValidAfterTime: String
     tenantId: String
-  }
-
-  """
-  The user's custom claims object if available, typically used to define
-  user roles and propagated to an authenticated user's ID token.
-  """
-  type CustomClaims {
-    roles: [UserRole!]
   }
 
   enum UserRole {
@@ -62,7 +59,7 @@ export default gql`
     expiresIn: String
   }
 
-  input UserInput {
+  input RegisterInput {
     email: String
     password: String
     phoneNumber: String
@@ -71,16 +68,45 @@ export default gql`
     emailVerified: Boolean
   }
 
+  """
+  Firebase auth user input
+  """
+  input UserInput {
+    email: String
+    emailVerified: Boolean
+    displayName: String
+    phoneNumber: String
+    photoURL: String
+    coverImageUrl: String
+    gender: String
+    location: String
+    language: [String!]
+    theme: String
+    website: String
+    aboutMe: String
+    socials: [String!]
+    disabled: Boolean
+  }
+
+  """
+  Firebase auth user query criteria
+  """
+  input UserCriteria {
+    id: ID
+    email: String
+    displayName: String
+    phoneNumber: String
+  }
+
   #################################################
   #      QUERY, MUTATION & SUBSCRIBTION
   #################################################
 
   extend type Query {
-    user(id: ID!): User!
     accessToken(authToken: String!): Token!
   }
 
   extend type Mutation {
-    register(user: UserInput!): User!
+    register(user: RegisterInput!): Account!
   }
 `

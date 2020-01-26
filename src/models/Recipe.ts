@@ -7,7 +7,7 @@ import {
   NutritionDocument,
   nutritionSchema,
   SourceDocument,
-  UserAccountDocument,
+  AccountDocument,
   UtensilDocument
 } from '.'
 
@@ -63,7 +63,7 @@ export type RecipeDocument = Document & {
   cost?: Cost
   additionalImages?: string[]
   nutrition?: NutritionDocument
-  poster?: UserAccountDocument
+  postedBy?: AccountDocument
   from?: RecipeSourceDocument
 }
 
@@ -77,7 +77,7 @@ const recipeSchema = new Schema(
     servings: Number,
     readyInMinutes: Number,
     additionalImages: [String],
-    poster: { type: ObjectId, ref: 'UserAccount' },
+    postedBy: { type: ObjectId, ref: 'Account' },
     isPrivate: { type: Boolean, default: false },
     difficultyLevel: { type: String, enum: difficultyLevels },
     cost: { type: String, enum: costs },

@@ -3,16 +3,16 @@ import { gql } from 'apollo-server-express'
 export default gql`
   type Notification {
     id: ID!
-    type: NotificationType!
-    actor: UserAccount!
-    me: UserAccount!
+    code: NotificationCode!
+    actor: Account!
+    me: Account!
     data: NotificationData!
     unread: Boolean!
   }
 
   union NotificationData = Comment | Recipe
 
-  enum NotificationType {
+  enum NotificationCode {
     MY_RECIPE_IS_COMMENTED
     SOMEONE_REPLIED_TO_MY_COMMENT
     I_AM_MENTIONED_IN_COMMENT
@@ -21,11 +21,17 @@ export default gql`
     MY_FOLLOWER_PUBLISHES_RECIPE
   }
 
+  enum NotificationType {
+    PUSH
+    EMAIL
+    ON_APP
+  }
+
   input NotificationInput {
     data: ID
     me: ID!
-    type: NotificationType!
-    actor: UserAccount!
+    code: NotificationCode!
+    actor: ID!
     unread: Boolean
   }
 

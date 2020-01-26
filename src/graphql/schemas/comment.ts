@@ -3,16 +3,14 @@ import { gql } from 'apollo-server-express'
 export default gql`
   type Comment {
     id: ID!
-    user: UserAccount!
+    user: Account!
     onData: ComentData!
-    content: String!
+    content: String
     attachmentUrl: String
     rating: Float
-    replies: [Comment!]
+    inReplyTo: Comment
     reactions: [CommentReaction!]
-    mentionedUsers: [UserAccount!]
-    totalReplies: Float
-    totalReactions: Float
+    mentionedUsers: [Account!]
   }
 
   union ComentData = Category | Recipe
@@ -27,7 +25,7 @@ export default gql`
 
   type CommentReaction {
     type: CommentReactionType!
-    user: UserAccount!
+    user: Account!
   }
 
   input CommentInput {
@@ -44,7 +42,7 @@ export default gql`
 
   extend type Query {
     comment(id: ID!): Comment!
-    categories: [Comment!]!
+    comments: [Comment!]!
   }
 
   extend type Mutation {

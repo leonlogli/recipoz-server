@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
-import { UserAccountDocument, RecipeDocument } from '.'
+import { AccountDocument, RecipeDocument } from '.'
 import { CategoryDocument } from './Category'
 
 const { ObjectId } = Schema.Types
@@ -12,41 +12,40 @@ const reactionTypes = ['LIKE', 'LOVE', 'APPLAUD', 'LAUGH', 'CONFUSED'] as const
 
 type CommentReaction = {
   type: typeof reactionTypes[number]
-  user: UserAccountDocument
+  user: AccountDocument
 }
 
 export type CommentDocument = Document & {
-  user: UserAccountDocument
+  author: AccountDocument
   onData: CategoryDocument | RecipeDocument
-  content: string
+  content?: string
   attachmentUrl?: string
   rating?: number
-  replies?: CommentDocument[]
+  inReplyTo?: CommentDocument
   reactions?: CommentReaction[]
-  mentionedUsers?: UserAccountDocument[]
+  mentionedUsers?: AccountDocument[]
 }
 
 const commentSchema = new Schema(
   {
-    user: { type: ObjectId, ref: 'UserAccount' },
-    onData: { type: ObjectId, required: true, refPath: 'onModel' },
-    onModel: { type: String, required: true, enum: ['Category', 'Recipe'] },
+    author: { type: ObjectId, ref: 'Account' },
+    onData: { type: ObjectId, required: true, refPath: 'onDataModel' },
+    onDataModel: { type: String, required: true, enum: ['Category', 'Recipe'] },
     rating: Number,
-    content: { type: String, required: 'Content is mandatory' },
+    content: String,
     attachmentUrl: String,
-    abuseRapporteurs: [{ type: ObjectId, ref: 'UserAccount' }],
-    mentionedUsers: [{ type: ObjectId, ref: 'UserAccount' }],
+    abuseRapporteurs: [{ type: ObjectId, ref: 'Account' }],
+    inReplyTo: { type: ObjectId, ref: 'Comment' },
+    mentionedUsers: [{ type: ObjectId, ref: 'Account' }],
     reactions: [
       {
-        type: { type: String, enum: reactionTypes, default: reactionTypes[0] },
-        user: { type: ObjectId, ref: 'UserAccount', required: true }
+        type: { type: String, enum: reactionTypes },
+        user: { type: ObjectId, ref: 'Account', required: true }
       }
     ]
   },
   { timestamps: true }
 )
-
-commentSchema.add({ replies: [commentSchema] })
 
 export const Comment = mongoose.model<CommentDocument>('Comment', commentSchema)
 export default Comment

@@ -7,6 +7,12 @@ import measureUnit from './measureUnit'
 import utensil from './utensil'
 import nutrient from './nutrient'
 import source from './source'
+import account from './account'
+import recipe from './recipe'
+import notification from './notification'
+import tracking from './tracking'
+import comment from './comment'
+import nutrition from './nutrition'
 import common from './common'
 
 const linkSchema = gql`
@@ -27,5 +33,11 @@ export default [
   measureUnit,
   utensil,
   nutrient,
-  source
+  source,
+  account,
+  recipe,
+  notification,
+  tracking,
+  nutrition,
+  comment
 ]

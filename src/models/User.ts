@@ -10,6 +10,8 @@ export interface UserAdditionalInfo {
   website?: string
   aboutMe?: string
   socials?: string[]
+  language?: string[]
+  theme?: string
 }
 
 const userRoles = ['ADMIN', 'USER'] as const
@@ -38,9 +40,17 @@ export const User = {
    * @param fireBaseUser UserRecord from firebase
    */
   transform: (fireBaseUser: UserRecord): UserDocument => {
-    const { passwordHash: _ph, passwordSalt: _ps, ...otherProps } = fireBaseUser
+    const {
+      uid,
+      passwordHash: _ph,
+      passwordSalt: _ps,
+      customClaims,
+      ...otherProps
+    } = fireBaseUser
 
-    return { id: fireBaseUser.uid, ...otherProps }
+    const roles = customClaims && (customClaims as any).roles
+
+    return { id: uid, roles, ...otherProps } as any
   }
 }
 

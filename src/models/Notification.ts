@@ -1,10 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-import { CommentDocument, RecipeDocument, UserAccountDocument } from '.'
+import { CommentDocument, RecipeDocument, AccountDocument } from '.'
 
 const { ObjectId } = Schema.Types
 
-export const notificationTypes = [
+const notificationCodes = [
   'MY_RECIPE_IS_COMMENTED',
   'SOMEONE_REPLIED_TO_MY_COMMENT',
   'I_AM_MENTIONED_IN_COMMENT',
@@ -13,21 +13,25 @@ export const notificationTypes = [
   'MY_FOLLOWER_PUBLISHES_RECIPE'
 ] as const
 
+const notificationTypes = ['PUSH', 'EMAIL', 'ON_APP'] as const
+
+export type NotificationCode = typeof notificationCodes[number]
+
 export type NotificationType = typeof notificationTypes[number]
 
 export type NotificationDocument = Document & {
-  type: NotificationType
-  actor: UserAccountDocument
-  me: UserAccountDocument
+  code: NotificationCode
+  actor: AccountDocument
+  me: AccountDocument
   data: CommentDocument | RecipeDocument
   unread: boolean
 }
 
 const notificationSchema = new Schema(
   {
-    type: { type: String, enum: notificationTypes },
-    me: { type: ObjectId, ref: 'UserAccount' },
-    actor: { type: ObjectId, ref: 'UserAccount' },
+    code: { type: String, enum: notificationCodes },
+    me: { type: ObjectId, ref: 'Account' },
+    actor: { type: ObjectId, ref: 'Account' },
     unread: { type: Boolean, default: true },
     data: { type: ObjectId, refPath: 'dataModel' },
     dataModel: { type: String, required: true, enum: ['Comment', 'Recipe'] }
@@ -35,7 +39,9 @@ const notificationSchema = new Schema(
   { timestamps: true }
 )
 
-export const Notification = mongoose.model<NotificationDocument>(
+const Notification = mongoose.model<NotificationDocument>(
   'Notification',
   notificationSchema
 )
+
+export { notificationTypes, notificationCodes, Notification }
