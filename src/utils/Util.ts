@@ -1,4 +1,9 @@
 import dotObject from 'dot-object'
+import { ApolloError } from 'apollo-server-express'
+
+import { errorMessages } from '../constants'
+import { i18n } from '.'
+import { logger, PROD_ENV } from '../config'
 
 /**
  * Convert object to dotted-key/value pair
@@ -37,4 +42,55 @@ const hasOwnProperty = (object: any, propertyKey: string) => {
   return Object.prototype.hasOwnProperty.call(object, propertyKey)
 }
 
-export { dotify, toNestedObject, isString, hasOwnProperty }
+const removeUndefinedKeysFrom = (obj: any): any => {
+  return Object.entries(obj)
+    .map(([k, v]) => [
+      k,
+      v && typeof v === 'object' ? removeUndefinedKeysFrom(v) : v
+    ])
+    .reduce((a, [k, v]) => (v === undefined ? a : { ...a, [k]: v }), {})
+}
+
+const sendError = (e: { code: string; message?: string }) => {
+  const { accessDenied, account, internalServerError } = errorMessages
+
+  if (!e || !e.message) {
+    return
+  }
+
+  switch (e.code) {
+    case 'auth/email-already-exists':
+      throw new ApolloError(i18n.t(account.emailAlreadyExists), e.code)
+    case 'auth/phone-number-already-exists':
+      throw new ApolloError(i18n.t(account.phoneNumberAlreadyExists), e.code)
+    case 'auth/invalid-password':
+      throw new ApolloError(i18n.t(account.invalidPassword), e.code)
+    case 'auth/invalid-phone-number':
+      throw new ApolloError(i18n.t(account.invalidPhoneNumber), e.code)
+    case 'auth/invalid-display-name':
+      throw new ApolloError(i18n.t(account.invalidDisplayName), e.code)
+    case 'auth/invalid-photo-url':
+      throw new ApolloError(i18n.t(account.invalidPhotoURL), e.code)
+    case 'auth/user-not-found':
+      throw new ApolloError(i18n.t(account.userNotFound, e.code))
+    case 'auth/id-token-revoked':
+    case 'auth/id-token-expired':
+    case 'auth/invalid-id-token':
+      throw new ApolloError(i18n.t(accessDenied), e.code)
+    default:
+      logger.error(e.message)
+      throw new ApolloError(
+        PROD_ENV ? i18n.t(internalServerError) : e.message,
+        e.code
+      )
+  }
+}
+
+export {
+  dotify,
+  toNestedObject,
+  isString,
+  hasOwnProperty,
+  removeUndefinedKeysFrom,
+  sendError
+}
