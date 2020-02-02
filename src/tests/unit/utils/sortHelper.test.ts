@@ -4,7 +4,7 @@ import { sortDirectivesToObject, buildSortDirectives } from '../../../utils'
 
 describe('sort helpers', () => {
   it('should build sort directives using supported locales', () => {
-    const result = buildSortDirectives('name -age title', 'title')
+    const result = buildSortDirectives('name -age title', ['title'])
 
     expect(result).to.equal('name -age title.en title.fr')
   })

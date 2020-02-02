@@ -4,6 +4,10 @@ import { errorMessages } from '../../../constants'
 describe('isString test', () => {
   it('should dotify object', () => {
     expect(errorMessages).to.eql({
+      forbidden: 'forbidden',
+      unauthenticated: 'unauthenticated',
+      accessDenied: 'accessDenied',
+      internalServerError: 'internalServerError',
       category: {
         nameIsMandatory: 'categoryNameIsMandatory',
         thumbnailIsMandatory: 'categoryThumbnailIsMandatory',
@@ -44,6 +48,21 @@ describe('isString test', () => {
         notFound: 'sourceNotFound',
         updateNotFound: 'sourceToUpdateNotFound',
         deleteNotFound: 'sourceToDeleteNotFound'
+      },
+      account: {
+        userIdIsMandatory: 'userIdIsMandatory',
+        notFound: 'accountNotFound',
+        updateNotFound: 'accountToUpdateNotFound',
+        deleteNotFound: 'accountToDeleteNotFound',
+        emailAlreadyExists: 'emailAlreadyExists',
+        phoneNumberAlreadyExists: 'phoneNumberAlreadyExists',
+        invalidEmail: 'invalidEmail',
+        invalidPhoneNumber: 'invalidPhoneNumber',
+        invalidPhotoURL: 'invalidPhotoURL',
+        invalidDisplayName: 'invalidDisplayName',
+        invalidPassword: 'invalidPassword',
+        userNotFound: 'userNotFound',
+        cannotFollowYourself: 'cannotFollowYourself'
       }
     })
   })
