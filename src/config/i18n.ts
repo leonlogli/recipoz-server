@@ -2,6 +2,7 @@ import i18next from 'i18next'
 import i18nextMiddleware from 'i18next-express-middleware'
 import Backend from 'i18next-node-fs-backend'
 import { APP_DEFAULT_LANGUAGE } from './env'
+import { supportedLanguages } from '../utils'
 
 i18next
   .use(Backend)
@@ -11,12 +12,13 @@ i18next
       loadPath: `${__dirname}/../locales/{{ns}}/{{lng}}.json`
     },
     fallbackLng: APP_DEFAULT_LANGUAGE,
-    preload: ['en', 'fr'],
+    preload: Array.from(supportedLanguages || ['fr', 'en']),
     ns: ['errorMessages'],
     defaultNS: 'errorMessages',
     detection: {
-      // order and from where user language should be detected
-      order: ['header', 'querystring', 'cookie']
+      // order and from where user language should be detected.
+      // Ex: ['header', 'querystring', 'cookie']
+      order: ['header']
     }
   })
 
