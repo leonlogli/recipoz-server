@@ -66,7 +66,7 @@ class FilterBase {
   protected formatIfI18nPath = (path: string) => {
     let _path = path
     const language: any = _path.split('.').pop()
-    const isI18nFieldPath = this.i18nFields.includes(language)
+    const isI18nFieldPath = this.i18nFields?.includes(language)
 
     if (isI18nFieldPath && !isSupportedLanguage(language)) {
       _path = `${_path}.${i18n.currentLanguage}`

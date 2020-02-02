@@ -5,8 +5,8 @@ import { supportedLanguages, i18n } from './i18n'
  * @param sort sort directives
  * @param i18nFields i18n fields
  */
-const buildSortDirectives = (sort?: string, ...i18nFields: string[]) => {
-  if (!i18nFields || !i18nFields.length || !sort) {
+const buildSortDirectives = (sort?: string, i18nFields?: string[]) => {
+  if (!i18nFields || !i18nFields.length || !sort || !sort.trim()) {
     return sort
   }
 
