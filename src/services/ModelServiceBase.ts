@@ -9,13 +9,13 @@ import {
   QueryOptions,
   transformDoc,
   Filter,
-  getRefPaths
+  buildPopulatePaths
 } from '../utils'
 
 export type ModelServiceBaseOptions = {
   model: Model<any>
   docTransformOptions: DocTransformOptions
-  partialSearchFields: string[]
+  partialSearchFields?: string[]
   errorMessages: {
     dataNotFound: string
     dataToUpdateNotFound?: string
@@ -36,8 +36,11 @@ export type QueryFindOptions = {
 abstract class ModelServiceBase {
   protected filterBuilder: Filter
 
+  protected populatePaths: any
+
   constructor(protected options: ModelServiceBaseOptions) {
     this.filterBuilder = new Filter(this.docTransformOptions)
+    this.populatePaths = buildPopulatePaths(this.docTransformOptions)
   }
 
   abstract async findById(id: any): Promise<any>
@@ -46,27 +49,38 @@ abstract class ModelServiceBase {
 
   abstract async find(criteria: any, options: QueryOptions): Promise<any>
 
-  create = async (category: any) => {
-    const createdCategory = await this.model.create(category)
+  create = async (data: any) => {
+    const query = await this.model.create(data)
+    let doc
 
-    if (this.populatePaths) {
-      createdCategory.populate(this.populatePaths)
-    }
+    if (this.populate) {
+      query.populate(this.populatePaths)
+      doc = await query.execPopulate()
+    } else doc = await query.exec()
 
-    return transformDoc(await createdCategory.execPopulate(), this.i18nFields)
+    return this.transform ? transformDoc(doc, this.i18nFields) : doc
   }
 
-  update = async (id: any, category: any) => {
-    const query = this.model
-      .findByIdAndUpdate(id, { $set: dotify(category) }, { new: true })
-      .lean()
-      .orFail(this.dataToUpdateNotFound)
+  update = async (id: any, data: any): Promise<any> => {
+    return this.update({ _id: id }, { $set: dotify(data) })
+  }
 
-    if (this.populatePaths) {
+  /**
+   * Finds a matching document and updates it. The specified data can contains
+   * any update operators ($set, $addToSet ...)
+   */
+  updateOne = async (conditions: any, data: any, onFail?: Error) => {
+    const query = this.model
+      .findOneAndUpdate(conditions, data, { new: true })
+      .lean()
+      .orFail(onFail || this.dataToUpdateNotFound)
+
+    if (this.populate) {
       query.populate(this.populatePaths)
     }
+    const doc = await query.exec()
 
-    return transformDoc(await query.exec(), this.i18nFields)
+    return this.transform ? transformDoc(doc, this.i18nFields) : doc
   }
 
   delete = async (id: any) => {
@@ -75,19 +89,16 @@ abstract class ModelServiceBase {
       .lean()
       .orFail(this.dataToDeleteNotFound)
 
-    if (this.populatePaths) {
+    if (this.populate) {
       query.populate(this.populatePaths)
     }
+    const doc = await query.exec()
 
-    return transformDoc(await query.exec(), this.i18nFields)
+    return this.transform ? transformDoc(doc, this.i18nFields) : doc
   }
 
   get errorMessages() {
     return this.options.errorMessages
-  }
-
-  get populatePaths() {
-    return getRefPaths(this.options.docTransformOptions)[0]
   }
 
   get docTransformOptions() {
@@ -108,6 +119,14 @@ abstract class ModelServiceBase {
 
   get partialSearchFields() {
     return this.options.partialSearchFields
+  }
+
+  get populate() {
+    return this.options.docTransformOptions.populate || true
+  }
+
+  get transform() {
+    return this.options.docTransformOptions.transform || true
   }
 
   get dataNotFound() {
