@@ -66,6 +66,7 @@
   "dependencies": {
     "apollo-server-express": "^2.9.15",
     "cross-env": "^6.0.3",
+    "dataloader": "^2.0.0",
     "dot-object": "^2.1.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
