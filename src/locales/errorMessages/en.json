@@ -1,4 +1,8 @@
 {
+  "forbidden": "You don't have permission to access the requested resource",
+  "unauthenticated": "You are not authenticated",
+  "accessDenied": "Access denied due to invalid credentials",
+  "internalServerError": "Oops ! Something went wrong. Our server encountered an internal error and was unable to handle your request. We're working on it. Please try again later.",
   "categoryNameIsMandatory": "Category name is mandatory",
   "categoryThumbnailIsMandatory": "Category thumbnail is mandatory",
   "categoryNotFound": "The category cannot be found",
@@ -27,5 +31,18 @@
   "sourceWebsiteIsMandatory": "The website of the recipe source is mandatory",
   "sourceNotFound": "The recipe source cannot be found",
   "sourceToUpdateNotFound": "The recipe source you are trying to update cannot be found",
-  "sourceToDeleteNotFound": "The recipe source you are trying to remove cannot be found"
+  "sourceToDeleteNotFound": "The recipe source you are trying to remove cannot be found",
+  "userIdIsMandatory": "The user id is mandatory",
+  "accountNotFound": "The account cannot be found",
+  "accountToUpdateNotFound": "The account you are trying to update cannot be found",
+  "accountToDeleteNotFound": "The account you are trying to remove cannot be found",
+  "emailAlreadyExists": "The provided email is already in use by an existing user",
+  "phoneNumberAlreadyExists": "The provided phoneNumber is already in use by an existing user",
+  "invalidEmail": "Invalid email address",
+  "invalidPhoneNumber": "Invalid phone number",
+  "invalidDisplayName": "Invalid display name",
+  "invalidPassword": "Invalid password",
+  "invalidPhotoURL": "The photoURL field must be a valid URL",
+  "userNotFound": "There is no existing user record corresponding to the provided identifier",
+  "cannotFollowYourself": "You cannot follow your own account"
 }

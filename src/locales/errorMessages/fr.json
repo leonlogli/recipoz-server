@@ -1,4 +1,8 @@
 {
+  "forbidden": "Vous n'êtes pas autorisé à accéder à la ressource demandée",
+  "unauthenticated" :"Vous n'êtes pas authentifié",
+  "accessDenied": "Accès refusé en raison d'informations d'identification non valides",
+  "internalServerError": "Oups ! Quelque chose a mal tourné. Notre serveur a rencontré une erreur interne et n'a pas pu traiter votre demande. Nous y travaillons. Veuillez réessayer plus tard.",
   "categoryNameIsMandatory": "Le nom de la catégorie est obligatoire",
   "categoryThumbnailIsMandatory": "L'image de la catégorie est obligatoire",
   "categoryNotFound": "La catégorie est introuvable",
@@ -27,5 +31,18 @@
   "sourceCodeIsMandatory": "Le code de la source de recette est obligatoire",
   "sourceNotFound": "La source de recette est introuvable",
   "sourceToUpdateNotFound": "Le source recette que vous essayez de mettre à jour est introuvable",
-  "sourceToDeleteNotFound": "La source de recette que vous essayez de supprimer est introuvable"
+  "sourceToDeleteNotFound": "La source de recette que vous essayez de supprimer est introuvable",
+  "userIdIsMandatory": "L'identifiant de l'utilisateur est obligatoire",
+  "accountNotFound": "Le compte est introuvable",
+  "accountToUpdateNotFound": "Le compte que vous essayez de mettre à jour est introuvable",
+  "accountToDeleteNotFound": "La compte que vous essayez de supprimer est introuvable",
+  "emailAlreadyExists": "L'e-mail fourni est déjà utilisé par un utilisateur existant",
+  "phoneNumberAlreadyExists": "Le numéro de téléphone fourni est déjà utilisé par un utilisateur existant",
+  "invalidEmail": "Adresse e-mail invalide",
+  "invalidPhoneNumber": "Numéro de téléphone invalide",
+  "invalidDisplayName": "Nom d'affichage non valide",
+  "invalidPassword": "Mot de passe incorrect",
+  "invalidPhotoURL": "Le champ photoURL doit être une URL valide",
+  "userNotFound": "Il n'y a aucun utilisateur existant correspondant à l'identifiant fourni",
+  "cannotFollowYourself": "Vous ne pouvez pas suivre votre propre compte"
 }
