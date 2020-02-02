@@ -1,133 +1,167 @@
-import { firebaseAdmin, usersRef, logger } from '../config'
-import { UserAdditionalInfo, User } from '../models'
+import jwt from 'jsonwebtoken'
+import { ApolloError } from 'apollo-server-express'
+import status from 'http-status'
+
+import { firebaseAdmin, JWT, logger, usersRef } from '../config'
+import { Role, Token, User, UserAdditionalInfo } from '../models'
+import { removeUndefinedKeysFrom, sendError, i18n } from '../utils'
+import { errorMessages } from '../constants'
 
 const auth = firebaseAdmin.auth()
+const { userNotFound } = errorMessages.account
 
-type DataSnapshot = firebaseAdmin.database.DataSnapshot
-type UpdateRequest = firebaseAdmin.auth.UpdateRequest
+export type AuthOptions = Partial<
+  Record<'id' | 'email' | 'phoneNumber', string>
+>
 
-/**
- * Gets the user data for the user corresponding to a given id.
- * @param id the user uid
- */
-const getUser = async (id: string) => {
-  const user = await auth.getUser(id)
-  /* 
-  usersRef.once('value', data => {
-    // do some stuff once
+type UpdateRequest = UserAdditionalInfo & firebaseAdmin.auth.UpdateRequest
+
+const createUser = async (data: firebaseAdmin.auth.CreateRequest) => {
+  try {
+    return User.transform(await auth.createUser(data))
+  } catch (e) {
+    sendError(e)
+  }
+}
+
+const getUser = async (criteria: AuthOptions) => {
+  const { id, email, phoneNumber } = criteria
+
+  try {
+    let user
+
+    if (id && !!id.trim()) {
+      user = await auth.getUser(id)
+    }
+    if (email && !!email.trim()) {
+      user = await auth.getUserByEmail(email)
+    }
+    if (phoneNumber && !!phoneNumber.trim()) {
+      user = await auth.getUserByPhoneNumber(phoneNumber)
+    }
+
+    if (user) {
+      return {
+        ...User.transform(user),
+        ...(await usersRef.child(user.uid).once('value')).val()
+      }
+    }
+    throw new ApolloError(i18n.t(userNotFound), status['404_NAME'])
+  } catch (e) {
+    sendError(e)
+  }
+}
+
+const extractDataToUpdate = (dataToUpdate: UpdateRequest) => {
+  const {
+    disabled,
+    displayName,
+    email,
+    emailVerified,
+    phoneNumber,
+    photoURL,
+    ...additionalUserInfo
+  } = dataToUpdate
+
+  const userInfo = removeUndefinedKeysFrom({
+    disabled,
+    displayName,
+    email,
+    emailVerified,
+    phoneNumber,
+    photoURL
   })
-   */
 
-  return User.transform(user)
+  return {
+    userInfo,
+    additionalUserInfo: removeUndefinedKeysFrom(additionalUserInfo)
+  }
 }
 
-/**
- * Gets the user data for the user corresponding to a given email.
- * @param email The email corresponding to the user whose data to fetch.
- */
-const getUserByEmail = async (email: string) => {
-  const user = await auth.getUserByEmail(email)
-
-  return User.transform(user)
-}
-
-/**
- * Updates an existing user.
- * @param uid The `uid` corresponding to the user to update.
- * @param data The data to update on the provided user.
- */
 const updateUser = async (id: string, data: UpdateRequest) => {
-  const user = await auth.updateUser(id, data)
+  const { userInfo, additionalUserInfo } = extractDataToUpdate(data)
 
-  return User.transform(user)
+  try {
+    if (Object.keys(userInfo).length > 0) {
+      auth.updateUser(id, userInfo)
+    }
+    if (Object.keys(additionalUserInfo).length > 0) {
+      // Update user additional profile info that is not handled by default in firebase authentification
+      usersRef.child(id).update(additionalUserInfo)
+    }
+  } catch (e) {
+    sendError(e)
+  }
 }
 
-/**
- * Deletes an existing user.
- * @param id The `uid` corresponding to the user to delete.
- */
 const deleteUser = async (id: string) => {
-  auth.deleteUser(id)
-}
-
-/**
- * Retrieves a list of users (single batch only) with a size of `maxResults`
- * starting from the offset as specified by `pageToken`
- * @param maxResults The page size, 1000 if undefined. This is also the maximum allowed limit.
- * @param pageToken The next page token. If not specified, returns users starting without any offset.
- */
-const getUsers = async (maxResults?: number, pageToken?: string) => {
-  const listUsersResult = await auth.listUsers(maxResults, pageToken)
-
-  return listUsersResult.users.map(user => User.transform(user))
-}
-
-/**
- * Add user additional profile info that is not handled by default in firebase authentification
- * @param id the user id
- * @param data additional profile info
- */
-const addUserExtraInfo = async (id: string, data: UserAdditionalInfo) => {
-  let user = await getUser(id)
-  // Callback to retrieve new UserAdditionalInfo as they are added to the database
-  const callback = (snapshot: DataSnapshot | null) => {
-    if (snapshot) {
-      logger.info(`UserAdditionalInfo added - user id : ${snapshot.key}`)
-      if (snapshot.key === id) {
-        user = { ...user, ...snapshot.val() }
-      }
-    }
+  try {
+    auth.deleteUser(id)
+    usersRef.child(id).remove()
+  } catch (e) {
+    sendError(e)
   }
+}
 
-  usersRef.on('child_added', callback)
-
-  usersRef.child(id).set(data, (error: Error | null) => {
-    if (error) {
-      throw error
-    } else {
-      usersRef.off('child_added', callback)
-    }
-  })
-
-  return user
+const setUserRoles = async (id: string, ...roles: Role[]) => {
+  try {
+    return auth.setCustomUserClaims(id, { roles: [...new Set([...roles])] })
+  } catch (e) {
+    sendError(e)
+  }
 }
 
 /**
- * Update user additional profile info that is not handled by default in firebase authentification
- * @param id the user id
- * @param data additional profile info
+ * Verifies a Firebase ID token (JWT)
+ * @param authToken The ID token to verify.
  */
-const updateUserExtraInfo = async (id: string, data: UserAdditionalInfo) => {
-  let user = await getUser(id)
-  // Get the UserAdditionalInfo data on a user that has changed
-  const callback = (snapshot: DataSnapshot | null) => {
-    if (snapshot) {
-      logger.info(`UserAdditionalInfo updated - user id : ${snapshot.key}`)
-      if (snapshot.key === id) {
-        user = { ...user, ...snapshot.val() }
-      }
-    }
-  }
+const verifyIdToken = (authToken: string) => {
+  return auth
+    .verifyIdToken(authToken, true)
+    .then(payload => {
+      const { uid, roles } = payload
 
-  usersRef.on('child_changed', callback)
+      return { userId: uid, roles }
+    })
+    .catch(error => sendError(error))
+}
 
-  usersRef.child(id).update(data, (error: Error | null) => {
-    if (error) {
-      throw error
-    } else {
-      usersRef.off('child_changed', callback)
-    }
+/**
+ * Returns new API accessToken with the specified payload
+ * @param payload Payload to sign
+ */
+const generateAccessToken = (payload: Record<string, string>) => {
+  const expiresIn = JWT.EXPIRATION
+  const accessToken = jwt.sign(
+    { ...payload, iat: Math.floor(Date.now() / 1000) },
+    JWT.SECRET,
+    { expiresIn }
+  )
+
+  return { type: 'Bearer', accessToken, expiresIn } as Token
+}
+
+/**
+ * Revokes all refresh tokens for an existing user.
+ * @param id The `uid` corresponding to the user whose refresh tokens are to be revoked.
+ */
+const revokeRefreshTokens = async (id: string) => {
+  return auth.revokeRefreshTokens(id).then(async () => {
+    const user = await getUser({ id })
+
+    logger.info('Tokens revoked for user: ', user.uid)
+
+    return user
   })
-
-  return user
 }
 
 export default {
-  getUserByEmail,
   getUser,
   updateUser,
   deleteUser,
-  getUsers,
-  addUserExtraInfo,
-  updateUserExtraInfo
+  createUser,
+  setUserRoles,
+  verifyIdToken,
+  revokeRefreshTokens,
+  generateAccessToken
 }

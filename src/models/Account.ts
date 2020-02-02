@@ -1,4 +1,8 @@
 import mongoose, { Document, Schema } from 'mongoose'
+import { UserInputError as Error } from 'apollo-server-express'
+
+import { errorMessages } from '../constants'
+import { i18n } from '../utils'
 
 import {
   CategoryDocument,
@@ -17,14 +21,13 @@ const { ObjectId } = Schema.Types
 export type AccountDocument = Document & {
   user: UserDocument
   followers?: AccountDocument[]
-  followings?: AccountDocument[]
   addedRecipes?: RecipeDocument[]
   favoriteRecipes?: RecipeDocument[]
   triedRrecipes?: RecipeDocument[]
   settings: {
     notifications?: {
-      category: NotificationType
-      types: NotificationCode[]
+      type: NotificationType
+      codes: NotificationCode[]
     }
     tastes?: CategoryDocument[]
   }
@@ -32,23 +35,30 @@ export type AccountDocument = Document & {
 
 const accountSchema = new Schema(
   {
-    user: String,
-    dailyRecipeViewCount: Number,
-    followers: [{ type: ObjectId, ref: 'UserAccount' }],
-    followings: [{ type: ObjectId, ref: 'UserAccount' }],
+    user: { type: String, unique: true },
+    followers: [{ type: ObjectId, ref: 'Account' }],
     addedRecipes: [{ type: ObjectId, ref: 'Recipe' }],
     favoriteRecipes: [{ type: ObjectId, ref: 'Recipe' }],
     triedRrecipes: [{ type: ObjectId, ref: 'Recipe' }],
-    notificationTypes: { type: [String], enum: notificationCodes },
     settings: {
       notifications: {
-        category: { type: String, enum: notificationTypes },
-        code: { type: [String], enum: notificationCodes }
+        type: { type: String, enum: notificationTypes },
+        codes: { type: [String], enum: notificationCodes }
       },
       tastes: [{ type: ObjectId, ref: 'Category' }]
     }
   },
   { timestamps: true }
 )
+
+accountSchema.pre('validate', function validate(next) {
+  const { user } = this as any
+
+  if (!user || !user.trim()) {
+    return next(new Error(i18n.t(errorMessages.account.userIdIsMandatory)))
+  }
+
+  return next()
+})
 
 export const Account = mongoose.model<AccountDocument>('Account', accountSchema)

@@ -8,7 +8,16 @@ export default gql`
     id: ID!
     user: User!
     followers: [Account!]
-    followings: [Account!]
+    addedRecipes: [Recipe!]
+    favoriteRecipes: [Recipe!]
+    triedRrecipes: [Recipe!]
+    settings: Settings
+  }
+
+  type DelectedAccount {
+    id: ID!
+    user: ID
+    followers: [Account!]
     addedRecipes: [Recipe!]
     favoriteRecipes: [Recipe!]
     triedRrecipes: [Recipe!]
@@ -16,8 +25,8 @@ export default gql`
   }
 
   type NotificationSettings {
-    category: NotificationType!
-    types: [NotificationCode!]!
+    type: NotificationType!
+    codes: [NotificationCode!]!
   }
 
   """
@@ -38,8 +47,8 @@ export default gql`
   }
 
   input NotificationSettingsInput {
-    category: NotificationType!
-    types: [NotificationCode!]!
+    type: NotificationType!
+    codes: [NotificationCode!]!
   }
 
   input SettingsInput {
@@ -60,7 +69,7 @@ export default gql`
   Recipoz user account query criteria
   """
   input AccountCriteria {
-    user: UserCriteria
+    user: ID
     followers: [ID!]
     followings: [ID!]
     addedRecipes: [ID!]
@@ -74,23 +83,31 @@ export default gql`
   #################################################
 
   extend type Query {
+    myAccount: Account!
     accountById(id: ID!): Account!
+    accountByUserInfo(criteria: UserCriteria!): Account!
     account(criteria: AccountCriteria, filter: [String]): Account!
     accounts(criteria: AccountCriteria, options: QueryOptions): Accounts!
-    searchAccounts(criteria: Search!, options: QueryOptions): Accounts!
   }
 
   extend type Mutation {
-    addAccount(id: ID!): Account!
+    """
+    Add account for new user
+    """
+    createAccount(user: RegisterInput): Account!
+    """
+    Add account for firebase existing user
+    """
+    addAccount(userId: String!): Account!
     updateAccount(id: ID!, account: AccountInput!): Account!
-    deleteAccount(id: ID!): Account!
-    followAccount(id: ID!, account: ID!): Account!
-    unFollowAccount(id: ID!, account: ID!): Account!
-    addFavoriteRecipe(id: ID!, recipe: ID!): Account!
-    removeFavoriteRecipe(id: ID!, recipe: ID!): Account!
-    addTriedRecipe(id: ID!, recipe: ID!): Account!
-    removeTriedRecipe(id: ID!, recipe: ID!): Account!
-    addTaste(id: ID!, category: ID!): Account!
-    removeTaste(id: ID!, category: ID!): Account!
+    deleteAccount(id: ID!): DelectedAccount!
+    followAccount(account: ID!): Account!
+    unFollowAccount(account: ID!): Account!
+    addFavoriteRecipe(recipe: ID!): Account!
+    removeFavoriteRecipe(recipe: ID!): Account!
+    addTriedRecipe(recipe: ID!): Account!
+    removeTriedRecipe(recipe: ID!): Account!
+    addTaste(category: ID!): Account!
+    removeTaste(category: ID!): Account!
   }
 `
