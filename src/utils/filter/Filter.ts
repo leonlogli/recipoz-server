@@ -64,6 +64,9 @@ class Filter extends FilterBase {
   protected getPathAndValue = async (filter: string) => {
     let { path, value } = this.extractFilterElements(filter)
 
+    if (path.split('.').pop() === 'id') {
+      path = `${path.slice(0, -2)}_id`
+    }
     if (!path.includes('.')) {
       return { path, value }
     }
