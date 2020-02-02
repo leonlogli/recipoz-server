@@ -22,17 +22,21 @@ export type NotificationType = typeof notificationTypes[number]
 export type NotificationDocument = Document & {
   code: NotificationCode
   actor: AccountDocument
-  me: AccountDocument
+  recipient: AccountDocument
   data: CommentDocument | RecipeDocument
-  unread: boolean
+  /**
+   * Only for 'ON_APP' notification type. Indicates whether
+   * the notification is read by the user or not
+   */
+  read?: boolean
 }
 
 const notificationSchema = new Schema(
   {
     code: { type: String, enum: notificationCodes },
-    me: { type: ObjectId, ref: 'Account' },
+    recipient: { type: ObjectId, ref: 'Account' },
     actor: { type: ObjectId, ref: 'Account' },
-    unread: { type: Boolean, default: true },
+    read: Boolean,
     data: { type: ObjectId, refPath: 'dataModel' },
     dataModel: { type: String, required: true, enum: ['Comment', 'Recipe'] }
   },

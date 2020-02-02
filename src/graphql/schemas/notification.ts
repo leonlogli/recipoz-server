@@ -5,9 +5,9 @@ export default gql`
     id: ID!
     code: NotificationCode!
     actor: Account!
-    me: Account!
+    recipient: Account!
     data: NotificationData!
-    unread: Boolean!
+    read: Boolean
   }
 
   union NotificationData = Comment | Recipe
@@ -29,7 +29,7 @@ export default gql`
 
   input NotificationInput {
     data: ID
-    me: ID!
+    recipient: ID!
     code: NotificationCode!
     actor: ID!
     unread: Boolean
