@@ -1,10 +1,10 @@
-import mongoose from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose'
 import { UserInputError as Error } from 'apollo-server-express'
 
 import { supportedLanguages, i18n } from '../utils'
 import { errorMessages } from '../constants'
 
-export type MeasureUnitDocument = mongoose.Document & {
+export type MeasureUnitDocument = Document & {
   name: {
     en?: string
     fr?: string
@@ -15,7 +15,7 @@ export type MeasureUnitDocument = mongoose.Document & {
   }
 }
 
-const measureUnitSchema = new mongoose.Schema({
+const measureUnitSchema = new Schema({
   name: {
     en: {
       type: String,
