@@ -59,15 +59,6 @@ export default gql`
     expiresIn: String
   }
 
-  input RegisterInput {
-    email: String
-    password: String
-    phoneNumber: String
-    displayName: String
-    photoURL: String
-    emailVerified: Boolean
-  }
-
   """
   Firebase auth user input
   """
@@ -88,13 +79,21 @@ export default gql`
     disabled: Boolean
   }
 
+  input RegisterInput {
+    email: String
+    password: String
+    phoneNumber: String
+    displayName: String
+    photoURL: String
+    emailVerified: Boolean
+  }
+
   """
   Firebase auth user query criteria
   """
   input UserCriteria {
     id: ID
     email: String
-    displayName: String
     phoneNumber: String
   }
 
@@ -107,6 +106,7 @@ export default gql`
   }
 
   extend type Mutation {
-    register(user: RegisterInput!): Account!
+    revokeRefreshTokens(accountId: ID!): Account!
+    setUserRoles(accountId: ID!, roles: [UserRole!]!): Account!
   }
 `
