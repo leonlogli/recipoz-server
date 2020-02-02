@@ -27,29 +27,58 @@ export interface QueryOptions {
 export type DocTransformOptions = {
   /**
    * Referenced docs. Each refDoc must be in the form { 'pathFromOrigin': 'modelNames' }
-   * Ex: { 'author/book' : 'Author/Book' } where 'Author' and 'Book' are model names that
-   * match respectively each sub path 'auhor' and 'book'.
-   * Subdoc paths that includes ref should be separated by point. Ex: { 'profile.userInfo' : 'UserInfo' }
+   * Ex: { 'author' : 'Author' } where 'Author' is model names of 'author' field.
+   * Form complexe paths (case of multiple sub ref paths in the same path), separate each sub path by '/'
+   * Ex: { 'author/books' : 'Author/Book' } for 'author.books' path (where 'author' and 'books' are all ref paths)
+   * Example of Subdoc paths that includes ref : { 'profile.userInfo' : 'UserInfo' }
    * where 'profile' is a subdoc with 'userInfo' field that refers to 'UserInfo' doc
    */
   refDocs?: Record<string, string>[]
   /**
-   * i18n fields. Ex: ['title', 'name']
+   * Name (not path) of all i18n fields in the doc and its ref docs. Ex: ['title', 'name']
    */
-  i18nFields: string[]
+  i18nFields?: string[]
+  /**
+   * Indicates wether to populate the doc or not
+   * @default true
+   */
+  populate?: boolean
+  /**
+   * Indicates wether to transform the docs or not. 'Transform a doc' takes into account
+   * the transformation of _id and i18n fields. This option is to allow graphql users
+   * to move doc transformation in each doc resolver or not
+   * @default true
+   */
+  transform?: boolean
 }
 
 const getRefPaths = (options: DocTransformOptions) => {
   return options.refDocs?.map(refDoc => Object.keys(refDoc)[0]) || []
 }
 
+const buildPopulatePaths = (options: DocTransformOptions) => {
+  return getRefPaths(options).map(path => {
+    if (path.includes('/')) {
+      const res: any = {}
+
+      path.split('/').forEach((subPath, index) => {
+        res[`${'populate.'.repeat(index)}path`] = subPath
+      })
+
+      return toNestedObject(res)
+    }
+
+    return path
+  })
+}
+
 /**
  * Append each supported language to each field in the specified i18nFields
  * @param i18nFields i18n fields
  */
-const formatI18NFieldsArg = (i18nFields: string[]) => {
+const formatI18NFieldsArg = (i18nFields?: string[]) => {
   return i18nFields
-    .map(i =>
+    ?.map(i =>
       supportedLanguages
         .map(s => {
           return `${i}.${s}`
@@ -124,18 +153,18 @@ const replaceI18Fields = (pathMap: Record<string, string[]>, dotedDoc: any) => {
  * @param doc document to transform
  * @param i18nFields i18n fields
  */
-function transformDoc<T>(doc: any, i18nFields: string[]): T {
+function transformDoc<T>(doc: any, i18nFields?: string[]): T {
   if (!doc) {
     return doc
   }
   // Dotify doc directly leads to unexpected result because _id is BSON Object.
   // So we parse doc after stringifying it
   const dotedDoc = dotify(JSON.parse(JSON.stringify(doc)))
-  const _i18nFields = formatI18NFieldsArg(i18nFields)
+  const formattedI18nFields = formatI18NFieldsArg(i18nFields)
 
-  if (i18nFields) {
+  if (i18nFields && formattedI18nFields) {
     i18nFields.forEach(field => {
-      const pathMaps = mapDocI18nPaths(field, dotedDoc, _i18nFields)
+      const pathMaps = mapDocI18nPaths(field, dotedDoc, formattedI18nFields)
 
       pathMaps.forEach(pathMap => replaceI18Fields(pathMap, dotedDoc))
     })
@@ -155,7 +184,7 @@ function transformDoc<T>(doc: any, i18nFields: string[]): T {
  * @param doc document to transform
  * @param i18nFields i18n fields
  */
-function transformDocs<T>(docs: T[], i18nFields: string[]): T[] {
+function transformDocs<T>(docs: T[], i18nFields?: string[]): T[] {
   if (!docs || !docs.length) {
     return docs
   }
@@ -170,4 +199,10 @@ const findDocAndSelectOnlyIds = async (criteria: any, modelName: string) => {
     .exec()
 }
 
-export { transformDoc, transformDocs, findDocAndSelectOnlyIds, getRefPaths }
+export {
+  transformDoc,
+  transformDocs,
+  findDocAndSelectOnlyIds,
+  getRefPaths,
+  buildPopulatePaths
+}
