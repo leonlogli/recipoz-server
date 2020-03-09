@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import dotenv from 'dotenv'
 import logger from './logger'
+import { SupportedLanguage } from '../utils'
 
 logger.debug('Using .env file to supply config environment variables')
 dotenv.config()
@@ -8,13 +9,24 @@ dotenv.config()
 const {
   JWT_SECRET,
   JWT_EXPIRATION,
-  APP_DEFAULT_LANGUAGE,
   ADMIN_EMAIL,
-  NODE_ENV
+  NODE_ENV,
+  NUTRITIONIX_API_APP_KEY,
+  NUTRITIONIX_API_APP_ID,
+  NUTRITIONIX_API_URL,
+  EDAMAM_API_APP_KEY,
+  EDAMAM_API_URL
 } = process.env
+
+/** App default language */
+const APP_DEFAULT_LANGUAGE = process.env
+  .APP_DEFAULT_LANGUAGE as SupportedLanguage
 
 /** Default items number per page */
 const DEFAULT_PAGE_SIZE = Number(process.env.DEFAULT_PAGE_SIZE)
+
+/** Max items number per page */
+const MAX_PAGE_SIZE = Number(process.env.MAX_PAGE_SIZE)
 
 /** Indicates whether to use mongoose in-memory databse for test instead of real database */
 const USE_MEMORY_TEST_DB = process.env.USE_MEMORY_TEST_DB === 'true'
@@ -66,18 +78,22 @@ const JWT = {
 }
 
 export {
-  /** Node process env */
   NODE_ENV,
   PORT,
   JWT,
   TEST_ENV,
   PROD_ENV,
   DEV_ENV,
-  /** App default language */
   APP_DEFAULT_LANGUAGE,
   ADMIN_EMAIL,
   USE_MEMORY_TEST_DB,
   DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
   MONGO,
-  FIREBASE
+  FIREBASE,
+  NUTRITIONIX_API_APP_ID,
+  NUTRITIONIX_API_APP_KEY,
+  NUTRITIONIX_API_URL,
+  EDAMAM_API_APP_KEY,
+  EDAMAM_API_URL
 }

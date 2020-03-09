@@ -1,53 +1,41 @@
-import { AuthenticationError, ForbiddenError } from 'apollo-server-express'
-
-import { i18n } from '../../utils'
+import { errorMessages, statusMessages } from '../../constants'
 import { accountService, userService } from '../../services'
-import { errorMessages } from '../../constants'
+import { i18n, AuthenticationError } from '../../utils'
 import { Context } from '../context'
 
 export default {
   Query: {
     accessToken: async (parent: any, { authToken }: any) => {
-      const { userId, roles }: any = await userService.verifyIdToken(authToken)
-      const account = await accountService.getAccountAndSelect(
-        { user: userId },
-        '_id'
-      )
+      const { user, roles }: any = await userService.verifyIdToken(authToken)
+      const account = await accountService.getAccountAndSelect({ user }, '_id')
 
       if (account) {
         return userService.generateAccessToken({ id: account._id, roles })
       }
-      throw new AuthenticationError(i18n.t(errorMessages.accessDenied))
+      throw new AuthenticationError(errorMessages.accessDenied)
     }
   },
   Mutation: {
-    revokeRefreshTokens: async (_: any, { accountId }: any, ctx: Context) => {
-      const { requireAuth, isAdmin } = ctx
+    revokeRefreshTokens: async (_: any, { account: id }: any) => {
+      const account: any = await accountService.getAccountById(id)
 
-      requireAuth()
-
-      if (!isAdmin) {
-        throw new ForbiddenError(i18n.t(errorMessages.forbidden))
-      }
-      const account: any = await accountService.getAccountById(accountId)
-
-      await userService.revokeRefreshTokens(account.user)
-
-      return account
+      return userService.revokeRefreshTokens(account.user).then(() => ({
+        success: true,
+        message: i18n.t(statusMessages.account.tokenRevoked),
+        code: 200,
+        account
+      }))
     },
-    setUserRoles: async (_: any, { accountId, roles }: any, ctx: Context) => {
-      const { requireAuth, isAdmin } = ctx
+    setRoles: async (_: any, { account: id, roles }: any, ctx: Context) => {
+      const { accountLoader } = ctx.dataLoaders
+      const account: any = await accountLoader.load(id)
 
-      requireAuth()
-
-      if (!isAdmin) {
-        throw new ForbiddenError(i18n.t(errorMessages.forbidden))
-      }
-      const account: any = await accountService.getAccountById(accountId)
-
-      await userService.setUserRoles(account.user, ...roles)
-
-      return account
+      return userService.setRoles(account.user, ...roles).then(() => ({
+        success: true,
+        message: i18n.t(statusMessages.account.updated),
+        code: 201,
+        account
+      }))
     }
   }
 }

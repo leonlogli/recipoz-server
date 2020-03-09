@@ -1,1 +1,2 @@
-export { default as authMiddleware } from './auth'
+export * from './auth'
+export * from './i18n'

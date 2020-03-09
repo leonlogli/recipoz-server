@@ -2,11 +2,7 @@ import { gql } from 'apollo-server-express'
 
 import userSchema from './user'
 import category from './category'
-import ingredient from './ingredient'
-import measureUnit from './measureUnit'
-import utensil from './utensil'
-import nutrient from './nutrient'
-import source from './source'
+import recipeSource from './recipeSource'
 import account from './account'
 import recipe from './recipe'
 import notification from './notification'
@@ -29,11 +25,7 @@ export default [
   common,
   userSchema,
   category,
-  ingredient,
-  measureUnit,
-  utensil,
-  nutrient,
-  source,
+  recipeSource,
   account,
   recipe,
   notification,

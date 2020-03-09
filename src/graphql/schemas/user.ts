@@ -12,38 +12,41 @@ export default gql`
     phoneNumber: String
     photoURL: String
     coverImageUrl: String
-    gender: String
+    gender: Gender
     location: String
-    language: [String!]
+    language: String
     theme: String
     website: String
     aboutMe: String
-    socials: [String!]
+    birthday: String
+    facebook: String
+    pinterest: String
+    twitter: String
     disabled: Boolean!
     metadata: UserMetadata!
     providerData: [UserInfo!]
-    roles: [UserRole!]
+    roles: [Role!]!
     tokensValidAfterTime: String
     tenantId: String
   }
 
-  enum UserRole {
+  enum Role {
     ADMIN
     USER
   }
 
-  """
-  Additional metadata about the user.
-  """
+  enum Gender {
+    M
+    F
+  }
+
+  "Additional metadata about the user"
   type UserMetadata {
     lastSignInTime: String!
     creationTime: String!
   }
 
-  """
-  Interface representing a user's info from a third-party identity
-  provider such as Google or Facebook.
-  """
+  "Interface representing a user's info from a third-party identity provider such as Google or Facebook"
   type UserInfo {
     uid: String
     displayName: String
@@ -59,23 +62,25 @@ export default gql`
     expiresIn: String
   }
 
-  """
-  Firebase auth user input
-  """
+  "Firebase auth user input"
   input UserInput {
     email: String
+    password: String
     emailVerified: Boolean
     displayName: String
     phoneNumber: String
     photoURL: String
     coverImageUrl: String
-    gender: String
+    gender: Gender
     location: String
-    language: [String!]
+    language: String
     theme: String
     website: String
     aboutMe: String
-    socials: [String!]
+    birthday: String
+    facebook: String
+    pinterest: String
+    twitter: String
     disabled: Boolean
   }
 
@@ -88,15 +93,6 @@ export default gql`
     emailVerified: Boolean
   }
 
-  """
-  Firebase auth user query criteria
-  """
-  input UserCriteria {
-    id: ID
-    email: String
-    phoneNumber: String
-  }
-
   #################################################
   #      QUERY, MUTATION & SUBSCRIBTION
   #################################################
@@ -106,7 +102,8 @@ export default gql`
   }
 
   extend type Mutation {
-    revokeRefreshTokens(accountId: ID!): Account!
-    setUserRoles(accountId: ID!, roles: [UserRole!]!): Account!
+    revokeRefreshTokens(account: ID!): MutationResponse! @auth(requires: ADMIN)
+    setRoles(account: ID!, roles: [Role!]!): MutationResponse!
+      @auth(requires: ADMIN)
   }
 `

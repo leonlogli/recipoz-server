@@ -1,10 +1,8 @@
 import { Request as BaseRequest, Response } from 'express'
-import { AuthenticationError } from 'apollo-server-express'
 
-import { i18n } from '../utils'
-import { errorMessages } from '../constants'
+import { AuthenticationError, DataLoaders } from '../utils'
 import { Role } from '../models'
-import { userLoader } from './dataloaders'
+import createDataLoaders from './dataloaders'
 
 export type Request = BaseRequest & {
   accountId?: string
@@ -22,7 +20,7 @@ export type Context = Pick<
    * Require user authentification before accessing the requested resource
    */
   requireAuth: () => void
-  usersLoader: ReturnType<typeof userLoader>
+  dataLoaders: DataLoaders
 }
 
 type ExpressContext = {
@@ -36,12 +34,15 @@ const context = ({ req }: ExpressContext): Context => {
 
   const requireAuth = () => {
     if (!accountId) {
-      throw new AuthenticationError(i18n.t(errorMessages.unauthenticated))
+      throw new AuthenticationError()
     }
+
     if (error) {
       throw error
     }
   }
+
+  const dataLoaders = createDataLoaders()
 
   // add the user and other data to the context
   return {
@@ -51,8 +52,9 @@ const context = ({ req }: ExpressContext): Context => {
     isAdmin,
     accesToken,
     requireAuth,
-    usersLoader: userLoader()
+    dataLoaders
   }
 }
 
 export default context
+export { context }

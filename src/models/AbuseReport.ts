@@ -27,12 +27,15 @@ export type AbuseReportDocument = Document & {
   onData: CategoryDocument | RecipeDocument
 }
 
-const abuseReportSchema = new Schema({
-  type: { type: String, enum: abuseTypes },
-  user: { type: ObjectId, ref: 'Account' },
-  onData: { type: ObjectId, required: true, refPath: 'onDataModel' },
-  onDataModel: { type: String, required: true, enum: ['Comment', 'Recipe'] }
-})
+const abuseReportSchema = new Schema(
+  {
+    type: { type: String, enum: abuseTypes },
+    user: { type: ObjectId, ref: 'Account' },
+    onData: { type: ObjectId, required: true, refPath: 'onDataModel' },
+    onDataModel: { type: String, required: true, enum: ['Comment', 'Recipe'] }
+  },
+  { timestamps: true }
+)
 
 export const AbuseReport = mongoose.model<AbuseReportDocument>(
   'AbuseReport',

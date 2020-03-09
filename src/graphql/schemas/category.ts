@@ -2,34 +2,32 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   type Category {
-    id: ID!
-    parentCategory: ParentCategory
-    name: String!
-    description: String
-    thumbnail: String!
-  }
-
-  type ParentCategory {
-    id: ID
-    name: String
-    description: String
+    id: ID! @id
+    name: String! @i18n
+    description: String @i18n
     thumbnail: String
-  }
-
-  type Categories {
-    """
-    Category list
-    """
-    content: [Category!]!
-    page: Page
-    totalElements: Int
+    parentCategory: Category
+    subCategories(page: PageInput, sort: String): Categories!
   }
 
   input CategoryInput {
-    parentCategory: ID
-    name: I18n
-    description: I18n
+    name: String
+    description: String
     thumbnail: String
+    parentCategory: ID
+  }
+
+  type Categories {
+    content: [Category!]!
+    totalCount: Int!
+    page: Page
+  }
+
+  type CategoryMutationResponse implements MutationResponse {
+    code: Int!
+    success: Boolean!
+    message: String!
+    category: Category
   }
 
   #################################################
@@ -37,15 +35,24 @@ export default gql`
   #################################################
 
   extend type Query {
-    categoryById(id: ID!): Category!
-    category(criteria: CategoryInput, filter: [String]): Category!
-    categories(criteria: CategoryInput, options: QueryOptions): Categories!
-    searchCategories(criteria: Search!, options: QueryOptions): Categories!
+    category(id: ID!): Category!
+    categories(
+      query: CategoryInput
+      page: PageInput
+      options: QueryOptions
+    ): Categories!
+    autocompleteCategories(query: String!): [String!]!
+    searchCategories(query: String!, page: PageInput): Categories!
   }
 
   extend type Mutation {
-    addCategory(category: CategoryInput!): Category!
-    updateCategory(id: ID!, category: CategoryInput!): Category!
-    deleteCategory(id: ID!): Category!
+    addCategory(category: CategoryInput!, language: String!): MutationResponse!
+      @auth(requires: ADMIN)
+    updateCategory(
+      id: ID!
+      category: CategoryInput!
+      language: String!
+    ): MutationResponse! @auth(requires: ADMIN)
+    deleteCategory(id: ID!): MutationResponse! @auth(requires: ADMIN)
   }
 `

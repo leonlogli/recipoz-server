@@ -1,19 +1,15 @@
 import userResolver from './userResolver'
 import categoryResolver from './categoryResolver'
-import ingredientResolver from './ingredientResolver'
-import measureUnitResolver from './measureUnitResolver'
-import utensilResolver from './utensilResolver'
-import nutrientResolver from './nutrientResolver'
-import sourceResolver from './sourceResolver'
+import recipeSourceResolver from './recipeSourceResolver'
 import accountResolver from './accountResolver'
+import recipeResolver from './recipeResolver'
+import commonResolver from './commonResolver'
 
 export default [
   userResolver,
   categoryResolver,
-  ingredientResolver,
-  measureUnitResolver,
-  utensilResolver,
-  nutrientResolver,
-  sourceResolver,
-  accountResolver
+  recipeSourceResolver,
+  accountResolver,
+  recipeResolver,
+  commonResolver
 ]

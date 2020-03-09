@@ -1,11 +1,15 @@
 import jwt from 'jsonwebtoken'
-import { ApolloError } from 'apollo-server-express'
-import status from 'http-status'
 
-import { firebaseAdmin, JWT, logger, usersRef } from '../config'
-import { Role, Token, User, UserAdditionalInfo } from '../models'
-import { removeUndefinedKeysFrom, sendError, i18n } from '../utils'
+import { firebaseAdmin, usersRef } from '../config/firebase'
 import { errorMessages } from '../constants'
+import { Role, Token, User, UserAdditionalInfo, UserDocument } from '../models'
+import {
+  removeUndefinedKeysFrom,
+  ApiError,
+  updateLoaderCache,
+  DataLoaders
+} from '../utils'
+import { JWT } from '../config'
 
 const auth = firebaseAdmin.auth()
 const { userNotFound } = errorMessages.account
@@ -16,39 +20,25 @@ export type AuthOptions = Partial<
 
 type UpdateRequest = UserAdditionalInfo & firebaseAdmin.auth.UpdateRequest
 
-const createUser = async (data: firebaseAdmin.auth.CreateRequest) => {
-  try {
-    return User.transform(await auth.createUser(data))
-  } catch (e) {
-    sendError(e)
-  }
-}
-
-const getUser = async (criteria: AuthOptions) => {
+const getUser = async (criteria: AuthOptions): Promise<UserDocument> => {
   const { id, email, phoneNumber } = criteria
+  let user
 
-  try {
-    let user
+  if (id && !!id.trim()) {
+    user = await auth.getUser(id)
+  } else if (email && !!email.trim()) {
+    user = await auth.getUserByEmail(email)
+  } else if (phoneNumber && !!phoneNumber.trim()) {
+    user = await auth.getUserByPhoneNumber(phoneNumber)
+  }
 
-    if (id && !!id.trim()) {
-      user = await auth.getUser(id)
-    }
-    if (email && !!email.trim()) {
-      user = await auth.getUserByEmail(email)
-    }
-    if (phoneNumber && !!phoneNumber.trim()) {
-      user = await auth.getUserByPhoneNumber(phoneNumber)
-    }
+  if (!user) {
+    throw new ApiError(userNotFound, '404')
+  }
 
-    if (user) {
-      return {
-        ...User.transform(user),
-        ...(await usersRef.child(user.uid).once('value')).val()
-      }
-    }
-    throw new ApolloError(i18n.t(userNotFound), status['404_NAME'])
-  } catch (e) {
-    sendError(e)
+  return {
+    ...User.transform(user),
+    ...(await usersRef.child(user.uid).once('value')).val()
   }
 }
 
@@ -60,13 +50,15 @@ const extractDataToUpdate = (dataToUpdate: UpdateRequest) => {
     emailVerified,
     phoneNumber,
     photoURL,
+    password,
     ...additionalUserInfo
-  } = dataToUpdate
+  } = dataToUpdate || {}
 
   const userInfo = removeUndefinedKeysFrom({
     disabled,
     displayName,
     email,
+    password,
     emailVerified,
     phoneNumber,
     photoURL
@@ -78,37 +70,43 @@ const extractDataToUpdate = (dataToUpdate: UpdateRequest) => {
   }
 }
 
-const updateUser = async (id: string, data: UpdateRequest) => {
-  const { userInfo, additionalUserInfo } = extractDataToUpdate(data)
+const createUser = async (data: firebaseAdmin.auth.CreateRequest) => {
+  return User.transform(await auth.createUser(data))
+}
 
-  try {
-    if (Object.keys(userInfo).length > 0) {
-      auth.updateUser(id, userInfo)
+const updateUser = async (
+  id: string,
+  data: UpdateRequest,
+  loaders?: DataLoaders
+) => {
+  const { userInfo, additionalUserInfo } = extractDataToUpdate(data)
+  let user = await auth.updateUser(id, userInfo)
+
+  if (Object.keys({ ...additionalUserInfo }).length > 0) {
+    // Update user additional profile info that is not handled by default in firebase authentification
+    await usersRef.child(id).update(additionalUserInfo)
+    user = {
+      ...User.transform(user),
+      ...(await usersRef.child(user.uid).once('value')).val()
     }
-    if (Object.keys(additionalUserInfo).length > 0) {
-      // Update user additional profile info that is not handled by default in firebase authentification
-      usersRef.child(id).update(additionalUserInfo)
-    }
-  } catch (e) {
-    sendError(e)
   }
+
+  if (loaders) {
+    updateLoaderCache(loaders.userLoader, user as UserDocument)
+  }
+
+  return user as UserDocument
 }
 
 const deleteUser = async (id: string) => {
-  try {
-    auth.deleteUser(id)
+  return Promise.all([
+    auth.deleteUser(id),
     usersRef.child(id).remove()
-  } catch (e) {
-    sendError(e)
-  }
+  ]).then(_values => getUser({ id }))
 }
 
-const setUserRoles = async (id: string, ...roles: Role[]) => {
-  try {
-    return auth.setCustomUserClaims(id, { roles: [...new Set([...roles])] })
-  } catch (e) {
-    sendError(e)
-  }
+const setRoles = async (id: string, ...roles: Role[]) => {
+  return auth.setCustomUserClaims(id, { roles: [...new Set([...roles])] })
 }
 
 /**
@@ -116,14 +114,11 @@ const setUserRoles = async (id: string, ...roles: Role[]) => {
  * @param authToken The ID token to verify.
  */
 const verifyIdToken = (authToken: string) => {
-  return auth
-    .verifyIdToken(authToken, true)
-    .then(payload => {
-      const { uid, roles } = payload
+  return auth.verifyIdToken(authToken, true).then(payload => {
+    const { uid, roles } = payload
 
-      return { userId: uid, roles }
-    })
-    .catch(error => sendError(error))
+    return { userId: uid, roles }
+  })
 }
 
 /**
@@ -146,13 +141,7 @@ const generateAccessToken = (payload: Record<string, string>) => {
  * @param id The `uid` corresponding to the user whose refresh tokens are to be revoked.
  */
 const revokeRefreshTokens = async (id: string) => {
-  return auth.revokeRefreshTokens(id).then(async () => {
-    const user = await getUser({ id })
-
-    logger.info('Tokens revoked for user: ', user.uid)
-
-    return user
-  })
+  return auth.revokeRefreshTokens(id)
 }
 
 export default {
@@ -160,7 +149,7 @@ export default {
   updateUser,
   deleteUser,
   createUser,
-  setUserRoles,
+  setRoles,
   verifyIdToken,
   revokeRefreshTokens,
   generateAccessToken

@@ -4,7 +4,7 @@ export default gql`
   type Comment {
     id: ID!
     user: Account!
-    onData: ComentData!
+    onData: CommentData!
     content: String
     attachmentUrl: String
     rating: Float
@@ -13,7 +13,7 @@ export default gql`
     mentionedUsers: [Account!]
   }
 
-  union ComentData = Category | Recipe
+  union CommentData = Category | Recipe
 
   enum CommentReactionType {
     LIKE

@@ -1,9 +1,6 @@
 import dotObject from 'dot-object'
-import { ApolloError } from 'apollo-server-express'
-
-import { errorMessages } from '../constants'
-import { i18n } from '.'
-import { logger, PROD_ENV } from '../config'
+import stringify from 'fast-json-stable-stringify'
+import { createHash } from 'crypto'
 
 /**
  * Convert object to dotted-key/value pair
@@ -34,12 +31,22 @@ const isString = (val: any) => {
 }
 
 /**
- * Determines whether an object has a property with the specified name.
+ * Determines whether an object has properties with the specified names.
  * @param object object.
  * @param propertyKey A property name.
+ * @returns true if all the specified keys are the given object properties, false otherwise
  */
-const hasOwnProperty = (object: any, propertyKey: string) => {
-  return Object.prototype.hasOwnProperty.call(object, propertyKey)
+const hasOwnProperties = (
+  object: Record<string, any>,
+  ...propertyKeys: string[]
+) => {
+  if (!Object.keys({ ...object }).length) {
+    return false
+  }
+
+  return propertyKeys.every(key =>
+    Object.prototype.hasOwnProperty.call(object, key)
+  )
 }
 
 const removeUndefinedKeysFrom = (obj: any): any => {
@@ -51,46 +58,82 @@ const removeUndefinedKeysFrom = (obj: any): any => {
     .reduce((a, [k, v]) => (v === undefined ? a : { ...a, [k]: v }), {})
 }
 
-const sendError = (e: { code: string; message?: string }) => {
-  const { accessDenied, account, internalServerError } = errorMessages
+/**
+ * Rename the specified keys in the given object and return it.
+ * @param obj object in which the keys will renamed
+ * @param keysMap map of old and new keys. { 'oldKey': 'newKey' }
+ */
+const renameKeys = (
+  obj: Record<string, any>,
+  ...keysMap: Record<string, string>[]
+): any => {
+  keysMap.forEach(keyMap => {
+    const oldKey = Object.keys(keyMap)[0]
+    const newKey = keyMap[oldKey]
 
-  if (!e || !e.message) {
-    return
+    delete Object.assign(obj, { [newKey]: obj[oldKey] })[oldKey]
+  })
+
+  return obj
+}
+
+/**
+ * Sums each properties values of the specified array of object
+ * Ex:[{ a: 1, b: 5 }, { a: 2, b: 5 }] returns { a: 3, b: 10 }
+ * @param values arrays of object
+ */
+const sumProperties = (values: Record<string, number>[]) => {
+  const res = values.reduce((previousValue, currentValue) => {
+    const map = Object.keys(values[0]).map(key => [
+      key,
+      previousValue[key] + currentValue[key]
+    ])
+
+    return Object.fromEntries(map)
+  })
+
+  return res
+}
+
+/**
+ * Deterministic data hash to . This is not for crypto purpose.
+ * @param data data to hash
+ * @returns the same 'hex' digest for the same given input data
+ */
+const hash = (data: any) => {
+  return createHash('md5')
+    .update(stringify(data))
+    .digest('hex')
+}
+
+/**
+ * Concat values of the given array using the lowest item length in the array.
+ * Ex: concatValues([["a1", "b1"], ["a2"]]) returns ["a1 a2"]
+ */
+const concatValues = (arrayTab: string[][]) => {
+  const res = []
+  const minLength = Math.min(...arrayTab.map(i => i.length))
+
+  for (let i = 0; i < minLength; i++) {
+    let value = ''
+
+    for (let j = 0; j < arrayTab.length; j++) {
+      value = `${value + arrayTab[j][i]} `
+    }
+    res.push(value.trim())
   }
 
-  switch (e.code) {
-    case 'auth/email-already-exists':
-      throw new ApolloError(i18n.t(account.emailAlreadyExists), e.code)
-    case 'auth/phone-number-already-exists':
-      throw new ApolloError(i18n.t(account.phoneNumberAlreadyExists), e.code)
-    case 'auth/invalid-password':
-      throw new ApolloError(i18n.t(account.invalidPassword), e.code)
-    case 'auth/invalid-phone-number':
-      throw new ApolloError(i18n.t(account.invalidPhoneNumber), e.code)
-    case 'auth/invalid-display-name':
-      throw new ApolloError(i18n.t(account.invalidDisplayName), e.code)
-    case 'auth/invalid-photo-url':
-      throw new ApolloError(i18n.t(account.invalidPhotoURL), e.code)
-    case 'auth/user-not-found':
-      throw new ApolloError(i18n.t(account.userNotFound, e.code))
-    case 'auth/id-token-revoked':
-    case 'auth/id-token-expired':
-    case 'auth/invalid-id-token':
-      throw new ApolloError(i18n.t(accessDenied), e.code)
-    default:
-      logger.error(e.message)
-      throw new ApolloError(
-        PROD_ENV ? i18n.t(internalServerError) : e.message,
-        e.code
-      )
-  }
+  return res
 }
 
 export {
   dotify,
   toNestedObject,
   isString,
-  hasOwnProperty,
   removeUndefinedKeysFrom,
-  sendError
+  hasOwnProperties,
+  renameKeys,
+  sumProperties,
+  hash,
+  concatValues
 }

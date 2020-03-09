@@ -1,18 +1,20 @@
-import mongoose from 'mongoose'
+import status, { HttpStatus } from 'http-status'
 
-import { i18n } from '.'
-import { dotify, toNestedObject } from './Util'
-import { supportedLanguages } from './i18n'
-import { APP_DEFAULT_LANGUAGE } from '../config'
+import { i18n, SupportedLanguage } from './i18n'
+import stopWords from '../constants/stopWords'
+import { isString } from './Util'
 
-/**
- * Abstract interface for pagination information.
- */
+/** Page query options */
 export interface Page {
-  /** page number (1 indexed, defaults to 1) */
+  /** Page number (1 indexed, defaults to 1) */
   number: number
-  /** page size. Default: 20 */
+  /** Page size. Default: 20 */
   size: number
+}
+
+export interface PageResponse extends Page {
+  /** Total pages */
+  count: number
 }
 
 export interface QueryOptions {
@@ -20,189 +22,125 @@ export interface QueryOptions {
   sort?: string
   /** filter conditions */
   filter?: string[]
+  /** The language in which the query will be performed. If not specified, the current language is used */
+  language: string
   /** Page info */
-  page?: Page
+  page: Page
 }
 
-export type DocTransformOptions = {
-  /**
-   * Referenced docs. Each refDoc must be in the form { 'pathFromOrigin': 'modelNames' }
-   * Ex: { 'author' : 'Author' } where 'Author' is model names of 'author' field.
-   * Form complexe paths (case of multiple sub ref paths in the same path), separate each sub path by '/'
-   * Ex: { 'author/books' : 'Author/Book' } for 'author.books' path (where 'author' and 'books' are all ref paths)
-   * Example of Subdoc paths that includes ref : { 'profile.userInfo' : 'UserInfo' }
-   * where 'profile' is a subdoc with 'userInfo' field that refers to 'UserInfo' doc
-   */
-  refDocs?: Record<string, string>[]
-  /**
-   * Name (not path) of all i18n fields in the doc and its ref docs. Ex: ['title', 'name']
-   */
+export type BatchQuery = Pick<QueryOptions, 'sort' | 'page'> & {
+  /** query criteria */
+  criteria: Record<string, any>
+}
+
+export type StatusCode = keyof Omit<HttpStatus, 'classes' | 'extra'>
+
+/**
+ * Convert sort directives to object.
+ * Ex: sortDirectivesToObject('title -name') returns { title: 1, name: -1 }
+ * @param sortDirectives sort directives. Ex: 'title -name'
+ */
+const convertSortToObject = (sortDirectives?: string) => {
+  if (!sortDirectives) {
+    return {}
+  }
+  const result: Record<string, any> = {}
+
+  sortDirectives.split(' ').forEach(item => {
+    if (item.startsWith('-')) {
+      result[item.substring(1, item.length)] = -1
+    } else result[item] = 1
+  })
+
+  return result
+}
+
+/**
+ * Append the current language to every i18n sort field.
+ * Ex: buildSortDirectives('name', ['name']) returns 'name.fr' if current language is 'fr'
+ * @param sort sort query string
+ * @param i18nFields i18n fields
+ * @param toObject if true, return object. Otherwize, return string
+ */
+const buildSort = (sort?: string, i18nFields?: string[], toObject = false) => {
+  if (!i18nFields || !i18nFields.length || !sort || !sort.trim()) {
+    return toObject ? {} : sort
+  }
+
+  const res = sort
+    .split(' ')
+    .map(item => {
+      if (i18nFields.find(field => item.includes(field))) {
+        return `${item}.${i18n.currentLanguage}`
+      }
+
+      return item
+    })
+    .join(' ')
+
+  return toObject ? convertSortToObject(res) : res
+}
+
+const buildFindQueryArgs = (opts: {
+  query: any
+  sort?: string
+  filter?: any
   i18nFields?: string[]
-  /**
-   * Indicates wether to populate the doc or not
-   * @default true
-   */
-  populate?: boolean
-  /**
-   * Indicates wether to transform the docs or not. 'Transform a doc' takes into account
-   * the transformation of _id and i18n fields. This option is to allow graphql users
-   * to move doc transformation in each doc resolver or not
-   * @default true
-   */
-  transform?: boolean
-}
+  page: Page
+}) => {
+  const { query, sort, filter, i18nFields, page } = opts
+  let projection
+  let conditions
+  const skip = page.size * (page.number - 1)
+  let options: any = { lean: true, skip, limit: page.size }
 
-const getRefPaths = (options: DocTransformOptions) => {
-  return options.refDocs?.map(refDoc => Object.keys(refDoc)[0]) || []
-}
+  if (isString(query)) {
+    const textScore = { score: { $meta: 'textScore' } }
 
-const buildPopulatePaths = (options: DocTransformOptions) => {
-  return getRefPaths(options).map(path => {
-    if (path.includes('/')) {
-      const res: any = {}
-
-      path.split('/').forEach((subPath, index) => {
-        res[`${'populate.'.repeat(index)}path`] = subPath
-      })
-
-      return toNestedObject(res)
-    }
-
-    return path
-  })
-}
-
-/**
- * Append each supported language to each field in the specified i18nFields
- * @param i18nFields i18n fields
- */
-const formatI18NFieldsArg = (i18nFields?: string[]) => {
-  return i18nFields
-    ?.map(i =>
-      supportedLanguages
-        .map(s => {
-          return `${i}.${s}`
-        })
-        .join(';')
-    )
-    .join(';')
-    .split(';')
-}
-
-const extractI18nPathWithoutLang = (i18nField: string) => {
-  return i18nField
-    .split('.')
-    .slice(0, -1)
-    .join('.')
-}
-
-/**
- * Map all i18n paths in the given doc (dotedDoc) that math the specified i18n path.
- * Returns array of each mapping. Ex: [{ title: ['title.fr', 'title.en'] }]
- * @param path i18n field (whithout language)
- * @param dotedDoc doted document
- * @param i18nFields formatted i18n fields. Ex: ['title.fr', 'title.en']
- */
-const mapDocI18nPaths = (path: string, dotedDoc: any, i18nFields: string[]) => {
-  const groupedI18NFields = i18nFields.filter(i => i.startsWith(path))
-  const docI18nPaths = Object.keys(dotedDoc).filter(p =>
-    groupedI18NFields.some(f => p.endsWith(f))
-  )
-  const docI18nPathsWithoutLangs = Array.from(
-    new Set(docI18nPaths.map(i => extractI18nPathWithoutLang(i)))
-  )
-  const pathMaps = docI18nPathsWithoutLangs.map(keyWithoutLang => {
-    const matchedDocI18nKeys = docI18nPaths.filter(i =>
-      i.startsWith(keyWithoutLang)
-    )
-
-    return { [keyWithoutLang]: matchedDocI18nKeys }
-  })
-
-  return pathMaps
-}
-
-/**
- * Replace i18n paths in the specified document (dotedDoc) with their suitable path (without language)
- * @param pathMap i18n path map. Ex: { title: ['title.fr', 'title.en'] }
- * @param dotedDoc doc in wich the i18n paths will be replaced
- */
-const replaceI18Fields = (pathMap: Record<string, string[]>, dotedDoc: any) => {
-  const _dotedDoc = dotedDoc
-  const keyWithoutLang = Object.keys(pathMap)[0]
-  const matchedFields = pathMap[keyWithoutLang]
-  let matchedField = matchedFields.find(
-    key =>
-      key.endsWith(i18n.currentLanguage) ||
-      key.endsWith(i18n.currentLanguage.slice(0, 2))
-  )
-
-  if (!matchedField) {
-    matchedField =
-      matchedFields.find(k => k.endsWith(APP_DEFAULT_LANGUAGE as any)) ||
-      matchedFields[0]
+    conditions = { $text: { $search: query }, ...filter }
+    projection = textScore
+    options = { ...options, sort: textScore }
+  } else {
+    conditions = { ...query, ...filter }
+    options = { ...options, sort: buildSort(sort, i18nFields, true) }
   }
 
-  _dotedDoc[keyWithoutLang] = _dotedDoc[matchedField]
-  matchedFields.forEach(key => delete _dotedDoc[key])
+  return { conditions, projection, options }
 }
 
-/**
- * Transforms the specified document and its referenced documents
- * by resolving (nested) _id and using the current locale
- * @param doc document to transform
- * @param i18nFields i18n fields
- */
-function transformDoc<T>(doc: any, i18nFields?: string[]): T {
-  if (!doc) {
-    return doc
-  }
-  // Dotify doc directly leads to unexpected result because _id is BSON Object.
-  // So we parse doc after stringifying it
-  const dotedDoc = dotify(JSON.parse(JSON.stringify(doc)))
-  const formattedI18nFields = formatI18NFieldsArg(i18nFields)
+const statusCodeName = (code: StatusCode): string => {
+  const _code = code.endsWith('_NAME') ? code : `${code}_NAME`
 
-  if (i18nFields && formattedI18nFields) {
-    i18nFields.forEach(field => {
-      const pathMaps = mapDocI18nPaths(field, dotedDoc, formattedI18nFields)
+  return (status as any)[_code]
+}
 
-      pathMaps.forEach(pathMap => replaceI18Fields(pathMap, dotedDoc))
+const removeStopwords = (text: string, language?: string) => {
+  const stopwords = stopWords[language as SupportedLanguage] || stopWords.en
+
+  const words = text
+    .split(' ')
+    .map(w => w.toLowerCase())
+    // eslint-disable-next-line no-restricted-globals
+    .filter(w => isNaN(w as any) && w.length > 1)
+    .filter(w => !stopwords.includes(w))
+
+  return [...new Set(words)].join(' ')
+}
+
+const handleQueryRefKeys = (query: any, ...refKeys: string[]) => {
+  if (!isString(query)) {
+    const queryRefKeys = Object.keys(query).filter(key => refKeys.includes(key))
+
+    queryRefKeys.forEach(key => {
+      query[key] = { $in: query[key] }
     })
   }
-  const docIdKeys = Object.keys(dotedDoc).filter(key => key.endsWith('_id'))
-
-  docIdKeys.forEach(k => {
-    delete Object.assign(dotedDoc, { [`${k.slice(0, -3)}id`]: dotedDoc[k] })[k]
-  })
-
-  return toNestedObject(dotedDoc)
-}
-
-/**
- * Transforms the specified documents and their sudocuments
- * by resolving (nested) _id and using the current locale
- * @param doc document to transform
- * @param i18nFields i18n fields
- */
-function transformDocs<T>(docs: T[], i18nFields?: string[]): T[] {
-  if (!docs || !docs.length) {
-    return docs
-  }
-
-  return docs.map(doc => transformDoc(doc, i18nFields))
-}
-
-const findDocAndSelectOnlyIds = async (criteria: any, modelName: string) => {
-  return mongoose
-    .model(modelName)
-    .find(criteria, '_id', { lean: true })
-    .exec()
 }
 
 export {
-  transformDoc,
-  transformDocs,
-  findDocAndSelectOnlyIds,
-  getRefPaths,
-  buildPopulatePaths
+  buildSort,
+  statusCodeName,
+  removeStopwords,
+  buildFindQueryArgs,
+  handleQueryRefKeys
 }

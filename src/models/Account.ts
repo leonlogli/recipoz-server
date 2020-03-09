@@ -1,8 +1,4 @@
 import mongoose, { Document, Schema } from 'mongoose'
-import { UserInputError as Error } from 'apollo-server-express'
-
-import { errorMessages } from '../constants'
-import { i18n } from '../utils'
 
 import {
   CategoryDocument,
@@ -21,23 +17,23 @@ const { ObjectId } = Schema.Types
 export type AccountDocument = Document & {
   user: UserDocument
   followers?: AccountDocument[]
-  addedRecipes?: RecipeDocument[]
   favoriteRecipes?: RecipeDocument[]
   triedRrecipes?: RecipeDocument[]
-  settings: {
-    notifications?: {
-      type: NotificationType
-      codes: NotificationCode[]
-    }
+  settings?: {
+    notifications?: NotificationSetting[]
     tastes?: CategoryDocument[]
   }
+}
+
+export type NotificationSetting = {
+  type: NotificationType
+  codes: NotificationCode[]
 }
 
 const accountSchema = new Schema(
   {
     user: { type: String, unique: true },
     followers: [{ type: ObjectId, ref: 'Account' }],
-    addedRecipes: [{ type: ObjectId, ref: 'Recipe' }],
     favoriteRecipes: [{ type: ObjectId, ref: 'Recipe' }],
     triedRrecipes: [{ type: ObjectId, ref: 'Recipe' }],
     settings: {
@@ -51,14 +47,5 @@ const accountSchema = new Schema(
   { timestamps: true }
 )
 
-accountSchema.pre('validate', function validate(next) {
-  const { user } = this as any
-
-  if (!user || !user.trim()) {
-    return next(new Error(i18n.t(errorMessages.account.userIdIsMandatory)))
-  }
-
-  return next()
-})
-
 export const Account = mongoose.model<AccountDocument>('Account', accountSchema)
+export default Account

@@ -9,8 +9,11 @@ export interface UserAdditionalInfo {
   location?: string
   website?: string
   aboutMe?: string
-  socials?: string[]
-  language?: string[]
+  birthday?: Date
+  facebook?: string
+  pinterest?: string
+  twitter?: string
+  language?: string
   theme?: string
   registrationTokens?: string[] // FCM SDK registration tokens par user
 }
@@ -32,6 +35,7 @@ type UserRecord = firebaseAdmin.auth.UserRecord & UserAdditionalInfo
 
 export type UserDocument = UserRecord & {
   id: string
+  _id: string // just for mongodb document compatibility
   roles: Role[]
 }
 
@@ -43,6 +47,7 @@ export const User = {
    */
   transform: (fireBaseUser: UserRecord): UserDocument => {
     const {
+      uid,
       passwordHash: _ph,
       passwordSalt: _ps,
       customClaims,
@@ -51,7 +56,7 @@ export const User = {
 
     const roles = customClaims && (customClaims as any).roles
 
-    return { id: fireBaseUser.uid, roles, ...otherProps }
+    return { id: uid, _id: uid, uid, roles, ...otherProps }
   }
 }
 

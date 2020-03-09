@@ -5,21 +5,26 @@ export default gql`
     id: ID!
     name: String!
     description: String
-    image: String
+    image: String!
     servings: Int
-    readyInMinutes: Int
-    steps: [RecipeStep!]
+    cookTime: Int
+    prepTime: Int
+    "Total time ie prepTime + cookTime"
+    readyIn: Int!
+    steps: [Step!]
     categories: [Category!]
-    ingredients: [RecipeIngredient!]
-    utensils: [RecipeUtensil!]
-    isPrivate: Boolean
-    difficultyLevel: DifficultyLevel
-    cost: Cost
-    additionalImages: [String]
+    private: Boolean
+    difficultyLevel: DifficultyLevel!
+    cost: Cost!
+    additionalImages: [String!]
+    author: RecipeAuthor!
+    sourceUrl: String
+    ingredients: [Ingredient!]!
+    tips: String
     nutrition: Nutrition
-    postedBy: Account
-    from: RecipeSource
   }
+
+  union RecipeAuthor = Account | RecipeSource
 
   enum Cost {
     CHEAP
@@ -34,67 +39,95 @@ export default gql`
     VERY_DIFFICULT
   }
 
-  type RecipeIngredient {
-    ingredient: Ingredient
-    quantity: Float
-    unit: MeasureUnit
+  type Ingredient {
+    quantity: Float!
+    unit: String!
+    name: String!
   }
 
-  type RecipeUtensil {
-    utensil: Utensil
-    quantity: Float
-  }
-
-  type RecipeSource {
-    source: Source
-    url: String
-  }
-
-  type RecipeStep {
+  type Step {
     number: Int!
-    instructions: String!
+    instruction: String!
     image: String
   }
 
-  input RecipeIngredientInput {
-    ingredient: ID
+  input IngredientInput {
+    quantity: Float!
+    unit: ID!
+    name: String!
+  }
+
+  input StepInput {
+    instruction: String!
+    image: String
+  }
+
+  input IngredientCriteria {
     quantity: Float
     unit: ID
+    name: String
   }
 
-  input RecipeUtensilInput {
-    utensil: ID
-    quantity: Float
-  }
-
-  input RecipeSourceInput {
-    source: ID
-    url: String
-  }
-
-  input RecipeStepInput {
-    number: Int!
-    instructions: String!
+  input StepCriteria {
+    instruction: String
     image: String
   }
 
   input RecipeInput {
     name: String!
     description: String
+    image: String!
+    servings: Int!
+    "Recipe original source (Recipoz partners like food blog, website, etc.). Require user to be admin"
+    source: ID
+    "The url of the original recipe. Require when source is specified"
+    sourceUrl: String
+    "Cooking time in minutes. Optional if prepTime is specified"
+    cookTime: Int
+    "Prep time in minutes. Optional if cookTime is specified"
+    prepTime: Int
+    steps: [StepInput!]
+    categories: [ID!]!
+    "Recipe ingredients. Must contain at least 1 ingredient"
+    ingredients: [IngredientInput!]!
+    private: Boolean!
+    difficultyLevel: DifficultyLevel!
+    cost: Cost!
+    additionalImages: [String!]
+    tips: String
+  }
+
+  input RecipeCriteria {
+    name: String
+    description: String
     image: String
     servings: Int
-    source: RecipeSourceInput
-    readyInMinutes: Int
-    steps: [RecipeStepInput!]
+    source: ID
+    sourceUrl: String
+    cookTime: Int
+    prepTime: Int
+    readyIn: Int
+    steps: [StepInput!]
     categories: [ID!]
-    ingredients: [RecipeIngredientInput!]
-    utensils: [RecipeUtensilInput!]
-    isPrivate: Boolean
+    ingredients: [IngredientCriteria!]
+    private: Boolean!
     difficultyLevel: DifficultyLevel
-    cost: Cost
-    additionalImages: [String]
-    nutrition: NutritionInput
-    postedBy: ID
+    cost: Cost!
+    additionalImages: [String!]
+    tips: String
+  }
+
+  type Recipes {
+    content: [Recipe!]!
+    totalCount: Int!
+    page: Page
+  }
+
+  type RecipeMutationResponse implements MutationResponse {
+    code: Int!
+    success: Boolean!
+    message: String!
+    recipe: Recipe
   }
 
   #################################################
@@ -103,12 +136,14 @@ export default gql`
 
   extend type Query {
     recipe(id: ID!): Recipe!
-    recipes: [Recipe!]!
+    recipes(criteria: RecipeCriteria!, options: QueryOptions): Recipes
+    autocompleteRecipes(query: String!): [String!]!
+    searchRecipes(query: String!, page: PageInput): Recipes
   }
 
   extend type Mutation {
-    addRecipe(recipe: RecipeInput): Recipe!
-    updateRecipe(id: ID!, recipe: RecipeInput): Recipe!
-    deleteRecipe(id: ID!): ID!
+    addRecipe(recipe: RecipeInput!): MutationResponse! @auth
+    updateRecipe(id: ID!, recipe: RecipeInput!): MutationResponse! @auth
+    deleteRecipe(id: ID!): MutationResponse! @auth
   }
 `

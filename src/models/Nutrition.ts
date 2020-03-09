@@ -1,47 +1,39 @@
 import { Schema, Document } from 'mongoose'
 
-import { NutrientDocument } from './Nutrient'
-import { MeasureUnitDocument } from './MeasureUnit'
-
-const { ObjectId } = Schema.Types
-
-export interface RecipeNutrientDocument extends Document {
-  nutrient: NutrientDocument
-  quantity: {
-    amount: number
-    unit: MeasureUnitDocument
-  }
-  dailyValue: {
-    amount: number
-    unit: MeasureUnitDocument
-  }
-  subNutrients?: RecipeNutrientDocument[]
-}
-
 export type NutritionDocument = Document & {
-  totalCalory: number
-  totalDailyValue: number
-  nutrients: RecipeNutrientDocument[]
+  calories: number
+  fat: number
+  saturatedFat?: number
+  transFat?: number
+  cholesterol: number
+  sodium: number
+  carbs: number
+  dietaryFiber?: number
+  sugars?: number
+  protein: number
+  potassium?: number
+  vitA?: number
+  vitC?: number
+  calcium?: number
+  iron?: number
 }
-
-const recipeNutrientSchema = new Schema({
-  nutrient: { type: ObjectId, ref: 'Nutrient' },
-  quantity: {
-    amount: { type: Number, required: 'Quantity is mandatory' },
-    unit: { type: ObjectId, ref: 'MeasureUnit' }
-  },
-  dailyValue: {
-    amount: { type: Number, required: 'Quantity is mandatory' },
-    unit: { type: ObjectId, ref: 'MeasureUnit' }
-  }
-})
-
-recipeNutrientSchema.add({ subNutrients: [recipeNutrientSchema] })
 
 const nutritionSchema = new Schema({
-  totalCalory: String,
-  totalDailyValue: Number,
-  nutrients: [recipeNutrientSchema]
+  calories: Number,
+  fat: Number,
+  saturatedFat: Number,
+  transFat: Number,
+  cholesterol: Number,
+  sodium: Number,
+  carbs: Number,
+  dietaryFiber: Number,
+  sugars: Number,
+  protein: Number,
+  potassium: Number,
+  vitA: Number,
+  vitC: Number,
+  calcium: Number,
+  iron: Number
 })
 
 export { nutritionSchema }

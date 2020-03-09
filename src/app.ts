@@ -1,17 +1,16 @@
 import express from 'express'
 import helmet from 'helmet'
 
-import { connectMongodb, i18nextHandler } from './config'
-import { authMiddleware } from './middlewares'
-import { i18n } from './utils'
+import { connectDb, i18nextHandler, startAgenda } from './config'
+import { authMiddleware, i18nMiddleware } from './middlewares'
 
 /**
  * Express server instance
  */
 const app = express()
 
-// connect to the database
-connectMongodb()
+// connect to the database and starts tasks scheduling
+connectDb().then(connection => startAgenda(connection))
 
 // secure apps by setting various HTTP headers
 app.use(helmet())
@@ -20,10 +19,6 @@ app.use(helmet())
 app.use(authMiddleware.checkIfAuthenticated)
 
 // i18n middleware
-app.use(i18nextHandler, (req, res, next) => {
-  i18n.currentLanguage = req.language as any
-  i18n.t = req.t
-  next()
-})
+app.use(i18nextHandler, i18nMiddleware.localeDectector)
 
 export default app

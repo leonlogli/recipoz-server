@@ -22,15 +22,18 @@ mongoose.set('debug', DEV_ENV)
 /**
  * Connect to mongo db
  *
- * @returns {mongoose.Connection} Mongoose connection
+ * @returns {Promise<mongoose.Connection>} Mongoose connection
  */
-export const connectMongodb = (uri = MONGO.URI) => {
-  mongoose.connect(uri, {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false
-  })
-
-  return mongoose.connection
+const connectDb = (uri = MONGO.URI) => {
+  return mongoose
+    .connect(uri, {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false
+    })
+    .then(m => m.connection)
 }
+
+export { connectDb }
+export default connectDb

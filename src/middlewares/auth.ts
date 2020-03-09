@@ -33,4 +33,7 @@ const checkIfAuthenticated = (req: any, res: Response, next: NextFunction) => {
   })
 }
 
-export default { checkIfAuthenticated }
+const authMiddleware = { checkIfAuthenticated }
+
+export default authMiddleware
+export { authMiddleware }

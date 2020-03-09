@@ -1,62 +1,41 @@
-export default {
+import { withNamespace } from '../../utils'
+
+const errorMessages = {
   forbidden: 'forbidden',
   unauthenticated: 'unauthenticated',
   accessDenied: 'accessDenied',
   internalServerError: 'internalServerError',
+  invalidId: 'invalidId',
+  invalidFilter: 'invalidFilter',
   category: {
-    nameIsMandatory: 'categoryNameIsMandatory',
-    thumbnailIsMandatory: 'categoryThumbnailIsMandatory',
     notFound: 'categoryNotFound',
-    updateNotFound: 'categoryToUpdateNotFound',
-    deleteNotFound: 'categoryToDeleteNotFound'
-  },
-  ingredient: {
-    nameIsMandatory: 'ingredientNameIsMandatory',
-    imageIsMandatory: 'ingredientImageIsMandatory',
-    notFound: 'ingredientNotFound',
-    updateNotFound: 'ingredientToUpdateNotFound',
-    deleteNotFound: 'ingredientToDeleteNotFound'
+    invalid: 'invalidCategory',
+    nameAlreadyExists: 'category.nameAlreadyExists'
   },
   measureUnit: {
-    nameIsMandatory: 'measureUnitNameIsMandatory',
     notFound: 'measureUnitNotFound',
-    updateNotFound: 'measureUnitToUpdateNotFound',
-    deleteNotFound: 'measureUnitToDeleteNotFound'
-  },
-  utensil: {
-    nameIsMandatory: 'measureUnitNameIsMandatory',
-    imageIsMandatory: 'utensilImageIsMandatory',
-    notFound: 'measureUnitNotFound',
-    updateNotFound: 'measureUnitToUpdateNotFound',
-    deleteNotFound: 'measureUnitToDeleteNotFound'
+    invalid: 'invalidMeasureUnit',
+    nameAlreadyExists: 'measureUnit.nameAlreadyExists'
   },
   nutrient: {
-    nameIsMandatory: 'nutrientNameIsMandatory',
-    codeIsMandatory: 'nutrientCodeIsMandatory',
     notFound: 'nutrientNotFound',
-    updateNotFound: 'nutrientToUpdateNotFound',
-    deleteNotFound: 'nutrientToDeleteNotFound'
+    invalid: 'invalidNutrient'
   },
   source: {
-    nameIsMandatory: 'sourceNameIsMandatory',
-    websiteIsMandatory: 'sourceWebsiteIsMandatory',
     notFound: 'sourceNotFound',
-    updateNotFound: 'sourceToUpdateNotFound',
-    deleteNotFound: 'sourceToDeleteNotFound'
+    invalid: 'invalidSource'
   },
   account: {
-    userIdIsMandatory: 'userIdIsMandatory',
     notFound: 'accountNotFound',
-    updateNotFound: 'accountToUpdateNotFound',
-    deleteNotFound: 'accountToDeleteNotFound',
     emailAlreadyExists: 'emailAlreadyExists',
     phoneNumberAlreadyExists: 'phoneNumberAlreadyExists',
-    invalidEmail: 'invalidEmail',
-    invalidPhoneNumber: 'invalidPhoneNumber',
-    invalidPhotoURL: 'invalidPhotoURL',
-    invalidDisplayName: 'invalidDisplayName',
-    invalidPassword: 'invalidPassword',
     userNotFound: 'userNotFound',
-    cannotFollowYourself: 'cannotFollowYourself'
+    invalid: 'invalidAccount'
+  },
+  recipe: {
+    notFound: 'recipeNotFound',
+    invalid: 'invalidRecipe'
   }
 }
+
+export default withNamespace(errorMessages, 'errorMessages')

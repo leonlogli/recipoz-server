@@ -1,82 +1,31 @@
 import mongoose, { Document, Schema } from 'mongoose'
-import { UserInputError as Error } from 'apollo-server-express'
 
-import { i18n, supportedLanguages } from '../utils'
-import { errorMessages } from '../constants'
-
-const { ObjectId } = Schema.Types
+import { createTextIndex, I18NString, I18NUniqueString } from '../utils'
 
 export type CategoryDocument = Document & {
   parentCategory?: CategoryDocument
-  name: {
-    en?: string
-    fr?: string
-  }
-  description?: {
-    en?: string
-    fr?: string
-  }
+  name: string
+  description?: string
   thumbnail: string
 }
 
+const { ObjectId } = Schema.Types
+
 const categorySchema = new Schema({
   parentCategory: { type: ObjectId, ref: 'Category' },
-  name: {
-    en: {
-      type: String,
-      index: {
-        unique: true,
-        partialFilterExpression: { 'name.en': { $type: 'string' } }
-      }
-    },
-    fr: {
-      type: String,
-      index: {
-        unique: true,
-        partialFilterExpression: { 'name.fr': { $type: 'string' } }
-      }
-    }
-  },
-  description: {
-    en: String,
-    fr: String
-  },
-  thumbnail: { type: String, required: 'Thumbnail is mandatory' }
+  name: I18NUniqueString('name'),
+  description: I18NString,
+  thumbnail: String,
+  _tags: [String]
 })
 
+const { indexes, weights } = createTextIndex('name.*', 'description.*')
+
+categorySchema.index(indexes, { weights })
 categorySchema.index(
-  {
-    'name.en': 'text',
-    'name.fr': 'text',
-    'description.en': 'text',
-    'description.fr': 'text'
-  },
-  {
-    weights: {
-      'name.en': 3,
-      'name.fr': 3,
-      'description.en': 2,
-      'description.fr': 2
-    }
-  }
+  { _tags: 1 },
+  { partialFilterExpression: { _tags: { $exists: true } } }
 )
-
-categorySchema.pre('validate', function validate(next) {
-  const { name, thumbnail } = this as CategoryDocument
-  const nameIsValid = supportedLanguages.some(
-    lang => name[lang] && name[lang]?.trim()
-  )
-
-  if (!nameIsValid) {
-    return next(new Error(i18n.t(errorMessages.category.nameIsMandatory)))
-  }
-
-  if (!thumbnail || !thumbnail.trim()) {
-    return next(new Error(i18n.t(errorMessages.category.thumbnailIsMandatory)))
-  }
-
-  return next()
-})
 
 export const Category = mongoose.model<CategoryDocument>(
   'Category',

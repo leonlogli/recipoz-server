@@ -2,29 +2,53 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   """
-  Type for pagination, filtering and sorting information.
+  Require user to be authenticated and authorized with the specified role.
+  As any user has 'USER' role by default, even if this directive is applied
+  without parameters, this requires the user to be at least authenticated
   """
+  directive @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION
+
+  """
+  Each returned (mongoose) doc is leaned (so it has '_id' field instead of 'id' field).
+  So instead of resolve '_id' to 'id' in each resolver, this directive to handle this.
+  It injects the returned doc '_id' field to the annotated field (commonly 'id')
+  """
+  directive @id on FIELD_DEFINITION
+
+  "Format i18n field to normal field (without language). Ex. 'title.en': 'val' becomes 'title': 'val'"
+  directive @i18n on FIELD_DEFINITION
+
+  "Page info"
   type Page {
+    "Page number"
     number: Int!
+    "Page size ie number of items per page"
     size: Int!
+    "Total pages"
     count: Int!
   }
 
-  """
-  Input type for pagination, filtering and sorting information.
-  """
+  "Page info input"
   input PageInput {
+    "Page number"
     number: Int
+    "Page size or items per page"
     size: Int
   }
 
-  """
-  Query criteria options
-  """
+  input I18n {
+    en: String
+    fr: String
+  }
+
+  "Query criteria options"
   input QueryOptions {
     """
-    Sort directives: Ex: "name title" for ASC and "-name -title" for DESC
+    The language in which the query will be performed.
+    If not specified, use the current language
     """
+    language: String
+    "Sort criteria: Ex: 'name -title' where name is sorted in ASC and 'title' in DESC"
     sort: String
     """
     Filter criteria expressions. Any criteria expression is in the form 'field.operator:value'
@@ -33,18 +57,6 @@ export default gql`
     Ex: ["quantity.lt:50", "title.like:cook", "name.in:Ahmed,John", "quantity.!gte:50"]
     """
     filter: [String]
-    """
-    Page infos
-    """
-    page: PageInput
-  }
-
-  """
-  I18n support input type
-  """
-  input I18n {
-    en: String
-    fr: String
   }
 
   input Search {
@@ -55,5 +67,15 @@ export default gql`
   enum SearchType {
     FULL_TEXT
     PARTIAL_TEXT
+  }
+
+  "Base interface for mutation response"
+  interface MutationResponse {
+    "Represents the HTTP status code of the data transfer."
+    code: Int!
+    "Indicates whether the mutation was successful. This allows a coarse check by the client to know if there were failures"
+    success: Boolean!
+    "A human-readable string that describes the result of the mutation"
+    message: String!
   }
 `

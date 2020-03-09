@@ -2,38 +2,20 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   type Nutrition {
-    totalCalory: Float
-    totalDailyValue: Float
-    nutrients: [RecipeNutrient!]
-  }
-
-  type RecipeNutrientQuantity {
-    amount: Float!
-    unit: MeasureUnit!
-  }
-
-  type RecipeNutrient {
-    nutrient: Nutrient!
-    quantity: RecipeNutrientQuantity!
-    dailyValue: RecipeNutrientQuantity!
-    subNutrients: [RecipeNutrient!]
-  }
-
-  input RecipeNutrientInput {
-    nutrient: ID!
-    quantity: RecipeNutrientQuantityInput!
-    dailyValue: RecipeNutrientQuantityInput!
-    subNutrients: [RecipeNutrientInput!]
-  }
-
-  input RecipeNutrientQuantityInput {
-    amount: Float!
-    unit: ID!
-  }
-
-  input NutritionInput {
-    totalCalory: Float
-    totalDailyValue: Float
-    nutrients: [RecipeNutrientInput!]
+    calories: Float
+    fat: Float
+    saturatedFat: Float
+    transFat: Float
+    cholesterol: Float
+    sodium: Float
+    carbs: Float
+    dietaryFiber: Float
+    sugars: Float
+    protein: Float
+    potassium: Float
+    vitA: Float
+    vitC: Float
+    calcium: Float
+    iron: Float
   }
 `
