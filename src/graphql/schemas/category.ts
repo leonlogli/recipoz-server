@@ -1,32 +1,93 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
-  type Category {
-    id: ID! @id
+  type Category implements Node {
+    id: ID! @guid
     name: String! @i18n
     description: String @i18n
-    thumbnail: String
-    parentCategory: Category
-    subCategories(page: PageInput, sort: String): Categories!
+    thumbnail: String!
+    parent: Category
+    subCategories(
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): CategoryConnection!
+    followers(
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): AccountConnection!
   }
 
-  input CategoryInput {
+  type CategoryEdge {
+    cursor: String!
+    node: Category!
+  }
+
+  type CategoryConnection {
+    edges: [CategoryEdge!]!
+    nodes: [Category!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
+  input AddCategoryInput {
+    name: String!
+    description: String
+    thumbnail: String!
+    parent: ID
+    language: Language!
+    clientMutationId: String
+  }
+
+  input UpdateCategoryInput {
+    id: ID!
     name: String
     description: String
     thumbnail: String
-    parentCategory: ID
+    parent: ID
+    language: Language!
+    clientMutationId: String
   }
 
-  type Categories {
-    content: [Category!]!
-    totalCount: Int!
-    page: Page
+  input DeleteCategoryInput {
+    "ID of the category to delete"
+    id: ID!
+    clientMutationId: String
   }
 
-  type CategoryMutationResponse implements MutationResponse {
-    code: Int!
+  input CategoryFilter {
+    or: [CategoryFilter!]
+    and: [CategoryFilter!]
+    nor: [CategoryFilter!]
+    name: I18NFilter
+    description: I18NFilter
+    parent: IDFilter
+  }
+
+  type AddCategoryPayload {
+    code: String!
     success: Boolean!
     message: String!
+    clientMutationId: String
+    category: Category
+  }
+
+  type UpdateCategoryPayload {
+    code: String!
+    success: Boolean!
+    message: String!
+    clientMutationId: String
+    category: Category
+  }
+
+  type DeleteCategoryPayload {
+    code: String!
+    success: Boolean!
+    message: String!
+    clientMutationId: String
     category: Category
   }
 
@@ -35,24 +96,21 @@ export default gql`
   #################################################
 
   extend type Query {
-    category(id: ID!): Category!
     categories(
-      query: CategoryInput
-      page: PageInput
-      options: QueryOptions
-    ): Categories!
-    autocompleteCategories(query: String!): [String!]!
-    searchCategories(query: String!, page: PageInput): Categories!
+      filter: CategoryFilter
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): CategoryConnection!
   }
 
   extend type Mutation {
-    addCategory(category: CategoryInput!, language: String!): MutationResponse!
+    addCategory(input: AddCategoryInput!): AddCategoryPayload!
       @auth(requires: ADMIN)
-    updateCategory(
-      id: ID!
-      category: CategoryInput!
-      language: String!
-    ): MutationResponse! @auth(requires: ADMIN)
-    deleteCategory(id: ID!): MutationResponse! @auth(requires: ADMIN)
+    updateCategory(input: UpdateCategoryInput!): UpdateCategoryPayload!
+      @auth(requires: ADMIN)
+    deleteCategory(input: DeleteCategoryInput!): DeleteCategoryPayload!
+      @auth(requires: ADMIN)
   }
 `

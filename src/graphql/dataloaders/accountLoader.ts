@@ -1,21 +1,18 @@
 import DataLoader from 'dataloader'
 
 import { accountService } from '../../services'
-import { dataByQueryLoaderOptions, dataCountLoaderOptions } from '../../utils'
+import { dataByQueryLoaderOptions as options } from '../../utils'
 
-const { getAccountsByBatch, getAccount, countAccountsByBatch } = accountService
+const { getAccountsByBatch, getAccounts, countAccounts } = accountService
 
-const accountLoader = () => {
-  return new DataLoader(getAccount)
-}
+const accountLoader = () => new DataLoader(getAccounts)
 
 const accountByQueryLoader = () => {
-  return new DataLoader(getAccountsByBatch, dataByQueryLoaderOptions)
+  return new DataLoader(getAccountsByBatch, options)
 }
 
 const accountCountLoader = () => {
-  return new DataLoader(countAccountsByBatch, dataCountLoaderOptions)
+  return new DataLoader(countAccounts, options)
 }
 
 export { accountLoader, accountByQueryLoader, accountCountLoader }
-export default accountLoader

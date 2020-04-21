@@ -1,5 +1,7 @@
+import status, { HttpStatus } from 'http-status'
 import { GraphQLError } from 'graphql'
 import { ValidationError } from '@hapi/joi'
+import { UserInputError } from 'apollo-server-express'
 
 import {
   errorMessages,
@@ -11,12 +13,18 @@ import {
   PHONE_NUMBER_ALREADY_EXISTS,
   USER_NOT_FOUND
 } from '../../constants'
-import { statusCodeName } from '../docUtils'
 import { PROD_ENV, logger } from '../../config'
 import { ApiError } from './ApiError'
-import { UserInputError } from './UserInputError'
 import { AuthenticationError } from './AuthenticationError'
 import { ForbiddenError } from './ForbiddenError'
+
+export type StatusCode = keyof Omit<HttpStatus, 'classes' | 'extra'>
+
+const statusCodeName = (code: StatusCode): string => {
+  const _code = code.endsWith('_NAME') ? code : `${code}_NAME`
+
+  return (status as any)[_code]
+}
 
 const buildErrorDetails = (error: GraphQLError) => {
   const { locations, path, extensions } = error
@@ -52,19 +60,17 @@ const formatFireBaseError = (error: GraphQLError) => {
   }
 }
 
-const checkAndSendValidationErrors = (
-  error?: ValidationError,
-  message?: string
-) => {
+const checkAndSendValidationErrors = (error?: ValidationError) => {
   if (error) {
     const validationErrors = error.details.map(detail => ({
       message: detail.message,
       path: detail.path,
       type: detail.type
     }))
-    const msg = message || validationErrors[0].message
 
-    throw new UserInputError(msg, { validationErrors })
+    throw new UserInputError('Invalid input', {
+      validationErrors
+    })
   }
 }
 
@@ -77,7 +83,7 @@ const formatError = (error: GraphQLError) => {
   const { extensions } = error
   const exception = extensions?.exception
   const code = error.extensions?.code
-  const { internalServerError, invalidId } = errorMessages
+  const { internalServerError } = errorMessages
 
   if (exception?.codePrefix === 'auth') {
     return formatFireBaseError(error)
@@ -85,7 +91,7 @@ const formatError = (error: GraphQLError) => {
 
   if (code === statusCodeName('500')) {
     if (exception?.name === 'CastError' && exception?.kind === 'ObjectId') {
-      return new UserInputError(invalidId, buildErrorDetails(error))
+      return new UserInputError('Invalid id', buildErrorDetails(error))
     }
 
     if (PROD_ENV) {
@@ -120,5 +126,6 @@ export {
   formatError,
   buildErrorDetails,
   checkAndSendValidationErrors,
-  rewriteError
+  rewriteError,
+  statusCodeName
 }

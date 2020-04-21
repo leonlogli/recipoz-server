@@ -1,34 +1,34 @@
-import { Context } from '..'
-import { hasOwnProperties } from '../../utils'
+import {
+  fromGlobalId,
+  getDataLoaderByModel,
+  isValidObjectId
+} from '../../utils'
+import { Context } from '../context'
+import { logger } from '../../config'
 
 export default {
-  MutationResponse: {
-    __resolveType(mutationResponse: any, _context: Context) {
-      if (hasOwnProperties(mutationResponse, 'recipe')) {
-        return 'RecipeMutationResponse'
+  Query: {
+    node: (_: any, { id: guid }: any, { dataLoaders }: Context) => {
+      const { type, id } = fromGlobalId(guid)
+      const dataLoader = getDataLoaderByModel(type as any, dataLoaders) as any
+
+      if (!dataLoader || !isValidObjectId(id)) {
+        return null
       }
 
-      if (hasOwnProperties(mutationResponse, 'category')) {
-        return 'CategoryMutationResponse'
-      }
-
-      if (hasOwnProperties(mutationResponse, 'recipeSource')) {
-        return 'RecipeSourceMutationResponse'
-      }
-
-      if (hasOwnProperties(mutationResponse, 'recipeSource')) {
-        return mutationResponse.me
-          ? 'RecipeSourceMutationResponse'
-          : 'RecipeSourceMutationResponse'
-      }
-
-      if (hasOwnProperties(mutationResponse, 'account')) {
-        return mutationResponse.me
-          ? 'FollowAccountMutationResponse'
-          : 'AccountMutationResponse'
-      }
-
-      return null
+      return dataLoader.load(id).catch((e: Error) => {
+        logger.error(`Error fetching node (${id}): `, e)
+      })
     }
+  },
+  Node: {
+    // Each node has already __typename property to resolve to appropriate type.
+    // That said, we don't need to define explixitly '__resolveType' functyion,
+    // but we do it just to avoid apollo server warning about "__resolveType" missing
+    __resolveType: (node: any) => node.__typename
+  },
+  Language: {
+    EN: 'en',
+    FR: 'fr'
   }
 }

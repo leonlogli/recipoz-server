@@ -1,6 +1,4 @@
 import dotObject from 'dot-object'
-import stringify from 'fast-json-stable-stringify'
-import { createHash } from 'crypto'
 
 /**
  * Convert object to dotted-key/value pair
@@ -33,77 +31,24 @@ const isString = (val: any) => {
 /**
  * Determines whether an object has properties with the specified names.
  * @param object object.
- * @param propertyKey A property name.
+ * @param keys A property names.
  * @returns true if all the specified keys are the given object properties, false otherwise
  */
-const hasOwnProperties = (
-  object: Record<string, any>,
-  ...propertyKeys: string[]
-) => {
+const hasOwnProperties = (object: Record<string, any>, ...keys: string[]) => {
   if (!Object.keys({ ...object }).length) {
     return false
   }
 
-  return propertyKeys.every(key =>
-    Object.prototype.hasOwnProperty.call(object, key)
-  )
+  return keys.every(key => Object.prototype.hasOwnProperty.call(object, key))
 }
 
-const removeUndefinedKeysFrom = (obj: any): any => {
+const removeUndefinedKeys = <T extends Record<string, any>>(obj: T): T => {
   return Object.entries(obj)
     .map(([k, v]) => [
       k,
-      v && typeof v === 'object' ? removeUndefinedKeysFrom(v) : v
+      v && typeof v === 'object' ? removeUndefinedKeys(v) : v
     ])
-    .reduce((a, [k, v]) => (v === undefined ? a : { ...a, [k]: v }), {})
-}
-
-/**
- * Rename the specified keys in the given object and return it.
- * @param obj object in which the keys will renamed
- * @param keysMap map of old and new keys. { 'oldKey': 'newKey' }
- */
-const renameKeys = (
-  obj: Record<string, any>,
-  ...keysMap: Record<string, string>[]
-): any => {
-  keysMap.forEach(keyMap => {
-    const oldKey = Object.keys(keyMap)[0]
-    const newKey = keyMap[oldKey]
-
-    delete Object.assign(obj, { [newKey]: obj[oldKey] })[oldKey]
-  })
-
-  return obj
-}
-
-/**
- * Sums each properties values of the specified array of object
- * Ex:[{ a: 1, b: 5 }, { a: 2, b: 5 }] returns { a: 3, b: 10 }
- * @param values arrays of object
- */
-const sumProperties = (values: Record<string, number>[]) => {
-  const res = values.reduce((previousValue, currentValue) => {
-    const map = Object.keys(values[0]).map(key => [
-      key,
-      previousValue[key] + currentValue[key]
-    ])
-
-    return Object.fromEntries(map)
-  })
-
-  return res
-}
-
-/**
- * Deterministic data hash to . This is not for crypto purpose.
- * @param data data to hash
- * @returns the same 'hex' digest for the same given input data
- */
-const hash = (data: any) => {
-  return createHash('md5')
-    .update(stringify(data))
-    .digest('hex')
+    .reduce((a, [k, v]) => (v === undefined ? a : { ...a, [k]: v }), {} as T)
 }
 
 /**
@@ -126,14 +71,59 @@ const concatValues = (arrayTab: string[][]) => {
   return res
 }
 
+/**
+ * Chunks (splits) the array into many smaller arrays with the specified length 'chunkSize'
+ * @param array array to chunk
+ * @param chunkSize maximum length of each chunked array
+ */
+const chunk = <T>(array: T[], chunkSize: number) => {
+  const res = []
+
+  for (let i = 0, l = array.length; i < l; i += chunkSize)
+    res.push(array.slice(i, i + chunkSize))
+
+  return res
+}
+
+const isEmpty = (obj: any) => {
+  return (
+    [Object, Array].includes((obj || {}).constructor) &&
+    !Object.entries(obj || {}).length
+  )
+}
+
+const hasDuplicates = (array: any[]) => {
+  return new Set(array).size !== array.length
+}
+
+/**
+ * Rename the specified keys in the given object and return it.
+ * @param obj object in which the keys will renamed
+ * @param keysMap map of old and new keys. { 'oldKey': 'newKey' }
+ */
+const renameKeys = (
+  obj: Record<string, any>,
+  ...keysMap: Record<string, string>[]
+): any => {
+  keysMap.forEach(keyMap => {
+    const oldKey = Object.keys(keyMap)[0]
+    const newKey = keyMap[oldKey]
+
+    delete Object.assign(obj, { [newKey]: obj[oldKey] })[oldKey]
+  })
+
+  return obj
+}
+
 export {
+  isEmpty,
+  chunk,
   dotify,
   toNestedObject,
   isString,
-  removeUndefinedKeysFrom,
+  removeUndefinedKeys,
   hasOwnProperties,
-  renameKeys,
-  sumProperties,
-  hash,
-  concatValues
+  concatValues,
+  hasDuplicates,
+  renameKeys
 }

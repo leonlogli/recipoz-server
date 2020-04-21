@@ -1,111 +1,55 @@
-import { ForbiddenError } from 'apollo-server-express'
-
-import { accountService } from '../../services'
-import { errorMessages } from '../../constants'
-import { i18n } from '../../utils'
+import { notificationService } from '../../services'
 import { Context } from '..'
+import { validateCursorQuery } from '../../validations'
+import { buildFilterQuery, toLocalId, withClientMutationId } from '../../utils'
+import { validateNotification } from '../../validations/notification.validation'
 
 export default {
   Query: {
-    myAccount: async (_: any, __: any, { accountId, requireAuth }: Context) => {
-      requireAuth()
+    myNotifications: (_: any, { filter, ...options }: any, ctx: Context) => {
+      const filterQuery = buildFilterQuery(filter)
+      const criteria = { recipient: ctx.accountId, ...filterQuery }
+      const cursorQuery = validateCursorQuery(options)
+      const { notificationByQueryLoader } = ctx.dataLoaders
 
-      return accountService.getAccountById(accountId)
-    },
-    accountById: async (_: any, { id }: any, { requireAuth }: Context) => {
-      requireAuth()
-
-      return accountService.getAccountById(id)
-    },
-    account: async (_: any, { criteria, filter }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.getAccount(criteria, filter)
-    },
-    accountByUserInfo: async (_: any, { criteria }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.getAccountByUserInfo(criteria)
-    },
-    accounts: async (_: any, { criteria, options }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.getAccounts(criteria, options)
+      return notificationByQueryLoader.load({ ...cursorQuery, criteria })
     }
   },
   Mutation: {
-    createAccount: async (_: any, { user }: any) => {
-      return accountService.addAccountForNewUser(user)
+    updateNotification: (_: any, { input }: any, ctx: Context) => {
+      const { accountId: recipient, dataLoaders: loaders } = ctx
+      const { id } = toLocalId(input.id, 'Notification')
+
+      const data = validateNotification({ ...input, id, recipient }, false)
+      const payload = notificationService.updateNotification(data, loaders)
+
+      return withClientMutationId(payload, input)
     },
-    addAccount: async (_: any, { userId }: any) => {
-      return accountService.addAccountForExistingUser(userId)
-    },
-    updateAccount: async (_: any, { id, account }: any, ctx: Context) => {
-      const { requireAuth, isAdmin, accountId } = ctx
+    deleteNotification: (_: any, { input }: any, { accountId }: Context) => {
+      const { id } = toLocalId(input.id, 'Notification')
 
-      requireAuth()
+      const data = validateNotification({ id, recipient: accountId }, false)
+      const payload = notificationService.deleteNotification(data)
 
-      if (accountId !== id && !isAdmin) {
-        throw new ForbiddenError(i18n.t(errorMessages.forbidden))
-      }
-
-      return accountService.updateAccount(id, account)
-    },
-    deleteAccount: async (_: any, { id }: any, ctx: Context) => {
-      const { requireAuth, isAdmin, accountId } = ctx
-
-      requireAuth()
-
-      if (accountId !== id && !isAdmin) {
-        throw new ForbiddenError(i18n.t(errorMessages.forbidden))
-      }
-
-      return accountService.deleteAccount(id)
-    },
-    followAccount: async (_: any, { account }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.followAccount(ctx.accountId, account)
-    },
-    unFollowAccount: async (_: any, { account }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.unFollowAccount(ctx.accountId, account)
-    },
-    addFavoriteRecipe: async (_: any, { recipe }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.updateFavoriteRecipes(ctx.accountId, recipe)
-    },
-    removeFavoriteRecipe: async (_: any, { recipe }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.updateFavoriteRecipes(ctx.accountId, recipe, false)
-    },
-    addTriedRecipe: async (_: any, { recipe }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.updateTriedRecipes(ctx.accountId, recipe)
-    },
-    removeTriedRecipe: async (_: any, { recipe }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.updateTriedRecipes(ctx.accountId, recipe, false)
-    },
-    addTaste: async (_: any, { category }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.updateTastes(ctx.accountId, category)
-    },
-    removeTaste: async (_: any, { category }: any, ctx: Context) => {
-      ctx.requireAuth()
-
-      return accountService.updateTastes(ctx.accountId, category, false)
+      return withClientMutationId(payload, input)
     }
   },
-  Account: {
-    user: async ({ user }: any, _: any, { usersLoader }: Context) => {
-      return usersLoader.load(user)
+  NotificationData: {
+    __resolveType: (data: any) => data.__typename
+  },
+  Notification: {
+    actor: async ({ actor }: any, _: any, { dataLoaders }: Context) => {
+      return dataLoaders.accountLoader.load(actor)
+    },
+    recipient: async ({ recipient }: any, _: any, { dataLoaders }: Context) => {
+      return dataLoaders.accountLoader.load(recipient)
+    }
+  },
+  NotificationConnection: {
+    totalCount: ({ totalCount, query }: any, _: any, ctx: Context) => {
+      const { notificationCountLoader } = ctx.dataLoaders
+
+      return totalCount || notificationCountLoader.load(query.criteria)
     }
   }
 }

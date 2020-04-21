@@ -1,23 +1,26 @@
 import DataLoader from 'dataloader'
 
-import { Notification } from '../../models'
-import { ApiError } from '../../utils'
+import { notificationService } from '../../services'
+import { dataByQueryLoaderOptions as options } from '../../utils'
 
-const notificationLoader = () => {
-  return new DataLoader(async (ids: any) => {
-    const notifications = await Notification.find({ _id: { $in: ids } })
-      .lean()
-      .exec() // may return data in a different order than ids'
+const {
+  getNotificationsByBatch,
+  getNotifications,
+  countNotifications
+} = notificationService
 
-    // The results must be returned in the same order of the keys (ids) passed to this function
-    return ids.map(
-      (id: any) =>
-        notifications.find(
-          notification => notification._id.toString() === id
-        ) || new ApiError('Notification not found', '404')
-    )
-  })
+const notificationLoader = () => new DataLoader(getNotifications)
+
+const notificationByQueryLoader = () => {
+  return new DataLoader(getNotificationsByBatch, options)
 }
 
-export { notificationLoader }
-export default notificationLoader
+const notificationCountLoader = () => {
+  return new DataLoader(countNotifications, options)
+}
+
+export {
+  notificationLoader,
+  notificationByQueryLoader,
+  notificationCountLoader
+}

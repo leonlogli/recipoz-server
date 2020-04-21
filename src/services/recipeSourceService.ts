@@ -1,40 +1,43 @@
 import { errorMessages, statusMessages } from '../constants'
 import { RecipeSource, RecipeSourceDocument } from '../models'
-import {
-  QueryOptions,
-  DataLoaders,
-  handleQueryRefKeys,
-  i18n,
-  recipeSourceMutationErrorHandler as handleMutationError
-} from '../utils'
-import ModelService from './common/ModelService'
+import { i18n, isDuplicateError, errorRes } from '../utils'
+import ModelService from './base/ModelService'
+import followershipService from './followershipService'
+import recipeService from './recipeService'
+import { logger } from '../config'
 
-const { notFound } = errorMessages.source
-const { created, deleted, updated } = statusMessages.source
+const {
+  notFound,
+  nameAlreadyExists,
+  websiteAlreadyExists
+} = errorMessages.recipeSource
+const { created, deleted, updated } = statusMessages.recipeSource
 
 const recipeSourceModel = new ModelService<RecipeSourceDocument>({
   model: RecipeSource,
   onNotFound: notFound
 })
 
-const countSourcesByBatch = recipeSourceModel.countByBatch
-const getSource = recipeSourceModel.findByIds
-const getSourcesByBatch = recipeSourceModel.batchFind
-const getSourceAndSelect = recipeSourceModel.findOne
+const countRecipeSources = recipeSourceModel.countByBatch
+const getRecipeSources = recipeSourceModel.findByIds
+const getRecipeSourcesByBatch = recipeSourceModel.batchFind
+const getRecipeSourceAndSelect = recipeSourceModel.findOne
 
-const getRecipeSources = (
-  query: any,
-  opts: QueryOptions,
-  loaders?: DataLoaders
-) => {
-  handleQueryRefKeys(query, 'followers')
+const handleMutationError = (error: any) => {
+  if (isDuplicateError(error) && error.errmsg.includes('name')) {
+    return { success: false, message: i18n.t(nameAlreadyExists), code: 409 }
+  }
 
-  return recipeSourceModel.find(query, opts, loaders)
+  if (isDuplicateError(error) && error.errmsg.includes('website')) {
+    return { success: false, message: i18n.t(websiteAlreadyExists), code: 409 }
+  }
+
+  return errorRes(error)
 }
 
-const addRecipeSource = async (data: any) => {
+const addRecipeSource = async (input: any) => {
   try {
-    const recipeSource = await recipeSourceModel.create(data)
+    const recipeSource = await recipeSourceModel.create(input)
     const message = i18n.t(created)
 
     return { success: true, message, code: 201, recipeSource }
@@ -43,12 +46,12 @@ const addRecipeSource = async (data: any) => {
   }
 }
 
-const updateRecipeSource = async (id: any, data: any) => {
+const updateRecipeSource = async (input: any) => {
   try {
-    const source = await recipeSourceModel.update(id, data)
-    const message = i18n.t(updated)
+    const { id: _id, ...data } = input
+    const recipeSource = await recipeSourceModel.update(_id, data)
 
-    return { success: true, message, code: 200, source }
+    return { success: true, message: i18n.t(updated), code: 200, recipeSource }
   } catch (error) {
     return handleMutationError(error)
   }
@@ -57,59 +60,28 @@ const updateRecipeSource = async (id: any, data: any) => {
 const deleteRecipeSource = async (id: any) => {
   try {
     const recipeSource = await recipeSourceModel.delete(id)
-    const message = i18n.t(deleted)
 
-    return { success: true, message, code: 200, recipeSource }
+    Promise.all([
+      followershipService.deleteFollowers(id, 'RecipeSource'),
+      recipeService.deleteSourceRecipes(id)
+    ])
+      .then(() => logger.info('Recipe source data deleted successfully'))
+      .catch(e =>
+        logger.error(`Error deleting recipe source (${id}) data: `, e)
+      )
+
+    return { success: true, message: i18n.t(deleted), code: 200, recipeSource }
   } catch (error) {
     return handleMutationError(error)
   }
 }
 
-const updateFollowers = async (
-  id: string,
-  follower: string,
-  loaders: DataLoaders,
-  add = true
-) => {
-  const me = loaders.recipeSourceLoader.load(follower)
-
-  try {
-    const recipeSource = add
-      ? recipeSourceModel.addDataToSet(id, { followers: follower })
-      : recipeSourceModel.removeDataFromArray(id, { followers: follower })
-    const message = i18n.t(updated)
-
-    return { success: true, message, code: 200, me, recipeSource }
-  } catch (error) {
-    return handleMutationError(error, { me, recipeSource: null })
-  }
-}
-
-const followRecipeSource = (
-  me: string,
-  recipeSource: string,
-  loaders: DataLoaders
-) => {
-  return updateFollowers(recipeSource, me, loaders)
-}
-
-const unFollowRecipeSource = (
-  me: string,
-  recipeSource: string,
-  loaders: DataLoaders
-) => {
-  return updateFollowers(recipeSource, me, loaders, false)
-}
-
 export const recipeSourceService = {
-  getSource,
   getRecipeSources,
-  countSourcesByBatch,
-  getSourcesByBatch,
-  getSourceAndSelect,
+  countRecipeSources,
+  getRecipeSourcesByBatch,
+  getRecipeSourceAndSelect,
   addRecipeSource,
-  followRecipeSource,
-  unFollowRecipeSource,
   deleteRecipeSource,
   updateRecipeSource
 }

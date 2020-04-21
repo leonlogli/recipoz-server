@@ -1,4 +1,5 @@
 import { firebaseAdmin } from '../config'
+import { ADMIN, USER } from '../constants'
 
 /**
  * User additionnal info that aren't handled in the authentication
@@ -8,17 +9,17 @@ export interface UserAdditionalInfo {
   gender?: string
   location?: string
   website?: string
-  aboutMe?: string
+  biography?: string
   birthday?: Date
   facebook?: string
   pinterest?: string
   twitter?: string
+  instagram?: string
   language?: string
   theme?: string
-  registrationTokens?: string[] // FCM SDK registration tokens par user
 }
 
-const userRoles = ['ADMIN', 'USER'] as const
+const userRoles = [ADMIN, USER] as const
 
 /**
  * User roles
@@ -31,11 +32,18 @@ export type Token = {
   expiresIn?: string
 }
 
+export type DecodedAccessToken = {
+  /**
+   * ID of the account this user belong to
+   */
+  id: string
+  roles: Role[]
+}
+
 type UserRecord = firebaseAdmin.auth.UserRecord & UserAdditionalInfo
 
 export type UserDocument = UserRecord & {
-  id: string
-  _id: string // just for mongodb document compatibility
+  _id: string // this just to allow for interoperability with mongoose Document
   roles: Role[]
 }
 
@@ -46,17 +54,10 @@ export const User = {
    * @param fireBaseUser UserRecord from firebase
    */
   transform: (fireBaseUser: UserRecord): UserDocument => {
-    const {
-      uid,
-      passwordHash: _ph,
-      passwordSalt: _ps,
-      customClaims,
-      ...otherProps
-    } = fireBaseUser
+    const _id = fireBaseUser.uid
+    const roles = fireBaseUser.customClaims?.roles
 
-    const roles = customClaims && (customClaims as any).roles
-
-    return { id: uid, _id: uid, uid, roles, ...otherProps }
+    return { ...fireBaseUser, _id, roles }
   }
 }
 

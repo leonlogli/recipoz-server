@@ -6,10 +6,15 @@ import recipeSource from './recipeSource'
 import account from './account'
 import recipe from './recipe'
 import notification from './notification'
-import tracking from './tracking'
 import comment from './comment'
-import nutrition from './nutrition'
+import recipeCollection from './recipeCollection'
+import abuseReport from './abuseReport'
+import shoppingListItem from './shoppingListItem'
 import common from './common'
+import follower from './followership'
+import search from './search'
+import filter from './filter'
+import savedRecipe from './savedRecipe'
 
 const linkSchema = gql`
   type Query {
@@ -26,10 +31,15 @@ export default [
   userSchema,
   category,
   recipeSource,
-  account,
-  recipe,
+  ...account,
+  ...recipe,
   notification,
-  tracking,
-  nutrition,
-  comment
+  ...comment,
+  recipeCollection,
+  ...shoppingListItem,
+  abuseReport,
+  follower,
+  search,
+  filter,
+  savedRecipe
 ]

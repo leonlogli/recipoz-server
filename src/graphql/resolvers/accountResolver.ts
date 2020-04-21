@@ -1,165 +1,160 @@
 import { Context } from '..'
-import { errorMessages } from '../../constants'
 import { accountService } from '../../services'
-import { i18n } from '../../utils'
 import {
-  validateUser,
+  buildFilterQuery,
+  loadFollowersFromFollowerships,
+  loadRecipesFromSavedRecipes,
+  loadFollowingFromFollowerships,
+  withClientMutationId,
+  toLocalId,
+  i18n
+} from '../../utils'
+import {
   validateAccount,
-  validateQueryOptions
+  validateUserRegister,
+  validateCursorQuery
 } from '../../validations'
+import { errorMessages } from '../../constants'
 
-const {
-  updateFavoriteRecipes,
-  updateTriedRecipes,
-  updateTastes
-} = accountService
+const { forbidden } = errorMessages
 
 export default {
   Query: {
-    me: (_: any, __: any, { accountId, dataLoaders }: Context) => {
-      return dataLoaders.accountLoader.load(accountId as string)
+    me: (_: any, __: any, { accountId, dataLoaders }: Required<Context>) => {
+      return dataLoaders.accountLoader.load(accountId)
     },
-    account: (_: any, { id }: any, { dataLoaders }: Context) => {
-      return dataLoaders.accountLoader.load(id)
-    },
-    accountByEmail: (_: any, { email }: any, ctx: Context) => {
-      return accountService.getAccountByUserInfo({ email }, ctx.dataLoaders)
-    },
-    accountByPhoneNumber: (_: any, args: any, ctx: Context) => {
-      const { phoneNumber } = args
-      const { dataLoaders } = ctx
+    accounts: (_: any, args: any, ctx: Context) => {
+      const cursorQuery = validateCursorQuery(args)
+      const { accountByQueryLoader } = ctx.dataLoaders
 
-      return accountService.getAccountByUserInfo({ phoneNumber }, dataLoaders)
-    },
-    accounts: (_: any, { query, page, options }: any, ctx: Context) => {
-      const opts = validateQueryOptions({ ...options, page })
-
-      return accountService.getAccounts(query, opts, ctx.dataLoaders)
+      return accountByQueryLoader.load(cursorQuery)
     }
   },
   Mutation: {
-    createAccount: (_: any, { user }: any) => {
-      return accountService.addAccountForNewUser(validateUser(user))
+    register: (_: any, { input }: any) => {
+      const account = validateUserRegister(input)
+      const payload = accountService.addAccountForNewUser(account)
+
+      return withClientMutationId(payload, input)
     },
-    addAccount: (_: any, { user }: any) => {
-      return accountService.addAccountForExistingUser(user)
+    addAccount: async (_: any, { input }: any) => {
+      const payload = accountService.addAccountForExistingUser(input.idToken)
+
+      return withClientMutationId(payload, input)
     },
-    updateAccount: (_: any, { id, account: data }: any, ctx: Context) => {
+    updateAccount: (_: any, { input }: any, { accountId }: Context) => {
+      const data = validateAccount({ ...input, id: accountId })
+      const payload = accountService.updateAccount(data)
+
+      return withClientMutationId(payload, input)
+    },
+    addRegistrationToken: (_: any, { input }: any, { accountId }: Context) => {
+      const { registrationToken: token } = input
+      const payload = accountService.addRegistrationToken(accountId, token)
+
+      return withClientMutationId(payload, input)
+    },
+    deleteAccount: (_: any, { input }: any, ctx: Required<Context>) => {
       const { isAdmin, accountId } = ctx
+      let id = accountId
 
-      if (accountId !== id && !isAdmin) {
-        const message = i18n.t(errorMessages.forbidden)
-
-        return { success: true, message, code: 403, account: null }
+      if (input.id) {
+        if (!isAdmin) {
+          return { success: false, code: 403, message: i18n.t(forbidden) }
+        }
+        id = toLocalId(input.id, 'Account').id as any
       }
-      const accountToUpdate = validateAccount(data)
+      const account = validateAccount({ id }, false)
+      const payload = accountService.deleteAccount(account.id)
 
-      return accountService.updateAccount(id, accountToUpdate)
-    },
-    deleteAccount: (_: any, { id }: any, ctx: Context) => {
-      const { isAdmin, accountId } = ctx
-
-      if (accountId !== id && !isAdmin) {
-        const message = i18n.t(errorMessages.forbidden)
-
-        return { success: true, message, code: 403, account: null }
-      }
-
-      return accountService.deleteAccount(id)
-    },
-    followAccount: (_: any, { account }: any, ctx: Context) => {
-      const { dataLoaders, accountId: me } = ctx
-
-      return accountService.followAccount(me as string, account, dataLoaders)
-    },
-    unFollowAccount: (_: any, { account }: any, ctx: Context) => {
-      const { dataLoaders, accountId: me } = ctx
-
-      return accountService.unFollowAccount(me as string, account, dataLoaders)
-    },
-    addFavoriteRecipe: (_: any, { recipe }: any, ctx: Context) => {
-      const { dataLoaders, accountId: me } = ctx
-
-      return updateFavoriteRecipes(me as string, recipe, dataLoaders)
-    },
-    removeFavoriteRecipe: (_: any, { recipe }: any, ctx: Context) => {
-      const { dataLoaders, accountId: me } = ctx
-
-      return updateFavoriteRecipes(me as string, recipe, dataLoaders, false)
-    },
-    addTriedRecipe: (_: any, { recipe }: any, ctx: Context) => {
-      const { dataLoaders, accountId: me } = ctx
-
-      return updateTriedRecipes(me as string, recipe, dataLoaders)
-    },
-    removeTriedRecipe: (_: any, { recipe }: any, ctx: Context) => {
-      const { dataLoaders, accountId: me } = ctx
-
-      return updateTriedRecipes(me as string, recipe, dataLoaders, false)
-    },
-    addTaste: (_: any, { category }: any, ctx: Context) => {
-      const { dataLoaders, accountId: me } = ctx
-
-      return updateTastes(me as string, category, dataLoaders)
-    },
-    removeTaste: (_: any, { category }: any, ctx: Context) => {
-      const { dataLoaders, accountId: me } = ctx
-
-      return updateTastes(me as string, category, dataLoaders, false)
+      return withClientMutationId(payload, input)
     }
   },
   Account: {
     user: ({ user }: any, _: any, { dataLoaders }: Context) => {
       return dataLoaders.userLoader.load(user)
     },
-    followers: ({ followers }: any, args: any, ctx: Context) => {
-      const { page, sort } = validateQueryOptions(args)
-      const query = { criteria: { followers: { $in: followers } }, sort, page }
-      const { accountByQueryLoader } = ctx.dataLoaders
+    followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
+      const opts = validateCursorQuery(args)
+      const criteria = { followedDataType: 'Account', followedData: _id }
+      const { followershipByQueryLoader: loader } = dataLoaders
 
-      return { content: accountByQueryLoader.load(query), query }
+      return loader.load({ ...opts, criteria }).then(followership => {
+        return loadFollowersFromFollowerships(followership, dataLoaders)
+      })
     },
-    followings: ({ _id }: any, args: any, ctx: Context) => {
-      const { page, sort } = validateQueryOptions(args)
-      const query = { criteria: { followers: _id }, sort, page }
-      const { accountByQueryLoader } = ctx.dataLoaders
+    following: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
+      const { filter, ...opts } = args
+      const { followingTypes: types } = filter
+      const cursorQuery = validateCursorQuery(opts)
+      const filterQuery = { ...(types && { followedDataType: { $in: types } }) }
+      const criteria = { follower: _id, ...filterQuery }
+      const { followershipByQueryLoader: loader } = dataLoaders
 
-      return { content: accountByQueryLoader.load(query), query }
+      return loader.load({ ...cursorQuery, criteria }).then(followership => {
+        return loadFollowingFromFollowerships(followership, dataLoaders)
+      })
     },
-    favoriteRecipes: (root: any, args: any, ctx: Context) => {
-      const { favoriteRecipes: ids } = root
-      const { page, sort } = validateQueryOptions(args)
-      const query = { criteria: { favoriteRecipes: { $in: ids } }, sort, page }
-      const { accountByQueryLoader } = ctx.dataLoaders
+    favoriteRecipes: async ({ _id: account }: any, args: any, ctx: Context) => {
+      const cursorQuery = validateCursorQuery(args)
+      const criteria = { account, collectionType: 'FAVORITE' }
+      const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
 
-      return { content: accountByQueryLoader.load(query), query }
+      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+        return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
+      })
     },
-    triedRrecipes: (root: any, args: any, ctx: Context) => {
-      const { triedRrecipes: ids } = root
-      const { page, sort } = validateQueryOptions(args)
-      const query = { criteria: { triedRrecipes: { $in: ids } }, sort, page }
-      const { accountByQueryLoader } = ctx.dataLoaders
+    savedRecipes: async ({ _id: account }: any, args: any, ctx: Context) => {
+      const { filter, ...opts } = args
+      const filterQuery = buildFilterQuery(filter)
+      const cursorQuery = validateCursorQuery(opts)
+      const criteria = { account, ...filterQuery }
+      const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
 
-      return { content: accountByQueryLoader.load(query), query }
+      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+        return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
+      })
     },
-    personalRecipes: ({ _id }: any, args: any, ctx: Context) => {
-      const { page, sort } = validateQueryOptions(args)
-      const criteria = { authorType: 'Account', author: _id }
-      const query = { criteria, sort, page }
+    madeRecipes: async (root: any, args: any, { dataLoaders }: Context) => {
+      const cursorQuery = validateCursorQuery(args)
+      const criteria = { account: root._id, collectionType: 'MADE' }
+      const { savedRecipeByQueryLoader: loader } = dataLoaders
+
+      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+        return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
+      })
+    },
+    recipeCollections: async ({ _id }: any, args: any, ctx: Context) => {
+      const { filter, ...opts } = args
+      const filterQuery = buildFilterQuery(filter)
+      const cursorQuery = validateCursorQuery(opts)
+      const criteria = { account: _id, ...filterQuery }
+      const { recipeCollectionByQueryLoader } = ctx.dataLoaders
+
+      return recipeCollectionByQueryLoader.load({ ...cursorQuery, criteria })
+    },
+    personalRecipes: async ({ _id }: any, args: any, ctx: Context) => {
+      const cursorQuery = validateCursorQuery(args)
+      const criteria = { author: _id, authorType: 'Account' }
       const { recipeByQueryLoader } = ctx.dataLoaders
 
-      return { content: recipeByQueryLoader.load(query), query }
+      return recipeByQueryLoader.load({ ...cursorQuery, criteria })
+    },
+    shoppingList: async ({ _id }: any, args: any, ctx: Context) => {
+      const { filter, ...opts } = args
+      const filterQuery = buildFilterQuery(filter)
+      const cursorQuery = validateCursorQuery(opts)
+      const criteria = { account: _id, ...filterQuery }
+      const { shoppingListItemByQueryLoader } = ctx.dataLoaders
+
+      return shoppingListItemByQueryLoader.load({ ...cursorQuery, criteria })
     }
   },
-  Accounts: {
-    totalCount: ({ query }: any, _: any, { dataLoaders }: Context) => {
-      return dataLoaders.accountCountLoader.load(query)
-    },
-    page: async ({ query }: any, _: any, { dataLoaders }: Context) => {
-      const itemsCount = await dataLoaders.accountCountLoader.load(query)
-      const pageCount = Math.ceil(itemsCount / query.page.size)
+  AccountConnection: {
+    totalCount: ({ totalCount, query }: any, _: any, ctx: Context) => {
+      const { accountCountLoader } = ctx.dataLoaders
 
-      return { count: pageCount, ...query.page }
+      return totalCount || accountCountLoader.load(query.criteria)
     }
   }
 }

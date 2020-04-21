@@ -5,36 +5,44 @@ const errorMessages = {
   unauthenticated: 'unauthenticated',
   accessDenied: 'accessDenied',
   internalServerError: 'internalServerError',
-  invalidId: 'invalidId',
-  invalidFilter: 'invalidFilter',
+  notFound: 'notFound',
   category: {
     notFound: 'categoryNotFound',
-    invalid: 'invalidCategory',
     nameAlreadyExists: 'category.nameAlreadyExists'
   },
-  measureUnit: {
-    notFound: 'measureUnitNotFound',
-    invalid: 'invalidMeasureUnit',
-    nameAlreadyExists: 'measureUnit.nameAlreadyExists'
-  },
-  nutrient: {
-    notFound: 'nutrientNotFound',
-    invalid: 'invalidNutrient'
-  },
-  source: {
-    notFound: 'sourceNotFound',
-    invalid: 'invalidSource'
+  recipeSource: {
+    notFound: 'recipeSourceNotFound',
+    nameAlreadyExists: 'recipeSource.nameAlreadyExists',
+    websiteAlreadyExists: 'recipeSource.websiteAlreadyExists'
   },
   account: {
     notFound: 'accountNotFound',
+    cannotFollowYourself: 'account.cannotFollowYourself',
+    cannotReportAbuseOnYourData: 'account.cannotReportAbuseOnYourData',
+    alreadyExists: 'account.alreadyExists',
     emailAlreadyExists: 'emailAlreadyExists',
     phoneNumberAlreadyExists: 'phoneNumberAlreadyExists',
-    userNotFound: 'userNotFound',
-    invalid: 'invalidAccount'
+    userNotFound: 'userNotFound'
   },
   recipe: {
     notFound: 'recipeNotFound',
-    invalid: 'invalidRecipe'
+    alreadySaved: 'recipeAlreadySaved'
+  },
+  recipeCollection: {
+    notFound: 'recipeCollectionNotFound',
+    alreadyExists: 'recipeCollectionAlreadyExists'
+  },
+  shoppingListItem: {
+    notFound: 'shoppingListItemNotFound'
+  },
+  comment: {
+    notFound: 'commentNotFound'
+  },
+  abuseReport: {
+    notFound: 'abuseReportNotFound'
+  },
+  notification: {
+    notFound: 'notificationNotFound'
   }
 }
 

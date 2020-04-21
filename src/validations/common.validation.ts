@@ -1,10 +1,9 @@
-import Joi from '@hapi/joi'
-import { supportedLanguages } from '../utils'
+import Joi, { required } from '@hapi/joi'
 
-const { ObjectId } = require('mongoose').Types
+import { supportedLanguages, isValidObjectId } from '../utils'
 
-const objectIdSchema = Joi.string().custom((value, helpers) => {
-  if (!ObjectId.isValid(value)) {
+const objectIdSchema = Joi.custom((value, helpers) => {
+  if (!isValidObjectId(value)) {
     return helpers.error('any.invalid')
   }
 
@@ -15,4 +14,6 @@ const languageSchema = Joi.string()
   .valid(...supportedLanguages)
   .required()
 
-export { objectIdSchema, languageSchema }
+const idSchema = objectIdSchema.when('$isNew', { is: false, then: required() })
+
+export { objectIdSchema, idSchema, languageSchema }

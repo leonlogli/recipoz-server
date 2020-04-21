@@ -1,22 +1,12 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import dotenv from 'dotenv'
+import dotenv from 'dotenv-safe'
 import logger from './logger'
 import { SupportedLanguage } from '../utils'
 
 logger.debug('Using .env file to supply config environment variables')
 dotenv.config()
 
-const {
-  JWT_SECRET,
-  JWT_EXPIRATION,
-  ADMIN_EMAIL,
-  NODE_ENV,
-  NUTRITIONIX_API_APP_KEY,
-  NUTRITIONIX_API_APP_ID,
-  NUTRITIONIX_API_URL,
-  EDAMAM_API_APP_KEY,
-  EDAMAM_API_URL
-} = process.env
+const { JWT_SECRET, JWT_EXPIRATION, ADMIN_EMAIL, NODE_ENV } = process.env
 
 /** App default language */
 const APP_DEFAULT_LANGUAGE = process.env
@@ -90,10 +80,5 @@ export {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
   MONGO,
-  FIREBASE,
-  NUTRITIONIX_API_APP_ID,
-  NUTRITIONIX_API_APP_KEY,
-  NUTRITIONIX_API_URL,
-  EDAMAM_API_APP_KEY,
-  EDAMAM_API_URL
+  FIREBASE
 }

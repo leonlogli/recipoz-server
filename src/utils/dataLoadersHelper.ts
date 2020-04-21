@@ -1,48 +1,69 @@
 import DataLoader, { Options } from 'dataloader'
 import { Document } from 'mongoose'
 
-import { BatchQuery } from './docUtils'
-import { hash } from './Util'
+import { toBase64 } from './base64'
 import {
   UserDocument,
   RecipeDocument,
   RecipeSourceDocument,
   AccountDocument,
-  TrackingDocument,
+  AbuseReportDocument,
   NotificationDocument,
-  CategoryDocument
+  CategoryDocument,
+  CommentDocument,
+  SavedRecipeDocument,
+  RecipeCollectionDocument as RecipeCollectionDoc,
+  FollowershipDocument,
+  ShoppingListItemDocument as ShoppingListItemDoc,
+  CommentReactionDocument
 } from '../models'
+import { CursorPagingQuery as Query, Page } from './mongoose/pagination'
 import { ApiError } from './errors'
+import { ModelName } from './mongoose'
 
 export type DataLoaders = {
-  userLoader: DataLoader<string, UserDocument | ApiError>
+  userLoader: DataLoader<string, UserDocument | null>
   recipeLoader: DataLoader<string, RecipeDocument | ApiError>
   recipeSourceLoader: DataLoader<string, RecipeSourceDocument | ApiError>
   accountLoader: DataLoader<string, AccountDocument | ApiError>
-  trackingLoader: DataLoader<string, TrackingDocument | ApiError>
+  abuseReportLoader: DataLoader<string, AbuseReportDocument | ApiError>
   notificationLoader: DataLoader<string, NotificationDocument | ApiError>
   categoryLoader: DataLoader<string, CategoryDocument | ApiError>
-  recipeByQueryLoader: DataLoader<BatchQuery, RecipeDocument[]>
-  recipeSourceByQueryLoader: DataLoader<BatchQuery, RecipeSourceDocument[]>
-  accountByQueryLoader: DataLoader<BatchQuery, AccountDocument[]>
-  trackingByQueryLoader: DataLoader<BatchQuery, TrackingDocument[]>
-  notificationByQueryLoader: DataLoader<BatchQuery, NotificationDocument[]>
-  categoryByQueryLoader: DataLoader<BatchQuery, CategoryDocument[]>
-  recipeCountLoader: DataLoader<BatchQuery, number>
-  recipeSourceCountLoader: DataLoader<BatchQuery, number>
-  accountCountLoader: DataLoader<BatchQuery, number>
-  trackingCountLoader: DataLoader<BatchQuery, number>
-  notificationCountLoader: DataLoader<BatchQuery, number>
-  categoryCountLoader: DataLoader<BatchQuery, number>
+  commentLoader: DataLoader<string, CommentDocument | ApiError>
+  recipeCollectionLoader: DataLoader<string, RecipeCollectionDoc | ApiError>
+  shoppingListItemLoader: DataLoader<string, ShoppingListItemDoc | ApiError>
+  recipeByQueryLoader: DataLoader<Query, Page<CategoryDocument>>
+  recipeSourceByQueryLoader: DataLoader<Query, Page<RecipeSourceDocument>>
+  accountByQueryLoader: DataLoader<Query, Page<AccountDocument>>
+  abuseReportByQueryLoader: DataLoader<Query, Page<AbuseReportDocument>>
+  notificationByQueryLoader: DataLoader<Query, Page<NotificationDocument>>
+  categoryByQueryLoader: DataLoader<Query, Page<CategoryDocument>>
+  commentByQueryLoader: DataLoader<Query, Page<CommentDocument>>
+  shoppingListItemByQueryLoader: DataLoader<Query, Page<ShoppingListItemDoc>>
+  recipeCollectionByQueryLoader: DataLoader<Query, Page<RecipeCollectionDoc>>
+  savedRecipeByQueryLoader: DataLoader<Query, Page<SavedRecipeDocument>>
+  commentReactionByQueryLoader: DataLoader<Query, Page<CommentReactionDocument>>
+  followershipByQueryLoader: DataLoader<Query, Page<FollowershipDocument>>
+  recipeCountLoader: DataLoader<Record<string, any>, number>
+  recipeSourceCountLoader: DataLoader<Record<string, any>, number>
+  accountCountLoader: DataLoader<Record<string, any>, number>
+  followershipCountLoader: DataLoader<Record<string, any>, number>
+  abuseReportCountLoader: DataLoader<Record<string, any>, number>
+  notificationCountLoader: DataLoader<Record<string, any>, number>
+  categoryCountLoader: DataLoader<Record<string, any>, number>
+  commentCountLoader: DataLoader<Record<string, any>, number>
+  recipeCollectionCountLoader: DataLoader<Record<string, any>, number>
+  shoppingListItemCountLoader: DataLoader<Record<string, any>, number>
+  savedRecipeCountLoader: DataLoader<Record<string, any>, number>
+  commentReactionCountLoader: DataLoader<Record<string, any>, number>
 }
 
 /**
  * Returns dataloader that correspond to the specified model name
- *
  * @param modelName mongoose model name
  * @param loaders dataloaders instance
  */
-const getDataLoaderByModel = (modelName: string, loaders: DataLoaders) => {
+const getDataLoaderByModel = (modelName: ModelName, loaders: DataLoaders) => {
   switch (modelName) {
     case 'Account':
       return loaders.accountLoader
@@ -54,64 +75,49 @@ const getDataLoaderByModel = (modelName: string, loaders: DataLoaders) => {
       return loaders.recipeLoader
     case 'RecipeSource':
       return loaders.recipeSourceLoader
-    case 'Tracking':
-      return loaders.trackingLoader
+    case 'AbuseReport':
+      return loaders.abuseReportLoader
     case 'Category':
       return loaders.categoryLoader
+    case 'Comment':
+      return loaders.commentLoader
+    case 'RecipeCollection':
+      return loaders.recipeCollectionLoader
+    case 'ShoppingListItem':
+      return loaders.shoppingListItemLoader
     default:
       return null
   }
 }
 
-/**
- * Add each doc in the specified docs to the matching dataloader cache
- * @param dataLoaders dataloaders instance
- * @param modelName model name
- * @param docs array of documents
- */
-const primeDataLoader = (
-  dataLoaders: DataLoaders,
-  modelName: string,
-  ...docs: Document[]
-) => {
-  const dataLoader = getDataLoaderByModel(modelName, dataLoaders)
-
-  if (dataLoader) {
-    docs
-      .filter(doc => doc && doc._id)
-      .forEach(doc => {
-        dataLoader.prime(doc._id, doc as any)
-      })
-  }
+const prime = (dataLoader: DataLoader<any, any>, ...docs: Document[]) => {
+  docs
+    .filter(doc => doc && doc._id)
+    .forEach(doc => {
+      dataLoader.prime(doc._id, doc)
+    })
 }
 
 const updateDataLoaderCache = (
-  dataLoader: DataLoader<any, any>,
+  dataLoader: DataLoader<string, any>,
   data: Document | UserDocument
 ) => {
+  if (!data || !dataLoader) {
+    return
+  }
   dataLoader.clear(data._id)
   dataLoader.prime(data._id, data)
 }
 
-const dataByQueryLoaderOptions: Options<BatchQuery, any[], any> = {
+const dataByQueryLoaderOptions: Options<object, any, string> = {
   cacheKeyFn: query => {
-    // the whole query is hashed
-    return hash(query)
-  }
-}
-
-const dataCountLoaderOptions: Options<BatchQuery, number, any> = {
-  cacheKeyFn: query => {
-    // Only the criteria of the query is hashed, because
-    // count a doc does not need query options such as sort, page info etc.
-    return hash(query.criteria)
+    return toBase64(query)
   }
 }
 
 export {
+  prime,
   getDataLoaderByModel,
-  primeDataLoader,
   dataByQueryLoaderOptions,
-  dataCountLoaderOptions,
-  updateDataLoaderCache as updateLoaderCache
+  updateDataLoaderCache
 }

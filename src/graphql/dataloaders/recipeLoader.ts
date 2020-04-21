@@ -1,23 +1,18 @@
 import DataLoader from 'dataloader'
 
-import { Recipe } from '../../models'
-import { ApiError } from '../../utils'
-import { errorMessages } from '../../constants'
+import { recipeService } from '../../services'
+import { dataByQueryLoaderOptions as options } from '../../utils'
 
-const recipeLoader = () => {
-  return new DataLoader(async (ids: any) => {
-    const recipes = await Recipe.find({ _id: { $in: ids } })
-      .lean()
-      .exec() // may return data in a different order than ids'
+const { getRecipesByBatch, getRecipes, countRecipes } = recipeService
 
-    // The results must be returned in the same order of the keys (ids) passed to this function
-    return ids.map(
-      (id: any) =>
-        recipes.find(recipe => recipe._id.toString() === id) ||
-        new ApiError(errorMessages.recipe.notFound, '404')
-    )
-  })
+const recipeLoader = () => new DataLoader(getRecipes)
+
+const recipeByQueryLoader = () => {
+  return new DataLoader(getRecipesByBatch, options)
 }
 
-export { recipeLoader }
-export default recipeLoader
+const recipeCountLoader = () => {
+  return new DataLoader(countRecipes, options)
+}
+
+export { recipeLoader, recipeByQueryLoader, recipeCountLoader }

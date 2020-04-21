@@ -1,24 +1,22 @@
 import DataLoader from 'dataloader'
 
 import { recipeSourceService } from '../../services'
-import { dataByQueryLoaderOptions, dataCountLoaderOptions } from '../../utils'
+import { dataByQueryLoaderOptions as options } from '../../utils'
 
 const {
-  getSourcesByBatch,
-  getSource,
-  countSourcesByBatch
+  getRecipeSourcesByBatch,
+  getRecipeSources,
+  countRecipeSources
 } = recipeSourceService
 
-const recipeSourceLoader = () => {
-  return new DataLoader(getSource)
-}
+const recipeSourceLoader = () => new DataLoader(getRecipeSources)
 
 const recipeSourceByQueryLoader = () => {
-  return new DataLoader(getSourcesByBatch, dataByQueryLoaderOptions)
+  return new DataLoader(getRecipeSourcesByBatch, options)
 }
 
 const recipeSourceCountLoader = () => {
-  return new DataLoader(countSourcesByBatch, dataCountLoaderOptions)
+  return new DataLoader(countRecipeSources, options)
 }
 
 export {
@@ -26,4 +24,3 @@ export {
   recipeSourceByQueryLoader,
   recipeSourceCountLoader
 }
-export default recipeSourceLoader

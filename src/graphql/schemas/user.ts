@@ -5,7 +5,6 @@ export default gql`
   Firebase auth user
   """
   type User {
-    id: ID!
     email: String
     emailVerified: Boolean!
     displayName: String
@@ -17,11 +16,12 @@ export default gql`
     language: String
     theme: String
     website: String
-    aboutMe: String
+    biography: String
     birthday: String
     facebook: String
     pinterest: String
     twitter: String
+    instagram: String
     disabled: Boolean!
     metadata: UserMetadata!
     providerData: [UserInfo!]
@@ -30,6 +30,7 @@ export default gql`
     tenantId: String
   }
 
+  "User roles"
   enum Role {
     ADMIN
     USER
@@ -76,21 +77,42 @@ export default gql`
     language: String
     theme: String
     website: String
-    aboutMe: String
+    biography: String
     birthday: String
     facebook: String
     pinterest: String
     twitter: String
+    instagram: String
     disabled: Boolean
   }
 
-  input RegisterInput {
-    email: String
-    password: String
-    phoneNumber: String
-    displayName: String
-    photoURL: String
-    emailVerified: Boolean
+  type RevokeRefreshTokensPayload {
+    code: String!
+    success: Boolean!
+    message: String!
+    clientMutationId: String
+    account: Account
+  }
+
+  type SetRolesPayload {
+    code: String!
+    success: Boolean!
+    message: String!
+    clientMutationId: String
+    account: Account
+  }
+
+  input SetRolesInput {
+    "account id"
+    account: ID!
+    roles: [Role!]!
+    clientMutationId: String
+  }
+
+  input RevokeRefreshTokensInput {
+    "account id"
+    account: ID!
+    clientMutationId: String
   }
 
   #################################################
@@ -98,12 +120,13 @@ export default gql`
   #################################################
 
   extend type Query {
-    accessToken(authToken: String!): Token!
+    accessToken("Firebase user idToken" idToken: String!): Token!
   }
 
   extend type Mutation {
-    revokeRefreshTokens(account: ID!): MutationResponse! @auth(requires: ADMIN)
-    setRoles(account: ID!, roles: [Role!]!): MutationResponse!
-      @auth(requires: ADMIN)
+    revokeRefreshTokens(
+      input: RevokeRefreshTokensInput!
+    ): RevokeRefreshTokensPayload! @auth(requires: ADMIN)
+    setRoles(input: SetRolesInput): SetRolesPayload! @auth(requires: ADMIN)
   }
 `

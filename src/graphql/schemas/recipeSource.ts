@@ -1,53 +1,93 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
-  type RecipeSource {
-    id: ID!
+  type RecipeSource implements Node {
+    id: ID! @guid
     name: String!
     website: String!
-    logo: String
-    coverImage: String
-    about: String
-    followers(page: PageInput, sort: String): RecipeSources!
-    recipes(page: PageInput, sort: String): Recipes!
+    logo: String!
+    biography: String
+    followers(
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): AccountConnection!
+    recipes(
+      orderBy: RecipeOrderBy
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): RecipeConnection!
   }
 
-  type RecipeSources {
-    content: [RecipeSource!]!
+  type RecipeSourceEdge {
+    cursor: String!
+    node: RecipeSource!
+  }
+
+  type RecipeSourceConnection {
+    edges: [RecipeSourceEdge!]!
+    nodes: [RecipeSource!]!
+    pageInfo: PageInfo!
     totalCount: Int!
-    page: Page
   }
 
-  input RecipeSourceInput {
-    name: String
-    website: String
-    logo: String
-    coverImage: String
-    about: String
+  enum RecipeSourceOrderBy {
+    CREATION_DATE_ASC
+    CREATION_DATE_DESC
+    UPDATE_DATE_ASC
+    UPDATE_DATE_DESC
+    NAME_ASC
+    NAME_DESC
   }
 
-  input RecipeSourceQuery {
-    name: String
-    website: String
-    logo: String
-    coverImage: String
-    about: String
-    followers: [ID!]
-  }
-
-  type RecipeSourceMutationResponse implements MutationResponse {
-    code: Int!
+  type AddRecipeSourcePayload {
+    code: String!
     success: Boolean!
     message: String!
-    RecipeSource: RecipeSource
-  }
-
-  type FollowRecipeSourceMutationResponse implements MutationResponse {
-    code: Int!
-    success: Boolean!
-    message: String!
-    me: RecipeSource!
+    clientMutationId: String
     recipeSource: RecipeSource
+  }
+
+  type UpdateRecipeSourcePayload {
+    code: String!
+    success: Boolean!
+    message: String!
+    clientMutationId: String
+    recipeSource: RecipeSource
+  }
+
+  type DeleteRecipeSourcePayload {
+    code: String!
+    success: Boolean!
+    message: String!
+    clientMutationId: String
+    recipeSource: RecipeSource
+  }
+
+  input AddRecipeSourceInput {
+    name: String!
+    website: String!
+    logo: String!
+    biography: String
+    clientMutationId: String
+  }
+
+  input UpdateRecipeSourceInput {
+    id: String!
+    name: String
+    website: String
+    logo: String
+    biography: String
+    clientMutationId: String
+  }
+
+  input DeleteRecipeSourceInput {
+    "ID of the recipe source to delete"
+    id: ID!
+    clientMutationId: String
   }
 
   #################################################
@@ -55,22 +95,23 @@ export default gql`
   #################################################
 
   extend type Query {
-    recipeSource(id: ID!): RecipeSource!
     recipeSources(
-      query: RecipeSourceQuery
-      page: PageInput
-      options: QueryOptions
-    ): RecipeSources!
+      orderBy: RecipeSourceOrderBy
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): RecipeSourceConnection!
   }
 
   extend type Mutation {
-    addRecipeSource(recipeSource: RecipeSourceInput!): MutationResponse!
+    addRecipeSource(input: AddRecipeSourceInput!): AddRecipeSourcePayload!
+      @auth(requires: ADMIN)
     updateRecipeSource(
-      id: ID!
-      recipeSource: RecipeSourceInput!
-    ): MutationResponse!
-    deleteRecipeSource(id: ID!): MutationResponse!
-    followRecipeSource(recipeSource: ID!): MutationResponse! @auth
-    unFollowRecipeSource(recipeSource: ID!): MutationResponse! @auth
+      input: UpdateRecipeSourceInput!
+    ): UpdateRecipeSourcePayload! @auth(requires: ADMIN)
+    deleteRecipeSource(
+      input: DeleteRecipeSourceInput!
+    ): DeleteRecipeSourcePayload! @auth(requires: ADMIN)
   }
 `

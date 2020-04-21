@@ -1,74 +1,67 @@
 import { recipeSourceService } from '../../services'
+import {
+  loadFollowersFromFollowerships,
+  withClientMutationId,
+  toLocalId
+} from '../../utils'
+import { validateCursorQuery, validateRecipeSource } from '../../validations'
 import { Context } from '../context'
-import { validateQueryOptions } from '../../validations'
-import { validateRecipeSource } from '../../validations/source.validation'
 
 export default {
   Query: {
-    recipeSource: (_: any, { id }: any, { dataLoaders }: Context) => {
-      return dataLoaders.recipeSourceLoader.load(id)
-    },
-    recipeSources: (_: any, { query, page, options }: any, ctx: Context) => {
-      const opts = validateQueryOptions({ ...options, page })
+    recipeSources: (_: any, args: any, ctx: Context) => {
+      const cursorQuery = validateCursorQuery(args)
+      const { recipeSourceByQueryLoader } = ctx.dataLoaders
 
-      return recipeSourceService.getRecipeSources(query, opts, ctx.dataLoaders)
+      return recipeSourceByQueryLoader.load(cursorQuery)
     }
   },
   Mutation: {
-    addRecipeSource: (_: any, { source }: any) => {
-      const data = validateRecipeSource(source)
+    addRecipeSource: (_: any, { input }: any) => {
+      const data = validateRecipeSource(input)
+      const payload = recipeSourceService.addRecipeSource(data)
 
-      return recipeSourceService.addRecipeSource(data)
+      return withClientMutationId(payload, input)
     },
-    updateRecipeSource: (_: any, { id, source }: any) => {
-      const data = validateRecipeSource(source)
+    updateRecipeSource: (_: any, { input }: any) => {
+      const { id } = toLocalId(input.id, 'RecipeSource')
 
-      return recipeSourceService.updateRecipeSource(id, data)
+      const data = validateRecipeSource({ ...input, id }, false)
+      const payload = recipeSourceService.updateRecipeSource(data)
+
+      return withClientMutationId(payload, input)
     },
-    deleteRecipeSource: (_: any, { id }: any) => {
-      return recipeSourceService.deleteRecipeSource(id)
-    },
-    followRecipeSource: (_: any, { recipeSource }: any, ctx: Context) => {
-      return recipeSourceService.followRecipeSource(
-        ctx.accountId as string,
-        recipeSource,
-        ctx.dataLoaders
-      )
-    },
-    unFollowRecipeSource: (_: any, { recipeSource }: any, ctx: Context) => {
-      return recipeSourceService.unFollowRecipeSource(
-        ctx.accountId as string,
-        recipeSource,
-        ctx.dataLoaders
-      )
+    deleteRecipeSource: (_: any, { input }: any) => {
+      const { id } = toLocalId(input.id, 'RecipeSource')
+      const recipeSource = validateRecipeSource({ id }, false)
+      const payload = recipeSourceService.deleteRecipeSource(recipeSource.id)
+
+      return withClientMutationId(payload, input)
     }
   },
   RecipeSource: {
-    followers: ({ followers }: any, args: any, ctx: Context) => {
-      const { page, sort } = validateQueryOptions(args)
-      const query = { criteria: { followers: { $in: followers } }, sort, page }
-      const { recipeSourceByQueryLoader } = ctx.dataLoaders
+    followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
+      const opts = validateCursorQuery(args)
+      const criteria = { followedData: _id, followedDataType: 'RecipeSource' }
+      const { followershipByQueryLoader: loader } = dataLoaders
 
-      return { content: recipeSourceByQueryLoader.load(query), query }
+      return loader.load({ ...opts, criteria }).then(followership => {
+        return loadFollowersFromFollowerships(followership, dataLoaders)
+      })
     },
-    recipes: ({ _id }: any, args: any, ctx: Context) => {
-      const { page, sort } = validateQueryOptions(args)
-      const criteria = { authorType: 'RecipeSource', author: _id }
-      const query = { criteria, sort, page }
+    recipes: async ({ _id }: any, args: any, ctx: Context) => {
+      const opts = validateCursorQuery(args)
+      const criteria = { author: _id, authorType: 'RecipeSource' }
       const { recipeByQueryLoader } = ctx.dataLoaders
 
-      return { content: recipeByQueryLoader.load(query), query }
+      return recipeByQueryLoader.load({ ...opts, criteria })
     }
   },
-  RecipeSources: {
-    totalCount: ({ query }: any, _: any, { dataLoaders }: Context) => {
-      return dataLoaders.recipeSourceCountLoader.load(query)
-    },
-    page: async ({ query }: any, _: any, { dataLoaders }: Context) => {
-      const itemsCount = await dataLoaders.recipeSourceCountLoader.load(query)
-      const pageCount = Math.ceil(itemsCount / query.page.size)
+  RecipeSourceConnection: {
+    totalCount: ({ totalCount, query }: any, _: any, ctx: Context) => {
+      const { recipeSourceCountLoader } = ctx.dataLoaders
 
-      return { count: pageCount, ...query.page }
+      return totalCount || recipeSourceCountLoader.load(query.criteria)
     }
   }
 }

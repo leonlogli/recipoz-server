@@ -1,40 +1,52 @@
-import Joi from '@hapi/joi'
+import Joi, { required } from '@hapi/joi'
 
-import { errorMessages } from '../constants'
-import { costs, difficultyLevels, RecipeDocument } from '../models'
-import { hasOwnProperties, checkAndSendValidationErrors } from '../utils'
-import { objectIdSchema } from './common.validation'
+import { costs, difficultyLevels, Ingredient } from '../models'
+import { checkAndSendValidationErrors, hasDuplicates } from '../utils'
+import { objectIdSchema, idSchema } from './common.validation'
 
-const ingredientSchema = Joi.object({
-  quantity: Joi.number()
-    .positive()
-    .required(),
-  unit: objectIdSchema.required(),
-  name: Joi.string()
-    .required()
-    .min(3)
-    .max(80)
-})
-
-const stepSchema = Joi.object({
-  instruction: Joi.string()
+const instructionSchema = Joi.object({
+  text: Joi.string()
     .required()
     .min(3)
     .max(280),
   image: Joi.string().uri()
 })
 
+const ingredientSchema = Joi.object({
+  quantity: Joi.string()
+    .min(1)
+    .max(30),
+  name: Joi.string()
+    .required()
+    .min(1)
+    .max(80),
+  group: Joi.string()
+})
+
+const ingredientsValidator = (
+  value: Ingredient[],
+  helpers: Joi.CustomHelpers
+) => {
+  if (hasDuplicates(value.map(i => ({ group: i.group, name: i.name })))) {
+    return helpers.error('any.invalid')
+  }
+
+  // Return the value unchanged
+  return value
+}
+
 const recipeSchema = Joi.object({
+  id: idSchema,
   name: Joi.string()
     .min(3)
     .max(80)
-    .required(),
+    .when('$isNew', { is: true, then: required() }),
   description: Joi.string()
     .min(20)
     .max(280),
   image: Joi.string()
     .uri()
-    .required(),
+    .when('$isNew', { is: true, then: required() }),
   video: Joi.string().uri(),
   additionalImages: Joi.array()
     .items(Joi.string().required())
@@ -44,71 +56,59 @@ const recipeSchema = Joi.object({
     .invalid(Joi.ref('image')),
   servings: Joi.number()
     .positive()
-    .required(),
+    .when('$isNew', { is: true, then: required() }),
   difficultyLevel: Joi.string().valid(...difficultyLevels),
   cost: Joi.string().valid(...costs),
   prepTime: Joi.number().positive(),
   cookTime: Joi.number().positive(),
-  private: Joi.bool().required(),
+  private: Joi.bool(),
   sourceUrl: Joi.string()
     .uri()
-    .when(Joi.ref('authorType'), { is: 'RecipeSource', then: Joi.required() }),
+    .when('authorType', {
+      is: 'RecipeSource',
+      then: Joi.when('$isNew', { is: true, then: required() })
+    }),
   ingredients: Joi.array()
     .items(ingredientSchema)
-    .required()
-    .min(1)
-    .max(20)
-    .unique(),
-  steps: Joi.array()
-    .items(stepSchema)
     .min(1)
     .max(20)
     .unique()
-    .when(Joi.ref('$isAdmin'), { is: false, then: Joi.required() }),
-  source: objectIdSchema,
+    .custom(ingredientsValidator, 'ingredients custom validation')
+    .when(Joi.ref('$isNew'), { is: true, then: Joi.required() }),
+  steps: Joi.array()
+    .items(instructionSchema)
+    .min(1)
+    .max(20)
+    .unique()
+    .when('authorType', {
+      is: 'Account',
+      then: Joi.when('$isNew', { is: true, then: required() })
+    }),
+  author: objectIdSchema,
   authorType: Joi.string().valid('Account', 'RecipeSource'),
   categories: Joi.array()
     .items(objectIdSchema.required())
     .min(2)
     .unique()
-    .sparse()
-    .required(),
+    .when('$isNew', {
+      is: true,
+      then: Joi.when('$isNew', { is: true, then: required() })
+    }),
   tips: Joi.string()
-    .min(10)
+    .min(20)
     .max(280)
 }).or('prepTime', 'cookTime')
 
-// Choose recipe author betwween 'source' and 'author' key
-const chooseRecipeAuthor = (recipe: any, isAdmin: boolean) => {
-  if (hasOwnProperties(recipe, 'source') && isAdmin) {
-    recipe.authorType = 'RecipeSource'
-  } else {
-    recipe.authorType = 'Account'
-
-    // In the validation schema, we use 'source' key instead of 'author' key because
-    // the author is set only on the server side (to the current authenticated user).
-    recipe.source = recipe.author
-  }
-
-  delete recipe.author // avoid 'not allowed' error for the 'author' key
-}
-
-const validatRecipe = (
-  recipe: RecipeDocument,
-  isAdmin: boolean,
-  isNew = true
-) => {
-  chooseRecipeAuthor(recipe, isAdmin)
-
+const validatRecipe = (data: any, isNew = true) => {
+  const { clientMutationId: _, source: _source, ...recipe } = data
   const { error, value } = recipeSchema.validate(recipe, {
     abortEarly: false,
-    context: { isAdmin, isNew }
+    context: { isNew }
   })
 
-  checkAndSendValidationErrors(error, errorMessages.recipe.invalid)
-  const { source, ...val } = value
+  checkAndSendValidationErrors(error)
 
-  return { author: source, ...val } // do not forget to set author
+  return value
 }
 
 export { validatRecipe }

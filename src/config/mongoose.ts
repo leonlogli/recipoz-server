@@ -21,10 +21,9 @@ mongoose.set('debug', DEV_ENV)
 
 /**
  * Connect to mongo db
- *
- * @returns {Promise<mongoose.Connection>} Mongoose connection
+ * @param uri Mongodb uri
  */
-const connectDb = (uri = MONGO.URI) => {
+const connectDb = async (uri = MONGO.URI) => {
   return mongoose
     .connect(uri, {
       useCreateIndex: true,

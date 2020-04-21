@@ -15,7 +15,7 @@ export type I18N = {
   /** The current language */
   currentLanguage: SupportedLanguage
   /** Retrurns the translated value of the specified key */
-  t: (key: string, options?: any) => string
+  t: (key: string, options?: Record<string, any>) => string
 }
 
 const isSupportedLanguage = (language?: string) => {
@@ -32,7 +32,7 @@ const i18n: I18N = {
  * Ex: toLocale({ en: 'data', fr: 'données' }) == 'data' in case the current locale is 'en'
  * @param record i18n object to format
  */
-const toLocale = (record: any) => {
+const toLocale = (record: Record<SupportedLanguage, string>) => {
   if (!record || isString(record)) {
     return record
   }
@@ -40,7 +40,7 @@ const toLocale = (record: any) => {
   return (
     record[i18n.currentLanguage] ||
     record[APP_DEFAULT_LANGUAGE] ||
-    record[Object.keys(record)[0]]
+    record[Object.keys(record)[0] as SupportedLanguage]
   )
 }
 
@@ -58,33 +58,6 @@ function withNamespace<T>(obj: T, namespace: string): T {
   })
 
   return toNestedObject(dotedObj)
-}
-
-/**
- * Rename i18n keys in the specified object.
- * Ex:
- *    const obj = { title: 'val', name: 'John' }
- *    renameI18nKeys(obj, 'en', 'title') = { title.en: 'val', name: 'John' }
- * @param obj i18n data input
- * @param i18nFields i18n fieds in obj
- */
-const renameI18nKeys = (
-  obj: Record<string, any>,
-  language: SupportedLanguage,
-  ...i18nFields: string[]
-) => {
-  if (!language) {
-    return obj
-  }
-  const keysMap = i18nFields.map(key => {
-    if (hasOwnProperties(obj, key)) {
-      return { [key]: `${key}.${language}` }
-    }
-
-    return { [key]: key }
-  })
-
-  return renameKeys(obj, ...keysMap)
 }
 
 /**
@@ -122,12 +95,39 @@ const detectLanguage = (text: string) => {
   return languageConverter[franc(text)]
 }
 
+/**
+ * Rename i18n keys in the specified object.
+ * Ex:
+ *    const obj = { title: 'val', name: 'John' }
+ *    renameI18nKeys(obj, 'en', 'title') = { title.en: 'val', name: 'John' }
+ * @param obj i18n data input
+ * @param i18nFields i18n fieds in obj
+ */
+const renameI18nKeys = (
+  obj: Record<string, any>,
+  language: SupportedLanguage,
+  ...i18nFields: string[]
+) => {
+  if (!language) {
+    return obj
+  }
+  const keysMap = i18nFields.map(key => {
+    if (hasOwnProperties(obj, key)) {
+      return { [key]: `${key}.${language}` }
+    }
+
+    return { [key]: key }
+  })
+
+  return renameKeys(obj, ...keysMap)
+}
+
 export {
   i18n,
   toLocale,
   isSupportedLanguage,
   withNamespace,
-  renameI18nKeys,
   detectLanguage,
-  appendLangsToFields
+  appendLangsToFields,
+  renameI18nKeys
 }

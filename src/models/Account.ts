@@ -1,47 +1,64 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-import {
-  CategoryDocument,
-  RecipeDocument,
-  UserDocument,
-  NotificationCode
-} from '.'
+import { UserDocument, NotificationCode } from '.'
 import {
   notificationCodes,
   notificationTypes,
   NotificationType
 } from './Notification'
 
-const { ObjectId } = Schema.Types
-
-export type AccountDocument = Document & {
-  user: UserDocument
-  followers?: AccountDocument[]
-  favoriteRecipes?: RecipeDocument[]
-  triedRrecipes?: RecipeDocument[]
-  settings?: {
-    notifications?: NotificationSetting[]
-    tastes?: CategoryDocument[]
-  }
-}
-
 export type NotificationSetting = {
   type: NotificationType
   codes: NotificationCode[]
 }
 
+export type AccountDocument = Document & {
+  user: UserDocument
+  registrationTokens: string[]
+  settings?: {
+    notifications?: NotificationSetting[]
+  }
+}
+
+export const allergies = [
+  'DAIRY',
+  'EGG',
+  'GLUTEN',
+  'PEANUT',
+  'FISH',
+  'SESAME',
+  'SHELLFISH',
+  'SOY',
+  'TREE_NUT',
+  'WHEAT'
+] as const
+
+export type Allergy = typeof allergies[number]
+
+export const cookingExperiences = [
+  'BEGINNER',
+  'INTERMEDIATE',
+  'ADVANCED'
+] as const
+
+export type CookingExperience = typeof cookingExperiences[number]
+
 const accountSchema = new Schema(
   {
     user: { type: String, unique: true },
-    followers: [{ type: ObjectId, ref: 'Account' }],
-    favoriteRecipes: [{ type: ObjectId, ref: 'Recipe' }],
-    triedRrecipes: [{ type: ObjectId, ref: 'Recipe' }],
+    registrationTokens: [String], // FCM SDK registration tokens par user
     settings: {
       notifications: {
         type: { type: String, enum: notificationTypes },
         codes: { type: [String], enum: notificationCodes }
       },
-      tastes: [{ type: ObjectId, ref: 'Category' }]
+      allergies: { type: [String], enum: allergies },
+      dislikedIngredients: [String], // at most 1000/account
+      cookingExperience: { type: [String], enum: cookingExperiences },
+      household: {
+        adults: { type: Number, default: 1 },
+        children: Number
+      }
     }
   },
   { timestamps: true }

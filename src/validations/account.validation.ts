@@ -1,13 +1,18 @@
 import Joi from '@hapi/joi'
 
-import { errorMessages } from '../constants'
 import { checkAndSendValidationErrors } from '../utils'
-import { notificationTypes, notificationCodes } from '../models'
+import {
+  notificationTypes,
+  notificationCodes,
+  allergies,
+  cookingExperiences
+} from '../models'
+import { idSchema } from './common.validation'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const customJoi = Joi.extend(require('joi-phone-number'))
 
-const userSchemaObject = {
+const userRegisterSchemaObject = {
   displayName: Joi.string()
     .min(3)
     .max(100),
@@ -16,12 +21,11 @@ const userSchemaObject = {
   password: Joi.string()
     .min(6)
     .max(50),
-  photoURL: Joi.string().uri(),
-  emailVerified: Joi.boolean()
+  photoURL: Joi.string().uri()
 }
 
-const userSchema = Joi.object({
-  ...userSchemaObject
+const userRegisterSchema = Joi.object({
+  ...userRegisterSchemaObject
 })
   .with('email', 'password')
   .with('phoneNumber', 'password')
@@ -38,9 +42,16 @@ const notificationSettingSchema = Joi.object({
     .unique()
 })
 
+const householdSchema = Joi.object({
+  adults: Joi.number().positive(),
+  children: Joi.number().positive()
+})
+
 const accountSchema = Joi.object({
+  id: idSchema,
   user: Joi.object({
-    ...userSchemaObject,
+    ...userRegisterSchemaObject,
+    emailVerified: Joi.boolean(),
     location: Joi.string()
       .min(3)
       .max(100),
@@ -56,38 +67,58 @@ const accountSchema = Joi.object({
     theme: Joi.string()
       .min(3)
       .max(50),
-    gender: Joi.string().valid('M', 'F'),
+    gender: Joi.string().valid('M', 'F', null),
     birthday: Joi.date()
       .min('1-1-1900')
       .max('1-1-2010')
       .iso(),
     facebook: Joi.string().uri(),
     pinterest: Joi.string().uri(),
+    instagram: Joi.string().uri(),
     twitter: Joi.string().uri()
   }),
   settings: Joi.object({
     notifications: Joi.array()
       .items(notificationSettingSchema)
+      .unique(),
+    allergies: Joi.array()
+      .items(Joi.string().valid(...allergies))
+      .unique(),
+    household: householdSchema,
+    cookingExperience: Joi.string().valid(...cookingExperiences),
+    dislikedIngredients: Joi.array()
+      .items(
+        Joi.string()
+          .min(3)
+          .max(80)
+      )
+      .min(1)
+      .max(1000)
       .unique()
   })
 })
 
-const validateUser = (user: any) => {
-  const { error, value } = userSchema.validate(user, { abortEarly: false })
-
-  checkAndSendValidationErrors(error, errorMessages.account.invalid)
-
-  return value
-}
-
-const validateAccount = (account: any) => {
-  const { error, value } = accountSchema.validate(account, {
+const validateUserRegister = (data: any) => {
+  const { clientMutationId: _, ...user } = data
+  const { error, value } = userRegisterSchema.validate(user, {
     abortEarly: false
   })
 
-  checkAndSendValidationErrors(error, errorMessages.account.invalid)
+  checkAndSendValidationErrors(error)
 
   return value
 }
 
-export { validateUser, validateAccount }
+const validateAccount = (data: any, isNew = true) => {
+  const { clientMutationId: _, ...account } = data
+  const { error, value } = accountSchema.validate(account, {
+    abortEarly: false,
+    context: { isNew }
+  })
+
+  checkAndSendValidationErrors(error)
+
+  return value
+}
+
+export { validateUserRegister, validateAccount }

@@ -1,38 +1,83 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
-  type Notification {
-    id: ID!
+  type Notification implements Node {
+    id: ID! @guid
     code: NotificationCode!
     actor: Account!
     recipient: Account!
     data: NotificationData!
-    read: Boolean
+    read: Boolean!
+    createdAt: String!
+    updatedAt: String
   }
 
-  union NotificationData = Comment | Recipe
+  type NotificationEdge {
+    cursor: String!
+    node: Notification!
+  }
+
+  type NotificationConnection {
+    edges: [NotificationEdge!]!
+    nodes: [Notification!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
+  union NotificationData = Comment | Recipe | Account
 
   enum NotificationCode {
     MY_RECIPE_IS_COMMENTED
     SOMEONE_REPLIED_TO_MY_COMMENT
-    I_AM_MENTIONED_IN_COMMENT
-    SOMEONE_REACTED_TO_MY_COMMENT
-    I_HAVE_NEW_FOLLOWER
-    MY_FOLLOWER_PUBLISHES_RECIPE
+    SOMEONE_MENTIONED_ME
+    MY_COMMENT_IS_LIKED
+    SOMEONE_STARTED_FOLLOWING_ME
+    NEW_RECIPE_FROM_MY_FOLLOWING
   }
 
   enum NotificationType {
+    "Push notification"
     PUSH
+    "Email notification"
     EMAIL
-    ON_APP
+    "ON_APP notification."
+    PLATFORM
   }
 
-  input NotificationInput {
-    data: ID
-    recipient: ID!
-    code: NotificationCode!
-    actor: ID!
-    unread: Boolean
+  input NotificationFilter {
+    or: [NotificationFilter!]
+    and: [NotificationFilter!]
+    nor: [NotificationFilter!]
+    code: StringFilter
+    read: BooleanFilter
+  }
+
+  type UpdateNotificationPayload {
+    code: String!
+    success: Boolean!
+    message: String!
+    clientMutationId: String
+    notification: Notification
+  }
+
+  type DeleteNotificationPayload {
+    code: String!
+    success: Boolean!
+    message: String!
+    clientMutationId: String
+    notification: Notification
+  }
+
+  input UpdateNotificationInput {
+    id: ID!
+    read: Boolean
+    clientMutationId: String
+  }
+
+  input DeleteNotificationInput {
+    "ID of the notification to delete"
+    id: ID!
+    clientMutationId: String
   }
 
   #################################################
@@ -40,13 +85,21 @@ export default gql`
   #################################################
 
   extend type Query {
-    notification(id: ID!): Notification!
-    notifications: [Notification!]!
+    myNotifications(
+      filter: NotificationFilter
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): NotificationConnection! @auth
   }
 
   extend type Mutation {
-    addNotification(notification: NotificationInput): Notification!
-    updateNotification(id: ID!, notification: NotificationInput): Notification!
-    deleteNotification(id: ID!): ID!
+    updateNotification(
+      input: UpdateNotificationInput!
+    ): UpdateNotificationPayload! @auth
+    deleteNotification(
+      input: DeleteNotificationInput!
+    ): DeleteNotificationPayload! @auth
   }
 `

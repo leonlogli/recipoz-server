@@ -1,18 +1,24 @@
-import winston from 'winston'
+import { format, transports, createLogger } from 'winston'
 
-const logger = winston.createLogger({
+import { PROD_ENV } from './env'
+
+const logger = createLogger({
   level: 'info',
-  format: winston.format.json(),
+  format: format.combine(format.colorize(), format.json(), format.timestamp()),
   transports: [
     //
     // - Write to all logs with level `info` and below to `combined.log`
     // - Write all logs error (and below) to `error.log`.
     //
-    new winston.transports.File({
+    new transports.File({
       filename: '.logs/error.log',
-      level: 'error'
+      level: 'error',
+      maxsize: 10000000
     }),
-    new winston.transports.File({ filename: '.logs/combined.log' })
+    new transports.File({
+      filename: '.logs/combined.log',
+      maxsize: 5000000
+    })
   ]
 })
 
@@ -20,10 +26,10 @@ const logger = winston.createLogger({
 // If we're not in production then log to the `console` with the format:
 // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
 //
-if (process.env.NODE_ENV !== 'production') {
+if (!PROD_ENV) {
   logger.add(
-    new winston.transports.Console({
-      format: winston.format.simple()
+    new transports.Console({
+      format: format.simple()
     })
   )
 }

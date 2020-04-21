@@ -6,31 +6,56 @@ const statusMessages = {
     updated: 'category.updated',
     deleted: 'category.deleted'
   },
-  measureUnit: {
-    created: 'measureUnit.created',
-    updated: 'measureUnit.updated',
-    deleted: 'measureUnit.deleted'
-  },
-  nutrient: {
-    created: 'nutrient.created',
-    updated: 'nutrient.updated',
-    deleted: 'nutrient.deleted'
-  },
-  source: {
-    created: 'source.created',
-    updated: 'source.updated',
-    deleted: 'source.deleted'
+  recipeSource: {
+    created: 'recipeSource.created',
+    updated: 'recipeSource.updated',
+    deleted: 'recipeSource.deleted'
   },
   account: {
     created: 'account.created',
     updated: 'account.updated',
     deleted: 'account.deleted',
+    follow: 'account.follow',
+    unfollow: 'account.unfollow',
     tokenRevoked: 'account.tokenRevoked'
   },
   recipe: {
     created: 'recipe.created',
     updated: 'recipe.updated',
     deleted: 'recipe.deleted'
+  },
+  recipeCollection: {
+    created: 'recipeCollection.created',
+    updated: 'recipeCollection.updated',
+    deleted: 'recipeCollection.deleted'
+  },
+  accountRecipe: {
+    addedToFavorite: 'recipe.addedToFavorite',
+    removedFromFavorite: 'recipe.removedFromFavorite',
+    addedToMade: 'recipe.addedToMade',
+    removedFromMade: 'recipe.removedFromMade',
+    addedToCollection: 'recipe.addedToCollection',
+    removedFromCollection: 'recipe.removedFromCollection'
+  },
+  shoppingListItem: {
+    added: 'shoppingListItem.added',
+    updated: 'shoppingListItem.updated',
+    deleted: 'shoppingListItem.deleted'
+  },
+  comment: {
+    created: 'comment.created',
+    updated: 'comment.updated',
+    deleted: 'comment.deleted',
+    like: 'comment.like'
+  },
+  abuseReport: {
+    created: 'abuseReport.created',
+    updated: 'abuseReport.updated',
+    deleted: 'abuseReport.deleted'
+  },
+  notification: {
+    updated: 'notification.updated',
+    deleted: 'notification.deleted'
   }
 }
 

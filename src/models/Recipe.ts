@@ -1,13 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-import {
-  AccountDocument,
-  CategoryDocument,
-  NutritionDocument,
-  nutritionSchema,
-  RecipeSourceDocument
-} from '.'
-import { createTextIndex } from '../utils/schemaUtils'
+import { AccountDocument, CategoryDocument, RecipeSourceDocument } from '.'
+import { createTextIndex } from '../utils'
 
 const { ObjectId } = Schema.Types
 
@@ -24,17 +18,21 @@ export const costs = ['CHEAP', 'EXPENSIVE', 'VERY_EXPENSIVE'] as const
 
 export type Cost = typeof costs[number]
 
-export type Step = {
-  number: number
-  instruction: string
+export type Instruction = {
+  step: number
+  text: string
   image?: string
 }
 
 export type Ingredient = {
-  quantity: number
-  unit: string
+  quantity: string
   name: string
+  group: string
 }
+
+export const recipeAuthorTypes = ['Account', 'RecipeSource'] as const
+
+export type RecipeAuthorType = typeof recipeAuthorTypes[number]
 
 export type RecipeDocument = Document & {
   name: string
@@ -46,15 +44,14 @@ export type RecipeDocument = Document & {
   difficultyLevel: DifficultyLevel
   cost: Cost
   author: RecipeSourceDocument | AccountDocument
-  sourceUrl: string
-  steps?: Step[]
+  authorType: RecipeAuthorType
+  originalLink: string
+  instructions?: Instruction[]
   categories?: CategoryDocument[]
   ingredients: Ingredient[]
   private: boolean
   additionalImages?: string[]
-
   tips?: string
-  nutrition?: NutritionDocument
 }
 
 const recipeSchema = new Schema(
@@ -68,16 +65,15 @@ const recipeSchema = new Schema(
     prepTime: Number,
     additionalImages: [String],
     categories: [{ type: ObjectId, ref: 'Category' }],
-    sourceUrl: String,
+    originalLink: String,
     author: { type: ObjectId, refPath: 'authorType' },
-    authorType: { type: String, enum: ['Account', 'RecipeSource'] },
+    authorType: { type: String, enum: recipeAuthorTypes },
     private: Boolean,
     difficultyLevel: { type: String, enum: difficultyLevels },
     cost: { type: String, enum: costs },
-    ingredients: [{ quantity: Number, unit: String, name: String }],
-    steps: [{ number: Number, instruction: String, image: String }],
-    tips: String,
-    nutrition: nutritionSchema
+    ingredients: [{ quantity: String, name: String, group: String }],
+    instructions: [{ step: Number, text: String, image: String }],
+    tips: String
   },
   { timestamps: true }
 )
@@ -85,18 +81,24 @@ const recipeSchema = new Schema(
 const { indexes, weights } = createTextIndex(
   'name',
   'description',
-  'steps.instruction',
-  'ingredients.name'
+  'instructions.text',
+  'ingredients.text'
 )
 
 recipeSchema.index(indexes, { weights })
 
-recipeSchema.pre('save', function save(next) {
-  const { steps } = this as RecipeDocument
+// For the frequent access
+recipeSchema.index({ author: 1, authorType: 1 })
 
-  if (steps) {
-    steps.forEach((step, i) => {
-      step.number = i + 1
+// Index for cursor based pagination (because we allow recipes to be order by 'createdAt')
+recipeSchema.index({ createdAt: 1, _id: 1 })
+
+recipeSchema.pre('save', function save(next) {
+  const { instructions } = this as RecipeDocument
+
+  if (instructions) {
+    instructions.forEach((step, i) => {
+      step.step = i + 1
     })
   }
 

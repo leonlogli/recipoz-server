@@ -1,18 +1,19 @@
 import { errorMessages, statusMessages } from '../constants'
-import { Category, CategoryDocument } from '../models'
-import ModelService from './common/ModelService'
+import { Category, CategoryDocument, Recipe } from '../models'
+import ModelService from './base/ModelService'
 import {
-  QueryOptions,
   DataLoaders,
-  buildFilter,
-  extractFilterElements,
-  UserInputError,
+  buildFilterQuery,
   i18n,
-  categoryMutationErrorHandler as handleMutationError
+  OffsetPage,
+  errorRes,
+  isDuplicateError
 } from '../utils'
+import followershipService from './followershipService'
+import { logger } from '../config'
 
 const { created, deleted, updated } = statusMessages.category
-const { notFound } = errorMessages.category
+const { notFound, nameAlreadyExists } = errorMessages.category
 
 const categoryModel = new ModelService<CategoryDocument>({
   model: Category,
@@ -21,68 +22,54 @@ const categoryModel = new ModelService<CategoryDocument>({
   onNotFound: notFound
 })
 
-const countCategoriesByBatch = categoryModel.countByBatch
-const getCategory = categoryModel.findByIds
+const countCategories = categoryModel.countByBatch
+const getCategories = categoryModel.findByIds
 const getCategoriesByBatch = categoryModel.batchFind
 const autocomplete = categoryModel.autocompleteSearch
 
-const handleRefFilter = async (filter: string, loaders?: DataLoaders) => {
-  if (filter.startsWith('parentCategory.')) {
-    const { i18nFields } = categoryModel
-    const { path, value } = extractFilterElements(filter, i18nFields)
-
-    if (path.startsWith('parentCategory.parentCategory')) {
-      const validationErrors = { path: 'parentCategory' }
-      const message = errorMessages.invalidFilter
-
-      throw new UserInputError(message, { validationErrors })
-    }
-    const criteria = { [path.substring(15)]: value }
-    const categories = await categoryModel.findAndSelect(criteria, '', loaders)
-    const ids = categories.map(c => c._id).join()
-
-    return `parentCategory.in:${ids || 'notfound ids'}`
-  }
-
-  return filter
-}
-
-const getCategories = async (
-  query: any,
-  opts: QueryOptions,
+const search = async (
+  query: string,
+  page: OffsetPage,
+  filter?: any,
   loaders?: DataLoaders
 ) => {
-  const filterResult = await buildFilter(
-    opts.filter || [],
-    filter => handleRefFilter(filter, loaders),
-    categoryModel.i18nFields
-  )
+  const filterQuery = buildFilterQuery(filter)
 
-  opts.filter = filterResult as any
-
-  return categoryModel.find(query, opts, loaders)
+  return categoryModel.search(query, page, filterQuery, loaders)
 }
 
-const addCategory = async (data: any, dataLoaders: DataLoaders) => {
+const handleMutationError = (error: any) => {
+  if (isDuplicateError(error)) {
+    return { success: false, message: i18n.t(nameAlreadyExists), code: 409 }
+  }
+
+  return errorRes(error)
+}
+
+const addCategory = async (data: any, loaders: DataLoaders) => {
   try {
-    if (data.parentCategory) {
-      await dataLoaders.categoryLoader.load(data.parentCategory)
+    if (data.parent) {
+      await loaders.categoryLoader.load(data.parent)
     }
     const category = await categoryModel.create(data)
-    const message = i18n.t(created)
 
-    return { success: true, message, code: 201, category }
+    return { success: true, message: i18n.t(created), code: 201, category }
   } catch (error) {
     return handleMutationError(error)
   }
 }
 
-const updateCategory = async (id: any, data: any, loaders?: DataLoaders) => {
-  const { categoryLoader } = loaders || {}
+const updateCategory = async (value: any, loaders: DataLoaders) => {
+  const { id, ...data } = value
 
   try {
-    if (categoryLoader && data.parentCategory) {
-      await categoryLoader.load(data.parentCategory)
+    if (data.parent) {
+      if (data.parent === id) {
+        const message = 'The category must be different from its parent'
+
+        return { success: false, message, code: 422 }
+      }
+      await loaders.categoryLoader.load(data.parent)
     }
     const category = await categoryModel.update(id, data, loaders)
 
@@ -96,6 +83,16 @@ const deleteCategory = async (id: any) => {
   try {
     const category = await categoryModel.delete(id)
 
+    Promise.all([
+      followershipService.deleteFollowers(category._id, 'Category'),
+      Recipe.updateMany(
+        { categories: category._id },
+        { $pull: { categories: category._id } }
+      ).exec()
+    ])
+      .then(() => logger.info('Category data deleted successfully'))
+      .catch(e => logger.error(`Error deleting category (${id}) data: `, e))
+
     return { success: true, message: i18n.t(deleted), code: 200, category }
   } catch (error) {
     return handleMutationError(error)
@@ -103,13 +100,13 @@ const deleteCategory = async (id: any) => {
 }
 
 export const categoryService = {
-  countCategoriesByBatch,
-  getCategory,
+  getCategories,
   getCategoriesByBatch,
   autocomplete,
-  getCategories,
+  search,
   addCategory,
   deleteCategory,
-  updateCategory
+  updateCategory,
+  countCategories
 }
 export default categoryService

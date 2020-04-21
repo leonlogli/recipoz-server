@@ -1,18 +1,25 @@
-import { ADMIN_EMAIL } from '../config'
-import { errorMessages, statusMessages } from '../constants'
+import { ADMIN_EMAIL, logger } from '../config'
+import { errorMessages, statusMessages, USER, ADMIN } from '../constants'
 import { Account, UserDocument, AccountDocument } from '../models'
 import {
   DataLoaders,
   i18n,
-  QueryOptions,
-  accountMutationErrorHandler as handleMutationError,
-  handleQueryRefKeys
+  handleFirebaseError,
+  isDuplicateError
 } from '../utils'
-import ModelService from './common/ModelService'
-import userService from './userService'
-import accountOperationsService from './accountOperationsService'
+import { ModelService } from './base'
+import followershipService from './followershipService'
+import notificationService from './notificationService'
+import commentService from './commentService'
+import commentReactionService from './commentReactionService'
+import recipeService from './recipeService'
+import shoppingListService from './shoppingListService'
+import abuseReportService from './abuseReportService'
+import savedRecipeService from './savedRecipeService'
+import { fcmService, userService } from './firebase'
+import recipeCollectionService from './recipeCollectionService'
 
-const { notFound } = errorMessages.account
+const { notFound, alreadyExists, userNotFound } = errorMessages.account
 const { created, deleted, updated } = statusMessages.account
 
 const accountModel = new ModelService<AccountDocument>({
@@ -20,43 +27,34 @@ const accountModel = new ModelService<AccountDocument>({
   onNotFound: notFound
 })
 
-const accountOpService = accountOperationsService(accountModel)
-
-const countAccountsByBatch = accountModel.countByBatch
-const getAccount = accountModel.findByIds
+const countAccounts = accountModel.countByBatch
+const getAccounts = accountModel.findByIds
 const getAccountsByBatch = accountModel.batchFind
 const getAccountAndSelect = accountModel.findOne
-
-const getAccountByUserInfo = async (query: any, loaders?: DataLoaders) => {
-  const user = await userService.getUser(query)
-
-  if (loaders) {
-    loaders.userLoader.prime(user.id, user)
-  }
-
-  return accountModel.findOne({ user: user.id })
-}
-
-const getAccounts = (query: any, opts: QueryOptions, loaders?: DataLoaders) => {
-  handleQueryRefKeys(query, 'followers', 'favoriteRecipes', 'triedRrecipes')
-
-  return accountModel.find(query, opts, loaders)
-}
+const getAccountsAndSelect = accountModel.findAndSelect
 
 const addAccount = async (user: UserDocument) => {
   const message = i18n.t(created)
 
   if (user.email === ADMIN_EMAIL?.toLowerCase()) {
-    await userService.setRoles(user.id, 'USER', 'ADMIN')
-  } else await userService.setRoles(user.id, 'USER')
+    await userService.setRoles(user.uid, USER, ADMIN)
+  } else await userService.setRoles(user.uid, USER)
 
-  const account = await accountModel.create({ user: user.id })
+  const account = await accountModel.create({ user: user.uid })
 
   await userService.updateUser(account.user as any, {
     language: i18n.currentLanguage
   })
 
   return { success: true, message, code: 201, account }
+}
+
+const handleMutationError = (error: any) => {
+  if (isDuplicateError(error)) {
+    return { success: false, message: i18n.t(alreadyExists), code: 409 }
+  }
+
+  return handleFirebaseError(error)
 }
 
 const addAccountForNewUser = async (newUser: any) => {
@@ -66,19 +64,27 @@ const addAccountForNewUser = async (newUser: any) => {
     .catch(handleMutationError)
 }
 
-const addAccountForExistingUser = async (userId: string) => {
-  return userService
-    .getUser({ id: userId })
-    .then(user => addAccount(user))
-    .catch(handleMutationError)
+const addAccountForExistingUser = async (idToken: string) => {
+  try {
+    const { uid } = await userService.verifyIdToken(idToken)
+    const user = await userService.getUserById(uid)
+
+    if (!user) {
+      return { success: true, message: i18n.t(userNotFound), code: 404 }
+    }
+
+    return await addAccount(user)
+  } catch (error) {
+    return handleMutationError(error)
+  }
 }
 
-const updateAccount = async (id: any, data: any, loaders?: DataLoaders) => {
+const updateAccount = async (input: any, loaders?: DataLoaders) => {
   try {
-    const { user, ...others } = data
-    const account: any = await accountModel.update(id, others, loaders)
+    const { id, user, ...data } = input
+    const account = await accountModel.update(id, data, loaders)
 
-    await userService.updateUser(account.user, user, loaders)
+    await userService.updateUser(account.user as any, user, loaders)
 
     return { success: true, message: i18n.t(updated), code: 200, account }
   } catch (error) {
@@ -86,14 +92,45 @@ const updateAccount = async (id: any, data: any, loaders?: DataLoaders) => {
   }
 }
 
-const deleteAccount = async (id: any, dataLoaders?: DataLoaders) => {
+const addRegistrationToken = async (accountId: any, token: string) => {
   try {
-    const account: any = await accountModel.delete(id)
-    const user = await userService.deleteUser(account.user)
-
-    if (dataLoaders) {
-      dataLoaders.userLoader.prime(user.id, user)
+    if (!token.trim() || !(await fcmService.isValidFCMToken(token))) {
+      return { success: 0, message: 'Invalid registration token', code: 400 }
     }
+    const query = { _id: accountId, registrationTokens: { $nin: [token] } }
+    const data = { $push: { registrationTokens: token } }
+    const account = await accountModel.updateOne(query, data)
+
+    return { success: true, message: i18n.t(updated), code: 200, account }
+  } catch (error) {
+    return handleMutationError(error)
+  }
+}
+
+const deleteAccountRelatedData = async (account: AccountDocument) => {
+  return Promise.all([
+    userService.deleteUser(account.user as any),
+    followershipService.deleteAccountFollowership(account._id),
+    notificationService.deleteNotifications(account._id),
+    commentService.deleteComments(account._id),
+    commentReactionService.deleteCommentReactions(account._id),
+    recipeService.deleteAccountRecipes(account._id),
+    shoppingListService.clearShoppingList(account._id),
+    abuseReportService.deleteAccountAbuseReports(account._id),
+    savedRecipeService.deleteSavedRecipes(account._id),
+    recipeCollectionService.deleteRecipeCollections(account._id)
+  ])
+    .then(() => logger.info('Account data deleted successfully: ', account))
+    .catch(e =>
+      logger.error(`Error deleting account (${account._id}) data: `, e)
+    )
+}
+
+const deleteAccount = async (id: any) => {
+  try {
+    const account = await accountModel.delete(id)
+
+    deleteAccountRelatedData(account)
 
     return { success: true, message: i18n.t(deleted), code: 200, account }
   } catch (error) {
@@ -101,16 +138,16 @@ const deleteAccount = async (id: any, dataLoaders?: DataLoaders) => {
   }
 }
 
-export default {
-  getAccountByUserInfo,
+export const accountService = {
   getAccounts,
-  getAccount,
   getAccountsByBatch,
-  countAccountsByBatch,
+  countAccounts,
   addAccountForNewUser,
   addAccountForExistingUser,
   deleteAccount,
   updateAccount,
   getAccountAndSelect,
-  ...accountOpService
+  getAccountsAndSelect,
+  addRegistrationToken
 }
+export default accountService

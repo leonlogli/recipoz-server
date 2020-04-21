@@ -1,25 +1,18 @@
 import DataLoader from 'dataloader'
 
 import { categoryService } from '../../services'
-import { dataByQueryLoaderOptions, dataCountLoaderOptions } from '../../utils'
+import { dataByQueryLoaderOptions as options } from '../../utils'
 
-const {
-  getCategoriesByBatch,
-  getCategory,
-  countCategoriesByBatch
-} = categoryService
+const { getCategoriesByBatch, getCategories, countCategories } = categoryService
 
-const categoryLoader = () => {
-  return new DataLoader(getCategory)
-}
+const categoryLoader = () => new DataLoader(getCategories)
 
 const categoryByQueryLoader = () => {
-  return new DataLoader(getCategoriesByBatch, dataByQueryLoaderOptions)
+  return new DataLoader(getCategoriesByBatch, options)
 }
 
 const categoryCountLoader = () => {
-  return new DataLoader(countCategoriesByBatch, dataCountLoaderOptions)
+  return new DataLoader(countCategories, options)
 }
 
 export { categoryLoader, categoryByQueryLoader, categoryCountLoader }
-export default categoryLoader

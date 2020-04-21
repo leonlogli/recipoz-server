@@ -1,68 +1,78 @@
 import { categoryService } from '../../services'
-import { validateCategory, validateQueryOptions } from '../../validations'
+import {
+  buildFilterQuery,
+  loadFollowersFromFollowerships,
+  withClientMutationId,
+  toLocalId
+} from '../../utils'
+import { validateCategory, validateCursorQuery } from '../../validations'
 import { Context } from '../context'
 
 export default {
   Query: {
-    category: (_: any, { id }: any, { dataLoaders }: Context) => {
-      return dataLoaders.categoryLoader.load(id)
-    },
-    categories: (_: any, { query, options, page }: any, ctx: Context) => {
-      const opts = validateQueryOptions({ ...options, page })
-      const { language } = opts
-      const value = validateCategory({ language, ...query }, false)
+    categories: (_: any, { filter, ...options }: any, ctx: Context) => {
+      const criteria = buildFilterQuery(filter, 'parent')
+      const cursorQuery = validateCursorQuery(options)
+      const { categoryByQueryLoader } = ctx.dataLoaders
 
-      return categoryService.getCategories(value, opts, ctx.dataLoaders)
-    },
-    searchCategories: (_: any, { query, page }: any) => {
-      const opts = validateQueryOptions({ page })
-
-      return categoryService.getCategories(query, opts)
-    },
-    autocompleteCategories: (_: any, { query }: any) => {
-      return categoryService.autocomplete(query)
+      return categoryByQueryLoader.load({ ...cursorQuery, criteria })
     }
   },
   Mutation: {
-    addCategory: (_: any, args: any, { dataLoaders }: Context) => {
-      const { language, category: data } = args
-      const value = validateCategory({ language, ...data })
+    addCategory: (_: any, { input }: any, { dataLoaders }: Context) => {
+      const parent = input.parent && toLocalId(input.parent, 'Category').id
 
-      return categoryService.addCategory(value, dataLoaders)
-    },
-    updateCategory: (_: any, args: any, ctx: Context) => {
-      const { id, language, category: data } = args
-      const value = validateCategory({ language, ...data }, false)
+      const data = validateCategory({ ...input, parent })
+      const payload = categoryService.addCategory(data, dataLoaders)
 
-      return categoryService.updateCategory(id, value, ctx.dataLoaders)
+      return withClientMutationId(payload, input)
     },
-    deleteCategory: (_: any, { id }: any) => {
-      return categoryService.deleteCategory(id)
+    updateCategory: (_: any, { input }: any, { dataLoaders }: Context) => {
+      const { id } = toLocalId(input.id, 'Category')
+      const parent = input.parent && toLocalId(input.parent, 'Category').id
+
+      const category = validateCategory({ ...input, id, parent }, false)
+      const payload = categoryService.updateCategory(category, dataLoaders)
+
+      return withClientMutationId(payload, input)
+    },
+    deleteCategory: (_: any, { input }: any) => {
+      const { id } = toLocalId(input.id, 'Category')
+
+      const category = validateCategory({ ...input, id }, false)
+      const payload = categoryService.deleteCategory(category.id)
+
+      return withClientMutationId(payload, input)
     }
   },
   Category: {
-    parentCategory: ({ parentCategory }: any, _: any, ctx: Context) => {
+    parent: ({ parent }: any, _: any, ctx: Context) => {
       const { categoryLoader } = ctx.dataLoaders
 
-      return parentCategory && categoryLoader.load(parentCategory)
+      return parent && categoryLoader.load(parent)
     },
-    subCategories: ({ _id }: any, args: any, ctx: Context) => {
-      const { page, sort } = validateQueryOptions(args)
-      const query = { criteria: { parentCategory: _id }, sort, page }
+    subCategories: ({ _id: parent }: any, args: any, ctx: Context) => {
+      const opts = validateCursorQuery(args)
       const { categoryByQueryLoader } = ctx.dataLoaders
+      const criteria = { parent }
 
-      return { content: categoryByQueryLoader.load(query), query }
+      return categoryByQueryLoader.load({ ...opts, criteria })
+    },
+    followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
+      const opts = validateCursorQuery(args)
+      const criteria = { followedData: _id, followedDataType: 'Category' }
+      const { followershipByQueryLoader: loader } = dataLoaders
+
+      return loader.load({ ...opts, criteria }).then(followership => {
+        return loadFollowersFromFollowerships(followership, dataLoaders)
+      })
     }
   },
-  Categories: {
-    totalCount: ({ query }: any, _: any, { dataLoaders }: Context) => {
-      return dataLoaders.categoryCountLoader.load(query)
-    },
-    page: async ({ query }: any, _: any, { dataLoaders }: Context) => {
-      const itemsCount = await dataLoaders.categoryCountLoader.load(query)
-      const pageCount = Math.ceil(itemsCount / query.page.size)
+  CategoryConnection: {
+    totalCount: ({ totalCount, query }: any, _: any, ctx: Context) => {
+      const { categoryCountLoader } = ctx.dataLoaders
 
-      return { count: pageCount, ...query.page }
+      return totalCount || categoryCountLoader.load(query.criteria)
     }
   }
 }

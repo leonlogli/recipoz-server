@@ -1,10 +1,10 @@
 import AuthDirective from './AuthDirective'
-import IdDirective from './IdDirective'
+import GlobalIdDirective from './GlobalIdDirective'
 import I18nDirective from './I18nDirective'
 
 export const schemaDirectives = {
   auth: AuthDirective,
-  id: IdDirective,
-  i18n: I18nDirective
+  i18n: I18nDirective,
+  guid: GlobalIdDirective
 }
 export default schemaDirectives

@@ -10,7 +10,7 @@ i18next
   .use(i18nextMiddleware.LanguageDetector)
   .init({
     backend: {
-      loadPath: `${__dirname}/../locales/{{ns}}/{{lng}}.json`
+      loadPath: `${__dirname}/../resources/locales/{{ns}}/{{lng}}.json`
     },
     fallbackLng: APP_DEFAULT_LANGUAGE,
     preload: Array.from(supportedLanguages || []),
