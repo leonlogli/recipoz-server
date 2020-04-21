@@ -27,10 +27,9 @@ export default {
     revokeRefreshTokens: async (_: any, { input }: any, ctx: Context) => {
       const { id } = toLocalId(input.account, 'Account')
       const value = validateAccount({ id }, false)
-      const { accountLoader } = ctx.dataLoaders
       const message = i18n.t(statusMessages.account.tokenRevoked)
 
-      const payload = accountLoader
+      const payload = ctx.dataLoaders.accountLoader
         .load(value.id)
         .then(async account => {
           try {
@@ -45,13 +44,12 @@ export default {
 
       return withClientMutationId(payload, input)
     },
-    setRoles: async (_: any, { input }: any, ctx: Context) => {
+    setUserRoles: async (_: any, { input }: any, ctx: Context) => {
       const { id } = toLocalId(input.account, 'Account')
       const value = validateAccount({ id }, false)
-      const { accountLoader } = ctx.dataLoaders
       const message = i18n.t(statusMessages.account.updated)
 
-      const payload = accountLoader
+      const payload = ctx.dataLoaders.accountLoader
         .load(value.id)
         .then(async account => {
           try {

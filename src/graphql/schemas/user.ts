@@ -94,7 +94,7 @@ export default gql`
     account: Account
   }
 
-  type SetRolesPayload {
+  type SetUserRolesPayload {
     code: String!
     success: Boolean!
     message: String!
@@ -102,7 +102,7 @@ export default gql`
     account: Account
   }
 
-  input SetRolesInput {
+  input SetUserRolesInput {
     "account id"
     account: ID!
     roles: [Role!]!
@@ -127,6 +127,7 @@ export default gql`
     revokeRefreshTokens(
       input: RevokeRefreshTokensInput!
     ): RevokeRefreshTokensPayload! @auth(requires: ADMIN)
-    setRoles(input: SetRolesInput): SetRolesPayload! @auth(requires: ADMIN)
+    setUserRoles(input: SetUserRolesInput): SetUserRolesPayload!
+      @auth(requires: ADMIN)
   }
 `
