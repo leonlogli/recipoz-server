@@ -26,14 +26,14 @@ export default {
       })
     },
     mySavedRecipes: (_: any, { filter, ...opts }: any, ctx: Context) => {
-      const id = ctx.accountId && toLocalId(ctx.accountId, 'Account').id
+      const { accountId: account } = ctx
 
-      if (!id) {
+      if (!account) {
         return emptyConnection()
       }
       const cursorQuery = validateCursorQuery(opts)
       const recipeCollection = toLocalId(filter.collection, 'RecipeCollection')
-      const criteria = { account: id, recipeCollection }
+      const criteria = { account, recipeCollection }
       const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
 
       return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
