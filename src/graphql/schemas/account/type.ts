@@ -6,7 +6,7 @@ export default gql`
     user: User!
     settings: AccountSettings
     createdAt: String!
-    updatedAt: String!
+    updatedAt: String
     followers(
       first: Int
       after: String
@@ -40,18 +40,18 @@ export default gql`
       last: Int
       before: String
     ): RecipeConnection!
-    recipeCollections(
-      first: Int
-      after: String
-      last: Int
-      before: String
-    ): RecipeCollectionConnection!
     madeRecipes(
       first: Int
       after: String
       last: Int
       before: String
     ): RecipeConnection!
+    recipeCollections(
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): RecipeCollectionConnection!
     shoppingList(
       filter: ShoppingListItemFilter
       first: Int
