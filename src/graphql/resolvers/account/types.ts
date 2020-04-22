@@ -1,12 +1,12 @@
-import { Context } from '..'
+import { Context } from '../..'
 import {
   buildFilterQuery,
   loadFollowersFromFollowerships,
   loadFollowingFromFollowerships,
   loadRecipesFromSavedRecipes
-} from '../../utils'
-import { validateCursorQuery } from '../../validations'
-import { abuseReportDataTypes } from '../../models'
+} from '../../../utils'
+import { validateCursorQuery } from '../../../validations'
+import { abuseReportDataTypes } from '../../../models'
 
 export default {
   Account: {

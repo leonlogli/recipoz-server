@@ -1,12 +1,12 @@
-import { Context } from '..'
-import { errorMessages } from '../../constants'
-import { accountService } from '../../services'
-import { i18n, toLocalId, withClientMutationId } from '../../utils'
+import { Context } from '../..'
+import { errorMessages } from '../../../constants'
+import { accountService } from '../../../services'
+import { i18n, toLocalId, withClientMutationId } from '../../../utils'
 import {
   validateAccount,
   validateCursorQuery,
   validateUserRegister
-} from '../../validations'
+} from '../../../validations'
 
 const { forbidden } = errorMessages
 

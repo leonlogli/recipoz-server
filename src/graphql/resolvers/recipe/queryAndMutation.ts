@@ -1,12 +1,12 @@
-import { Context } from '..'
-import { recipeService } from '../../services'
+import { Context } from '../..'
+import { recipeService } from '../../../services'
 import {
   emptyConnection,
   loadRecipesFromSavedRecipes,
   toLocalId,
   withClientMutationId
-} from '../../utils'
-import { validateCursorQuery, validatRecipe } from '../../validations'
+} from '../../../utils'
+import { validateCursorQuery, validatRecipe } from '../../../validations'
 
 export default {
   Query: {

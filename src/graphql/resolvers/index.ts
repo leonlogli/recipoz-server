@@ -1,8 +1,6 @@
 import userResolver from './userResolver'
 import categoryResolver from './categoryResolver'
 import recipeSourceResolver from './recipeSourceResolver'
-import accountResolver from './accountResolver'
-import recipeResolver from './recipeResolver'
 import commonResolver from './commonResolver'
 import shoppingListResolver from './shoppingListResolver'
 import commentResolver from './commentResolver'
@@ -12,17 +10,13 @@ import searchResolver from './searchResolver'
 import savedRecipeResolver from './savedRecipeResolver'
 import notificationResolver from './notificationResolver'
 import recipeCollectionResolver from './recipeCollectionResolver'
-import accountTypeResolver from './accountTypeResolver'
-import recipeTypeResolver from './recipeTypeResolver'
+import recipe from './recipe'
+import account from './account'
 
 export default [
   userResolver,
   categoryResolver,
   recipeSourceResolver,
-  accountResolver,
-  accountTypeResolver,
-  recipeResolver,
-  recipeTypeResolver,
   commonResolver,
   shoppingListResolver,
   commentResolver,
@@ -31,5 +25,7 @@ export default [
   searchResolver,
   savedRecipeResolver,
   notificationResolver,
-  recipeCollectionResolver
+  recipeCollectionResolver,
+  ...recipe,
+  ...account
 ]
