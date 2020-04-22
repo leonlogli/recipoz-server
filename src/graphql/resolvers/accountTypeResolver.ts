@@ -43,6 +43,15 @@ export default {
         return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
       })
     },
+    madeRecipes: async (root: any, args: any, { dataLoaders }: Context) => {
+      const cursorQuery = validateCursorQuery(args)
+      const criteria = { account: root._id, collectionType: 'MADE' }
+      const { savedRecipeByQueryLoader: loader } = dataLoaders
+
+      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+        return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
+      })
+    },
     savedRecipes: async ({ _id: account }: any, args: any, ctx: Context) => {
       const { filter, ...opts } = args
       const filterQuery = buildFilterQuery(filter)
@@ -52,15 +61,6 @@ export default {
 
       return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
-      })
-    },
-    madeRecipes: async (root: any, args: any, { dataLoaders }: Context) => {
-      const cursorQuery = validateCursorQuery(args)
-      const criteria = { account: root._id, collectionType: 'MADE' }
-      const { savedRecipeByQueryLoader: loader } = dataLoaders
-
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
-        return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
       })
     },
     recipeCollections: async ({ _id }: any, args: any, ctx: Context) => {
