@@ -42,7 +42,7 @@ export default {
     }
   },
   Mutation: {
-    addAbuseReport: (_: any, { input }: any, ctx: Context) => {
+    reportAbuse: (_: any, { input }: any, ctx: Context) => {
       const { data, ...props } = input
       const { type, id } = toLocalId(data, ...abuseReportDataTypes)
       const { accountId: author, dataLoaders } = ctx

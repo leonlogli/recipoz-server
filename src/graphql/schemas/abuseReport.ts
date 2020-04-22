@@ -50,7 +50,7 @@ export default gql`
 
   union AbuseReportData = Comment | Recipe | Account
 
-  type AddAbuseReportPayload {
+  type ReportAbusePayload {
     code: String!
     success: Boolean!
     message: String!
@@ -84,7 +84,7 @@ export default gql`
     mutatedCount: Int
   }
 
-  input AddAbuseReportInput {
+  input ReportAbuseInput {
     type: AbuseType!
     "Id of data on which the abuse will be reported. It can be account id, comment id or recipe id"
     data: ID!
@@ -145,7 +145,7 @@ export default gql`
   }
 
   extend type Mutation {
-    addAbuseReport(input: AddAbuseReportInput!): AddAbuseReportPayload! @auth
+    reportAbuse(input: ReportAbuseInput!): ReportAbusePayload! @auth
     updateAbuseReport(
       input: UpdateAbuseReportInput!
     ): UpdateAbuseReportPayload! @auth
