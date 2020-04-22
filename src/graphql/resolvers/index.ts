@@ -12,12 +12,14 @@ import searchResolver from './searchResolver'
 import savedRecipeResolver from './savedRecipeResolver'
 import notificationResolver from './notificationResolver'
 import recipeCollectionResolver from './recipeCollectionResolver'
+import accountTypeResolver from './accountTypeResolver'
 
 export default [
   userResolver,
   categoryResolver,
   recipeSourceResolver,
   accountResolver,
+  accountTypeResolver,
   recipeResolver,
   commonResolver,
   shoppingListResolver,
