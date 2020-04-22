@@ -59,6 +59,12 @@ export default gql`
       last: Int
       before: String
     ): ShoppingListItemConnection!
+    abuseReports(
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): AbuseReportConnection!
   }
 
   type AccountEdge {

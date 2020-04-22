@@ -6,6 +6,7 @@ import {
   loadRecipesFromSavedRecipes
 } from '../../utils'
 import { validateCursorQuery } from '../../validations'
+import { abuseReportDataTypes } from '../../models'
 
 export default {
   Account: {
@@ -86,6 +87,13 @@ export default {
       const { shoppingListItemByQueryLoader } = ctx.dataLoaders
 
       return shoppingListItemByQueryLoader.load({ ...cursorQuery, criteria })
+    },
+    abuseReports: ({ _id: author }: any, args: any, ctx: Context) => {
+      const cursorQuery = validateCursorQuery(args)
+      const { dataLoaders: loaders } = ctx
+      const criteria = { dataType: { $in: abuseReportDataTypes }, author }
+
+      return loaders.abuseReportByQueryLoader.load({ ...cursorQuery, criteria })
     }
   },
   AccountConnection: {
