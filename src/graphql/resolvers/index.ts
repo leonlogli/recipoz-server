@@ -13,6 +13,7 @@ import savedRecipeResolver from './savedRecipeResolver'
 import notificationResolver from './notificationResolver'
 import recipeCollectionResolver from './recipeCollectionResolver'
 import accountTypeResolver from './accountTypeResolver'
+import recipeTypeResolver from './recipeTypeResolver'
 
 export default [
   userResolver,
@@ -21,6 +22,7 @@ export default [
   accountResolver,
   accountTypeResolver,
   recipeResolver,
+  recipeTypeResolver,
   commonResolver,
   shoppingListResolver,
   commentResolver,

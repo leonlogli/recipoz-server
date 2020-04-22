@@ -87,7 +87,6 @@ export default gql`
     nor: [RecipeFilter!]
     name: OrderByStringFilter
     servings: NumFilter
-    source: IDFilter
     description: StringFilter
     cookTime: NumFilter
     prepTime: NumFilter
