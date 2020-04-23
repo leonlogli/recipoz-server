@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { APP_DEFAULT_LANGUAGE, logger } from '../config'
-import { i18n, isSupportedLanguage as isSupportedLang } from '../utils'
+import {
+  i18n,
+  isSupportedLanguage as isSupportedLang,
+  ApiError
+} from '../utils'
 
 /**
  * Find suitable language from header Accept-Language that is in the form ("fr-CH, fr;q=0.9, en;q=0.8, *;q=0.5")
@@ -18,7 +22,7 @@ const getSuitableLangFromHeader = (req: Request) => {
  * try to check if i18nextMiddleware detected language is supported. If not,
  * try to find the supported language in 'accept-language'. Otherwise set the default language
  */
-const localeDectector = (req: any, res: Response, next: NextFunction) => {
+const localeDectector = (req: any, _res: Response, next: NextFunction) => {
   try {
     const { locale } = req.headers
     let language = locale?.split(',').find((l: any) => isSupportedLang(l))
@@ -34,9 +38,10 @@ const localeDectector = (req: any, res: Response, next: NextFunction) => {
     i18n.currentLanguage = language || APP_DEFAULT_LANGUAGE
     i18n.t = req.t
   } catch (error) {
-    req.error = error
+    req.error = new ApiError()
     logger.error('Error detecting the current locale: ', error)
   }
+
   next()
 }
 
