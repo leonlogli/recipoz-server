@@ -63,29 +63,6 @@ export default gql`
     expiresIn: String
   }
 
-  "Firebase auth user input"
-  input UserInput {
-    email: String
-    password: String
-    emailVerified: Boolean
-    displayName: String
-    phoneNumber: String
-    photoURL: String
-    coverImageUrl: String
-    gender: Gender
-    location: String
-    language: String
-    theme: String
-    website: String
-    biography: String
-    birthday: String
-    facebook: String
-    pinterest: String
-    twitter: String
-    instagram: String
-    disabled: Boolean
-  }
-
   type RevokeRefreshTokensPayload {
     code: String!
     success: Boolean!
@@ -100,6 +77,29 @@ export default gql`
     message: String!
     clientMutationId: String
     account: Account
+  }
+
+  "Firebase auth user input"
+  input UserInput {
+    email: EmailAddress
+    password: String
+    emailVerified: Boolean
+    displayName: String
+    phoneNumber: String
+    photoURL: URL
+    coverImageUrl: URL
+    gender: Gender
+    location: String
+    language: String
+    theme: String
+    website: URL
+    biography: String
+    birthday: DateTime
+    facebook: URL
+    pinterest: URL
+    twitter: URL
+    instagram: URL
+    disabled: Boolean
   }
 
   input SetUserRolesInput {

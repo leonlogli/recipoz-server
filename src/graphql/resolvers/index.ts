@@ -1,3 +1,11 @@
+import {
+  URLResolver,
+  EmailAddressResolver,
+  PhoneNumberResolver,
+  PositiveIntResolver,
+  DateTimeResolver
+} from 'graphql-scalars'
+
 import userResolver from './userResolver'
 import categoryResolver from './categoryResolver'
 import recipeSourceResolver from './recipeSourceResolver'
@@ -27,5 +35,13 @@ export default [
   notificationResolver,
   recipeCollectionResolver,
   ...recipe,
-  ...account
+  ...account,
+  // custom scalars
+  {
+    URL: URLResolver,
+    PositiveInt: PositiveIntResolver,
+    EmailAddress: EmailAddressResolver,
+    PhoneNumber: PhoneNumberResolver,
+    DateTime: DateTimeResolver
+  }
 ]

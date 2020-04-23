@@ -69,8 +69,8 @@ export default gql`
 
   input AddRecipeSourceInput {
     name: String!
-    website: String!
-    logo: String!
+    website: URL!
+    logo: URL!
     biography: String
     clientMutationId: String
   }
@@ -78,8 +78,8 @@ export default gql`
   input UpdateRecipeSourceInput {
     id: String!
     name: String
-    website: String
-    logo: String
+    website: URL
+    logo: URL
     biography: String
     clientMutationId: String
   }

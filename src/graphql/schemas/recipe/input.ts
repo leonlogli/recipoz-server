@@ -15,16 +15,16 @@ export default gql`
   input AddRecipeInput {
     name: String!
     description: String
-    image: String!
+    image: URL!
     servings: Int!
     "Recipe source. Only admin can specity it"
     source: ID
     "The url of the original recipe. Required when source is specified"
-    originalLink: String
+    originalLink: URL
     "Cooking time in minutes. Optional if prepTime is specified"
-    cookTime: Int
+    cookTime: PositiveInt
     "Prep time in minutes. Optional if cookTime is specified"
-    prepTime: Int
+    prepTime: PositiveInt
     "Recipe directions. At least one Instruction is required"
     instructions: [InstructionInput!]!
     "At least two categories are required"
@@ -34,7 +34,7 @@ export default gql`
     private: Boolean
     difficultyLevel: DifficultyLevel
     cost: Cost
-    additionalImages: [String!]
+    additionalImages: [URL!]
     tips: String
     clientMutationId: String
   }
@@ -43,16 +43,16 @@ export default gql`
     id: ID!
     name: String
     description: String
-    image: String
+    image: URL
     servings: Int
     "Recipe source. Only admin can specity it"
     source: ID
     "The url of the original recipe. Required when source is specified"
-    originalLink: String
+    originalLink: URL
     "Cooking time in minutes. Optional if prepTime is specified"
-    cookTime: Int
+    cookTime: PositiveInt
     "Prep time in minutes. Optional if cookTime is specified"
-    prepTime: Int
+    prepTime: PositiveInt
     "Recipe directions. At least one Instruction is required"
     instructions: [InstructionInput!]
     "At least two categories are required"
@@ -62,7 +62,7 @@ export default gql`
     private: Boolean
     difficultyLevel: DifficultyLevel
     cost: Cost
-    additionalImages: [String!]
+    additionalImages: [URL!]
     tips: String
     clientMutationId: String
   }

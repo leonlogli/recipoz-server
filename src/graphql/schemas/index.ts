@@ -1,4 +1,11 @@
 import { gql } from 'apollo-server-express'
+import {
+  URLTypeDefinition,
+  EmailAddressTypeDefinition,
+  PhoneNumberTypeDefinition,
+  PositiveIntTypeDefinition,
+  DateTimeTypeDefinition
+} from 'graphql-scalars'
 
 import userSchema from './user'
 import category from './category'
@@ -41,5 +48,11 @@ export default [
   follower,
   search,
   filter,
-  savedRecipe
+  savedRecipe,
+  // custom scalars
+  EmailAddressTypeDefinition,
+  PhoneNumberTypeDefinition,
+  PositiveIntTypeDefinition,
+  DateTimeTypeDefinition,
+  URLTypeDefinition as any
 ]

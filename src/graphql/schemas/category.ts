@@ -33,40 +33,6 @@ export default gql`
     totalCount: Int!
   }
 
-  input AddCategoryInput {
-    name: String!
-    description: String
-    thumbnail: String!
-    parent: ID
-    language: Language!
-    clientMutationId: String
-  }
-
-  input UpdateCategoryInput {
-    id: ID!
-    name: String
-    description: String
-    thumbnail: String
-    parent: ID
-    language: Language!
-    clientMutationId: String
-  }
-
-  input DeleteCategoryInput {
-    "ID of the category to delete"
-    id: ID!
-    clientMutationId: String
-  }
-
-  input CategoryFilter {
-    or: [CategoryFilter!]
-    and: [CategoryFilter!]
-    nor: [CategoryFilter!]
-    name: I18NFilter
-    description: I18NFilter
-    parent: IDFilter
-  }
-
   type AddCategoryPayload {
     code: String!
     success: Boolean!
@@ -89,6 +55,40 @@ export default gql`
     message: String!
     clientMutationId: String
     category: Category
+  }
+
+  input AddCategoryInput {
+    name: String!
+    description: String
+    thumbnail: URL!
+    parent: ID
+    language: Language!
+    clientMutationId: String
+  }
+
+  input UpdateCategoryInput {
+    id: ID!
+    name: String
+    description: String
+    thumbnail: URL
+    parent: ID
+    language: Language!
+    clientMutationId: String
+  }
+
+  input DeleteCategoryInput {
+    "ID of the category to delete"
+    id: ID!
+    clientMutationId: String
+  }
+
+  input CategoryFilter {
+    or: [CategoryFilter!]
+    and: [CategoryFilter!]
+    nor: [CategoryFilter!]
+    name: I18NFilter
+    description: I18NFilter
+    parent: IDFilter
   }
 
   #################################################
