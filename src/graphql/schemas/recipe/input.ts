@@ -19,13 +19,13 @@ export default gql`
     servings: Int!
     "Recipe source. Only admin can specity it"
     source: ID
-    "The url of the original recipe. Required when source is specified"
-    originalLink: URL
+    "The url of the original recipe. Required when 'source' is specified"
+    sourceLink: URL
     "Cooking time in minutes. Optional if prepTime is specified"
     cookTime: PositiveInt
     "Prep time in minutes. Optional if cookTime is specified"
     prepTime: PositiveInt
-    "Recipe directions. At least one Instruction is required"
+    "Recipe directions. At least one instruction is required"
     instructions: [InstructionInput!]!
     "At least two categories are required"
     categories: [ID!]!
@@ -47,11 +47,11 @@ export default gql`
     servings: Int
     "Recipe source. Only admin can specity it"
     source: ID
-    "The url of the original recipe. Required when source is specified"
-    originalLink: URL
-    "Cooking time in minutes. Optional if prepTime is specified"
+    "The url of the original recipe"
+    sourceLink: URL
+    "Cooking time in minutes"
     cookTime: PositiveInt
-    "Prep time in minutes. Optional if cookTime is specified"
+    "Prep time in minutes"
     prepTime: PositiveInt
     "Recipe directions. At least one Instruction is required"
     instructions: [InstructionInput!]

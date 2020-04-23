@@ -38,7 +38,7 @@ const search = (
 
 const addRecipe = async (data: any, loaders: DataLoaders) => {
   try {
-    if (data.authorType === 'RecipeSource') {
+    if (data.source) {
       await loaders.recipeSourceLoader.load(data.author)
     }
     const recipe = await recipeModel.create(data)
@@ -59,12 +59,12 @@ const suitableErrorResponse = async (recipeId: any) => {
 
 const updateRecipe = async (data: any, loaders: DataLoaders) => {
   try {
-    const { id: _id, author, authorType, ...input } = data
+    const { id: _id, author, ...input } = data
 
-    if (authorType === 'RecipeSource') {
+    if (data.source) {
       await loaders.recipeSourceLoader.load(author)
     }
-    const query = { _id, author, authorType }
+    const query = { _id, author }
     const recipe = await recipeModel.updateOne(query, { $set: input })
 
     if (!recipe) {
@@ -79,8 +79,8 @@ const updateRecipe = async (data: any, loaders: DataLoaders) => {
 
 const deleteRecipe = async (input: any, isAdmin = false) => {
   try {
-    const { author, id: _id, authorType } = input
-    const query = { _id, ...(!isAdmin && { author, authorType }) }
+    const { author, id: _id } = input
+    const query = { _id, ...(!isAdmin && { author }) }
     const recipe = await recipeModel.deleteOne(query)
 
     if (!recipe) {
@@ -93,19 +93,16 @@ const deleteRecipe = async (input: any, isAdmin = false) => {
   }
 }
 
-const deleteAccountRecipes = async (accountId: string) => {
-  return Recipe.deleteMany({ author: accountId, authorType: 'Account' } as any)
+const deleteAccountRecipes = async (accountId: any) => {
+  return Recipe.deleteMany({ author: accountId, source: { $exists: false } })
     .exec()
     .catch(e =>
       logger.error(`Error deleting account (${accountId}) recipes: `, e)
     )
 }
 
-const deleteSourceRecipes = async (recipeSourceId: string) => {
-  return Recipe.deleteMany({
-    author: recipeSourceId,
-    authorType: 'RecipeSource'
-  } as any)
+const deleteSourceRecipes = async (recipeSourceId: any) => {
+  return Recipe.deleteMany({ source: recipeSourceId })
     .exec()
     .catch(e =>
       logger.error(

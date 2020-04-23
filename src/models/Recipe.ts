@@ -30,10 +30,6 @@ export type Ingredient = {
   group: string
 }
 
-export const recipeAuthorTypes = ['Account', 'RecipeSource'] as const
-
-export type RecipeAuthorType = typeof recipeAuthorTypes[number]
-
 export type RecipeDocument = Document & {
   name: string
   description?: string
@@ -43,11 +39,11 @@ export type RecipeDocument = Document & {
   prepTime: number
   difficultyLevel: DifficultyLevel
   cost: Cost
-  author: RecipeSourceDocument | AccountDocument
-  authorType: RecipeAuthorType
-  originalLink: string
+  author: AccountDocument
+  source?: RecipeSourceDocument
+  sourceLink?: string
   instructions?: Instruction[]
-  categories?: CategoryDocument[]
+  categories: CategoryDocument[]
   ingredients: Ingredient[]
   private: boolean
   additionalImages?: string[]
@@ -65,9 +61,9 @@ const recipeSchema = new Schema(
     prepTime: Number,
     additionalImages: [String],
     categories: [{ type: ObjectId, ref: 'Category' }],
-    originalLink: String,
-    author: { type: ObjectId, refPath: 'authorType' },
-    authorType: { type: String, enum: recipeAuthorTypes },
+    author: { type: ObjectId, ref: 'Account' },
+    source: { type: ObjectId, ref: 'RecipeSource' },
+    sourceLink: String,
     private: Boolean,
     difficultyLevel: { type: String, enum: difficultyLevels },
     cost: { type: String, enum: costs },
@@ -88,7 +84,11 @@ const { indexes, weights } = createTextIndex(
 recipeSchema.index(indexes, { weights })
 
 // For the frequent access
-recipeSchema.index({ author: 1, authorType: 1 })
+recipeSchema.index({ author: 1 })
+recipeSchema.index(
+  { source: 1 },
+  { partialFilterExpression: { source: { $exists: true } } }
+)
 
 // Index for cursor based pagination (because we allow recipes to be order by 'createdAt')
 recipeSchema.index({ createdAt: 1, _id: 1 })

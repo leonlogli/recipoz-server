@@ -16,12 +16,13 @@ export default gql`
     difficultyLevel: DifficultyLevel!
     cost: Cost!
     additionalImages: [String!]
-    author: RecipeAuthor!
-    originalLink: String
+    author: Account!
+    source: RecipeSource
+    sourceLink: String
     ingredients: [Ingredient!]!
     tips: String
-    createdAt: String!
-    updatedAt: String
+    createdAt: DateTime!
+    updatedAt: DateTime
     "Check if the current user saved this recipe as favorite."
     isFavorite: Boolean @auth
     "Check if the current user made this recipe"
@@ -60,8 +61,6 @@ export default gql`
     pageInfo: PageInfo!
     totalCount: Int!
   }
-
-  union RecipeAuthor = Account | RecipeSource
 
   enum Cost {
     CHEAP

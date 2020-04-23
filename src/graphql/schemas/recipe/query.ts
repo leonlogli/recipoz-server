@@ -4,6 +4,7 @@ export default gql`
   extend type Query {
     recipes(
       author: ID
+      source: ID
       orderBy: RecipeOrderBy
       first: Int
       after: String

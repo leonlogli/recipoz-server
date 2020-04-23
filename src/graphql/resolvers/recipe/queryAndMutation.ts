@@ -4,22 +4,21 @@ import {
   emptyConnection,
   loadRecipesFromSavedRecipes,
   toLocalId,
-  withClientMutationId
+  withClientMutationId,
+  hasFalsyValue
 } from '../../../utils'
 import { validateCursorQuery, validatRecipe } from '../../../validations'
 
 export default {
   Query: {
-    recipes: (_: any, { author, ...opts }: any, ctx: Context) => {
-      let criteria = {}
+    recipes: (_: any, args: any, ctx: Context) => {
+      const { author: recipeAuthor, source: recipeSource, ...opts } = args
+      const author = recipeAuthor && toLocalId(recipeAuthor, 'Account').id
+      const source = recipeAuthor && toLocalId(recipeSource, 'RecipeSource').id
+      const criteria = { author, source }
 
-      if (author) {
-        const { id, type } = toLocalId(author, 'Account', 'RecipeSource')
-
-        if (!id) {
-          return emptyConnection()
-        }
-        criteria = { author: id, authorType: type }
+      if (hasFalsyValue(criteria)) {
+        return emptyConnection()
       }
       const cursorQuery = validateCursorQuery(opts)
       const { recipeByQueryLoader } = ctx.dataLoaders
@@ -59,43 +58,35 @@ export default {
   },
   Mutation: {
     addRecipe: async (_: any, { input }: any, ctx: Required<Context>) => {
-      const { isAdmin, accountId, dataLoaders } = ctx
-      let author: any = { type: 'Account', id: accountId }
+      const { isAdmin, accountId: author, dataLoaders } = ctx
+      const canSetSource = input.source && isAdmin
+      const source = canSetSource && toLocalId(input.source, 'RecipeSource')
+      const sourceLink = source && input.sourceLink
 
-      if (input.source && isAdmin) {
-        author = toLocalId(input.source, 'RecipeSource')
-      }
-      const authorInput = { author: author.id, authorType: author.type }
-      const data = validatRecipe({ ...input, ...authorInput })
+      const data = validatRecipe({ ...input, author, source, sourceLink })
       const payload = recipeService.addRecipe(data, dataLoaders)
 
       return withClientMutationId(payload, input)
     },
     updateRecipe: async (_: any, { input }: any, ctx: Context) => {
-      const { isAdmin, accountId, dataLoaders } = ctx
+      const { isAdmin, accountId: author, dataLoaders } = ctx
       const { id } = toLocalId(input.id, 'Recipe')
-      let author: any = { type: 'Account', id: accountId }
+      const canSetSource = input.source && isAdmin
+      const source = canSetSource && toLocalId(input.source, 'RecipeSource')
+      const sourceLink = source && input.sourceLink
 
-      if (input.source && isAdmin) {
-        author = toLocalId(input.source, 'RecipeSource')
-      }
-      const authorInput = { author: author.id, authorType: author.type }
-      const data = validatRecipe({ ...input, ...authorInput, id }, false)
+      const inputToValidate = { ...input, author, source, sourceLink, id }
+      const data = validatRecipe(inputToValidate, false)
       const payload = recipeService.updateRecipe(data, dataLoaders)
 
       return withClientMutationId(payload, input)
     },
     deleteRecipe: (_: any, { input }: any, ctx: Required<Context>) => {
-      const { isAdmin, accountId } = ctx
+      const { isAdmin, accountId: author } = ctx
       const { id } = toLocalId(input.id, 'Recipe')
-      let author: any = { type: 'Account', id: accountId }
 
-      if (input.source && isAdmin) {
-        author = toLocalId(input.source, 'RecipeSource')
-      }
-      const authorInput = { author: author.id, authorType: author.type }
-      const data = validatRecipe({ ...input, ...authorInput, id }, false)
-      const payload = recipeService.deleteRecipe(data)
+      const data = validatRecipe({ ...input, author, id }, false)
+      const payload = recipeService.deleteRecipe(data, isAdmin)
 
       return withClientMutationId(payload, input)
     }

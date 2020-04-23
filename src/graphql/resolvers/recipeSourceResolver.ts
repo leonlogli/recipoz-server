@@ -51,10 +51,9 @@ export default {
     },
     recipes: async ({ _id }: any, args: any, ctx: Context) => {
       const opts = validateCursorQuery(args)
-      const criteria = { author: _id, authorType: 'RecipeSource' }
       const { recipeByQueryLoader } = ctx.dataLoaders
 
-      return recipeByQueryLoader.load({ ...opts, criteria })
+      return recipeByQueryLoader.load({ ...opts, criteria: { source: _id } })
     }
   },
   RecipeSourceConnection: {

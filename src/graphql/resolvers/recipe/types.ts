@@ -8,14 +8,12 @@ export default {
     DATE_ASC: 'createdAt',
     DATE_DESC: '-createdAt'
   },
-  RecipeAuthor: {
-    __resolveType: (data: any) => data.__typename
-  },
   Recipe: {
-    author: ({ author, authorType }: any, _: any, { dataLoaders }: Context) => {
-      return authorType === 'Account'
-        ? dataLoaders.accountLoader.load(author)
-        : dataLoaders.recipeSourceLoader.load(author)
+    author: ({ author }: any, _: any, { dataLoaders }: Context) => {
+      return dataLoaders.accountLoader.load(author)
+    },
+    source: ({ source }: any, _: any, { dataLoaders }: Context) => {
+      return source && dataLoaders.recipeSourceLoader.load(source)
     },
     readyIn: ({ cookTime, prepTime }: any) => {
       return (cookTime || 0) + (prepTime || 0)

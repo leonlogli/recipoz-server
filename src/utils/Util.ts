@@ -115,6 +115,12 @@ const renameKeys = (
   return obj
 }
 
+/**
+ * Return `true` if any property of the specified object has falsy value, `false` otherwise
+ * @param obj object
+ */
+const hasFalsyValue = (obj: object) => Object.values(obj).some(v => !v)
+
 export {
   isEmpty,
   chunk,
@@ -125,5 +131,6 @@ export {
   hasOwnProperties,
   concatValues,
   hasDuplicates,
-  renameKeys
+  renameKeys,
+  hasFalsyValue
 }
