@@ -2,14 +2,14 @@ import Joi, { required } from '@hapi/joi'
 
 import { costs, difficultyLevels, Ingredient } from '../models'
 import { checkAndSendValidationErrors, hasDuplicates } from '../utils'
-import { objectIdSchema, idSchema } from './common.validation'
+import { objectIdSchema, idSchema, uriSchema } from './common.validation'
 
 const instructionSchema = Joi.object({
   text: Joi.string()
     .required()
     .min(3)
     .max(280),
-  image: Joi.string().uri()
+  image: uriSchema
 })
 
 const ingredientSchema = Joi.object({
@@ -47,7 +47,7 @@ const recipeSchema = Joi.object({
   image: Joi.string()
     .uri()
     .when('$isNew', { is: true, then: required() }),
-  video: Joi.string().uri(),
+  video: uriSchema,
   additionalImages: Joi.array()
     .items(Joi.string().required())
     .unique()
