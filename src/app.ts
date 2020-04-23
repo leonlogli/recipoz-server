@@ -2,7 +2,7 @@ import express from 'express'
 import helmet from 'helmet'
 
 import { i18nextHandler, connectDb } from './config'
-import { authMiddleware, i18nMiddleware } from './middlewares'
+import middlewares from './middlewares'
 
 /**
  * Express server instance
@@ -15,10 +15,9 @@ connectDb()
 // secure apps by setting various HTTP headers
 app.use(helmet())
 
-// auth middleware
-app.use(authMiddleware.checkIfAuthenticated)
+// apply i18nnext middleware before custom middlewares
+app.use(i18nextHandler)
 
-// i18n middleware
-app.use(i18nextHandler, i18nMiddleware.localeDectector)
+app.use(middlewares)
 
 export default app
