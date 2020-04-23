@@ -76,6 +76,7 @@
     "firebase-admin": "^8.10.0",
     "franc-min": "^5.0.0",
     "graphql": "^14.6.0",
+    "graphql-scalars": "^1.1.2",
     "helmet": "^3.21.3",
     "http-status": "^1.4.2",
     "i18next": "^19.3.3",
