@@ -1,11 +1,11 @@
 import Joi from '@hapi/joi'
 
-import { idSchema, objectIdSchema } from './common.validation'
+import { id, objectId } from './common.validation'
 import { checkAndSendValidationErrors } from '../utils'
 
 const notificationSchema = Joi.object({
-  id: idSchema,
-  recipient: objectIdSchema.required(),
+  id,
+  recipient: objectId.required(),
   read: Joi.boolean()
 })
 

@@ -1,15 +1,15 @@
-import Joi, { required } from '@hapi/joi'
+import Joi from '@hapi/joi'
 
 import { checkAndSendValidationErrors } from '../utils'
-import { idSchema, objectIdSchema } from './common.validation'
+import { id, objectId, required } from './common.validation'
 
 const recipeCollectionSchema = Joi.object({
-  id: idSchema,
-  account: objectIdSchema.required(),
+  id,
+  account: objectId.required(),
   name: Joi.string()
     .min(1)
     .max(80)
-    .when('$isNew', { is: true, then: required() }),
+    .when('$isNew', { is: true, then: required }),
   description: Joi.string()
     .min(20)
     .max(280),

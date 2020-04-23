@@ -1,8 +1,10 @@
-import Joi, { required } from '@hapi/joi'
+import Joi from '@hapi/joi'
 
 import { supportedLanguages, isValidObjectId } from '../utils'
 
-const objectIdSchema = Joi.custom((value, helpers) => {
+const required = Joi.required()
+
+const objectId = Joi.custom((value, helpers) => {
   if (!isValidObjectId(value)) {
     return helpers.error('any.invalid')
   }
@@ -10,7 +12,7 @@ const objectIdSchema = Joi.custom((value, helpers) => {
   return value
 })
 
-const uriSchema = Joi.custom((value, helpers) => {
+const uri = Joi.custom((value, helpers) => {
   const url = String(value)
   const { error } = Joi.string()
     .uri()
@@ -23,10 +25,10 @@ const uriSchema = Joi.custom((value, helpers) => {
   return url
 })
 
-const languageSchema = Joi.string()
+const language = Joi.string()
   .valid(...supportedLanguages)
   .required()
 
-const idSchema = objectIdSchema.when('$isNew', { is: false, then: required() })
+const id = objectId.when('$isNew', { is: false, then: required })
 
-export { objectIdSchema, idSchema, languageSchema, uriSchema }
+export { objectId, id, language, uri, required }

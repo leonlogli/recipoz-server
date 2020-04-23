@@ -1,18 +1,18 @@
-import Joi, { required } from '@hapi/joi'
+import Joi from '@hapi/joi'
 
 import { checkAndSendValidationErrors } from '../utils'
-import { idSchema, uriSchema } from './common.validation'
+import { id, uri, required } from './common.validation'
 
 const recipeSourceSchema = Joi.object({
-  id: idSchema,
+  id,
   name: Joi.string()
     .min(3)
     .max(100)
-    .when('$isNew', { is: true, then: required() }),
+    .when('$isNew', { is: true, then: required }),
   website: Joi.string()
     .uri()
-    .when('$isNew', { is: true, then: required() }),
-  logo: uriSchema.when('$isNew', { is: true, then: required() }),
+    .when('$isNew', { is: true, then: required }),
+  logo: uri.when('$isNew', { is: true, then: required }),
   biography: Joi.string()
     .min(20)
     .max(280)

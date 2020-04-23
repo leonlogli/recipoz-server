@@ -1,7 +1,7 @@
-import Joi, { required } from '@hapi/joi'
+import Joi from '@hapi/joi'
 
 import { checkAndSendValidationErrors } from '../utils'
-import { objectIdSchema, idSchema } from './common.validation'
+import { objectId, id, required } from './common.validation'
 import { shoppingListItemCategories } from '../models'
 
 const itemSchemaObj = {
@@ -12,21 +12,21 @@ const itemSchemaObj = {
     .required()
     .min(1)
     .max(80)
-    .when('$isNew', { is: true, then: required() })
+    .when('$isNew', { is: true, then: required })
 }
 
 const shoppingListItemSchema = Joi.object({
-  id: idSchema,
-  account: objectIdSchema.required(),
-  recipe: objectIdSchema,
+  id,
+  account: objectId.required(),
+  recipe: objectId,
   ...itemSchemaObj,
   category: Joi.string().valid(...shoppingListItemCategories),
   checked: Joi.boolean()
 })
 
 const shoppingListItemsSchema = Joi.object({
-  recipe: objectIdSchema.required(),
-  account: objectIdSchema.required(),
+  recipe: objectId.required(),
+  account: objectId.required(),
   items: Joi.array()
     .items(Joi.object(itemSchemaObj).required())
     .min(1)

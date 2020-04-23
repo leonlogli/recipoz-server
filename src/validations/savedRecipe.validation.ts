@@ -2,13 +2,13 @@ import Joi from '@hapi/joi'
 
 import { checkAndSendValidationErrors } from '../utils'
 import { recipeCollectionTypes } from '../models'
-import { objectIdSchema } from './common.validation'
+import { objectId } from './common.validation'
 
 const savedRecipeSchema = Joi.object({
   collectionType: Joi.valid(...recipeCollectionTypes),
-  recipeCollection: objectIdSchema,
-  account: objectIdSchema.required(),
-  recipe: objectIdSchema.required()
+  recipeCollection: objectId,
+  account: objectId.required(),
+  recipe: objectId.required()
 }).without('collectionType', 'recipeCollection')
 
 const validateSavedRecipe = (data: any) => {

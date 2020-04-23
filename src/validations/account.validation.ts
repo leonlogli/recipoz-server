@@ -7,7 +7,7 @@ import {
   allergies,
   cookingExperiences
 } from '../models'
-import { idSchema, uriSchema } from './common.validation'
+import { id, uri } from './common.validation'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const customJoi = Joi.extend(require('joi-phone-number'))
@@ -21,7 +21,7 @@ const userRegisterSchemaObject = {
   password: Joi.string()
     .min(6)
     .max(50),
-  photoURL: uriSchema
+  photoURL: uri
 }
 
 const userRegisterSchema = Joi.object({
@@ -48,7 +48,7 @@ const householdSchema = Joi.object({
 })
 
 const accountSchema = Joi.object({
-  id: idSchema,
+  id,
   user: Joi.object({
     ...userRegisterSchemaObject,
     emailVerified: Joi.boolean(),
@@ -58,8 +58,8 @@ const accountSchema = Joi.object({
     aboutMe: Joi.string()
       .min(20)
       .max(280),
-    coverImage: uriSchema,
-    website: uriSchema,
+    coverImage: uri,
+    website: uri,
     disabled: Joi.boolean(),
     languages: Joi.array()
       .items(Joi.string().required())
@@ -72,10 +72,10 @@ const accountSchema = Joi.object({
       .min('1-1-1900')
       .max('1-1-2010')
       .iso(),
-    facebook: uriSchema,
-    pinterest: uriSchema,
-    instagram: uriSchema,
-    twitter: uriSchema
+    facebook: uri,
+    pinterest: uri,
+    instagram: uri,
+    twitter: uri
   }),
   settings: Joi.object({
     notifications: Joi.array()

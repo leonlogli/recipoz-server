@@ -1,25 +1,20 @@
-import Joi, { required } from '@hapi/joi'
+import Joi from '@hapi/joi'
 
-import {
-  languageSchema,
-  objectIdSchema,
-  idSchema,
-  uriSchema
-} from './common.validation'
+import { language, objectId, id, uri, required } from './common.validation'
 import { checkAndSendValidationErrors, renameI18nKeys } from '../utils'
 
 const categorySchema = Joi.object({
-  id: idSchema,
-  language: languageSchema,
-  parent: objectIdSchema,
+  id,
+  language,
+  parent: objectId,
   name: Joi.string()
     .min(3)
     .max(100)
-    .when('$isNew', { is: true, then: required() }),
+    .when('$isNew', { is: true, then: required }),
   description: Joi.string()
     .min(20)
     .max(280),
-  thumbnail: uriSchema.when('$isNew', { is: true, then: required() })
+  thumbnail: uri.when('$isNew', { is: true, then: required })
 })
 
 const validateCategory = (data: any, isNew = true) => {
@@ -30,9 +25,9 @@ const validateCategory = (data: any, isNew = true) => {
   })
 
   checkAndSendValidationErrors(error)
-  const { language, ...others } = value
+  const { language: lang, ...others } = value
 
-  return renameI18nKeys(others, language, 'name', 'description')
+  return renameI18nKeys(others, lang, 'name', 'description')
 }
 
 export { validateCategory }
