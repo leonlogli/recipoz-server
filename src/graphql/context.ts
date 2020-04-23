@@ -63,7 +63,7 @@ const context = ({ req }: ExpressContext): Context => {
   }
 
   if (error) {
-    throw new ApiError()
+    throw error instanceof ApiError ? error : new ApiError()
   }
 
   return { accountId, userRoles, isAdmin, requireAuth, dataLoaders }
