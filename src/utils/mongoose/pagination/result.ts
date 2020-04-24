@@ -1,7 +1,9 @@
 import { Document } from 'mongoose'
-import { dotify, toBase64 } from '../..'
+
 import { Page, PageInfo } from './paginate'
 import { Cursor, CursorPagingQuery } from './query'
+import { dotify } from '../../Util'
+import { toBase64 } from '../../base64'
 
 /**
  * Build a base64 string cursor that will be sent to the client

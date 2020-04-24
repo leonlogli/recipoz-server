@@ -1,2 +1,2 @@
-export { default as errorMessages } from './errorMessages'
-export { default as statusMessages } from './statusMessages'
+export * from './errorMessages'
+export * from './statusMessages'

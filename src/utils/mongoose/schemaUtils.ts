@@ -1,4 +1,4 @@
-import { supportedLanguages, I18NRecord } from '..'
+import { supportedLanguages, I18NRecord } from '../i18n'
 
 const I18NString: I18NRecord<StringConstructor> = {}
 const I18NNumber: I18NRecord<NumberConstructor> = {}

@@ -10,13 +10,9 @@ import {
   INVALID_ID_TOKEN
 } from '../constants'
 
-const {
-  emailAlreadyExists,
-  phoneNumberAlreadyExists: phoneAlreadyExists,
-  userNotFound
-} = errorMessages.account
-
-/** Returns query empty connection response */
+/**
+ * Returns query empty connection response
+ */
 const emptyConnection = () => {
   const pageInfo = { hasNextPage: false, hasPreviousPage: false }
 
@@ -28,7 +24,7 @@ const emptyConnection = () => {
  * @param payload the mutation payload
  * @param input the mutation input
  */
-const withClientMutationId = <T extends Promise<object> | object>(
+const withClientMutationId = async <T extends Promise<object> | object>(
   payload: T,
   input?: { clientMutationId?: string }
 ) => {
@@ -44,7 +40,7 @@ const withClientMutationId = <T extends Promise<object> | object>(
  */
 const errorRes = (err: any, input?: { clientMutationId?: string }) => {
   const { clientMutationId } = input || {}
-  let { message } = err || {}
+  let { message } = err
 
   if (err.extensions?.code === 'NOT_FOUND') {
     return { success: false, message, code: 404, clientMutationId }
@@ -60,13 +56,15 @@ const errorRes = (err: any, input?: { clientMutationId?: string }) => {
  * @param error firebase error thrown by a service
  */
 const handleFirebaseError = (error: any) => {
+  const msg = errorMessages.account
+  const { emailAlreadyExists, userNotFound, phoneNumberAlreadyExists } = msg
   const success = false
 
   if (error.code === EMAIL_ALREADY_EXISTS) {
     return { success, message: i18n.t(emailAlreadyExists), code: 409 }
   }
   if (error.code === PHONE_NUMBER_ALREADY_EXISTS) {
-    return { success, message: i18n.t(phoneAlreadyExists), code: 409 }
+    return { success, message: i18n.t(phoneNumberAlreadyExists), code: 409 }
   }
   if (error.code === USER_NOT_FOUND) {
     return { success, message: i18n.t(userNotFound), code: 404 }

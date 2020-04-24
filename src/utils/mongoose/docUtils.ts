@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+
 import { stopWords } from '../../resources'
 import { SupportedLanguage } from '../i18n'
 import { isString } from '../Util'
