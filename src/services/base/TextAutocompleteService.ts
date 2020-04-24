@@ -33,7 +33,7 @@ class TextAutocompleteService {
       const _tags = tags.split(' ')
       const query = { _id: doc._id, _tags: { $nin: _tags } }
 
-      this.model.findOneAndUpdate(query, { $push: { _tags } }).exec()
+      this.model.findOneAndUpdate(query, { $push: { _tags } } as any).exec()
     }
   }
 
@@ -49,11 +49,10 @@ class TextAutocompleteService {
   private refreshTags = async (tags: string[]) => {
     const promises = tags
       .filter(t => t.trim())
-      .map(async tag => {
+      .map(async (tag: any) => {
         const query = { $text: { $search: tag }, _tags: { $nin: tag } }
-        const cond = { $push: { _tags: tag } }
 
-        return this.model.updateOne(query, cond).exec()
+        return this.model.updateOne(query, { $push: { _tags: tag } }).exec()
       })
 
     return Promise.all(promises)
