@@ -10,12 +10,10 @@ export class ApiError extends ApolloError {
     code?: StatusCode,
     properties?: Record<string, any>
   ) {
-    const msg = i18n.t(message || errorMessages.internalServerError)
+    const { notFound, internalServerError: serverError } = errorMessages
+    const notFoundMsg = i18n.t(message || notFound)
+    const msg = code === '404' ? notFoundMsg : i18n.t(message || serverError)
 
-    if (code) {
-      super(msg, statusCodeName(code), properties)
-    } else {
-      super(msg, undefined, properties)
-    }
+    super(msg, statusCodeName(code || '500'), properties)
   }
 }
