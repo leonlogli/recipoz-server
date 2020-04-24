@@ -3,7 +3,7 @@ import i18nextMiddleware from 'i18next-express-middleware'
 import Backend from 'i18next-node-fs-backend'
 
 import { APP_DEFAULT_LANGUAGE } from './env'
-import { supportedLanguages } from '../utils'
+import { supportedLanguages } from '../utils/i18n'
 
 i18next
   .use(Backend)

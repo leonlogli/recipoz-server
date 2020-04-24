@@ -1,6 +1,11 @@
-import { isString } from 'util'
 import { APP_DEFAULT_LANGUAGE } from '../config'
-import { dotify, toNestedObject, renameKeys, hasOwnProperties } from './Util'
+import {
+  dotify,
+  toNestedObject,
+  renameKeys,
+  hasOwnProperties,
+  isString
+} from './Util'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const franc = require('franc-min')
@@ -24,7 +29,7 @@ const isSupportedLanguage = (language?: string) => {
 
 const i18n: I18N = {
   currentLanguage: APP_DEFAULT_LANGUAGE,
-  t: () => ''
+  t: key => key
 }
 
 /**
@@ -40,6 +45,9 @@ const toLocale = (record: Record<SupportedLanguage, string>) => {
   return (
     record[i18n.currentLanguage] ||
     record[APP_DEFAULT_LANGUAGE] ||
+    record[
+      Object.keys(record).find(k => isSupportedLanguage(k)) as SupportedLanguage
+    ] ||
     record[Object.keys(record)[0] as SupportedLanguage]
   )
 }
@@ -108,9 +116,6 @@ const renameI18nKeys = (
   language: SupportedLanguage,
   ...i18nFields: string[]
 ) => {
-  if (!language) {
-    return obj
-  }
   const keysMap = i18nFields.map(key => {
     if (hasOwnProperties(obj, key)) {
       return { [key]: `${key}.${language}` }
