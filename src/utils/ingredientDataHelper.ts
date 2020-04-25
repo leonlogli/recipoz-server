@@ -33,7 +33,12 @@ const getCategoryFromIngredient = (ingr: string, lang?: SupportedLanguage) => {
   if (item) {
     return item.category
   }
-  const items = ingredientsData.filter(i => ingr.includes(i.name))
+  const items = ingredientsData.filter(
+    i =>
+      ingr.includes(i.name) ||
+      ingr.includes(pluralize(i.name)) ||
+      ingr.includes(pluralize.singular(i.name))
+  )
 
   if (items.length > 0) {
     item = items.find(i => ingr.includes(`${i.name} `))
@@ -46,9 +51,12 @@ const getCategoryFromIngredient = (ingr: string, lang?: SupportedLanguage) => {
       return item.category
     }
 
-    item = items.find(
-      i => ingr.endsWith(i.name) || ingr.includes(`${pluralize(i.name)} `)
-    )
+    item = items.find(i => ingr.includes(`${pluralize(i.name)} `))
+    if (item) {
+      return item.category
+    }
+
+    item = items.find(i => ingr.includes(`${pluralize.singular(i.name)} `))
     if (item) {
       return item.category
     }
@@ -58,9 +66,12 @@ const getCategoryFromIngredient = (ingr: string, lang?: SupportedLanguage) => {
       return item.category
     }
 
-    item = items.find(
-      i => ingr.endsWith(i.name) || ingr.endsWith(pluralize(i.name))
-    )
+    item = items.find(i => ingr.endsWith(pluralize(i.name)))
+    if (item) {
+      return item.category
+    }
+
+    item = items.find(i => ingr.endsWith(pluralize.singular(i.name)))
     if (item) {
       return item.category
     }
@@ -72,7 +83,7 @@ const getIngredientCategory = (ingredient: string) => {
   const ingr = purifyTrailingChar(ingredient.toLowerCase()).trim()
   let category
 
-  if (lang === 'fr') {
+  if (!lang || lang === 'fr') {
     category = getCategoryFromIngredient(ingr, 'fr')
 
     if (category) {
@@ -80,7 +91,7 @@ const getIngredientCategory = (ingredient: string) => {
     }
   }
 
-  category = getCategoryFromIngredient(ingr)
+  category = getCategoryFromIngredient(ingr, 'en')
 
   return category || 'OTHER'
 }
