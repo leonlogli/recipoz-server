@@ -52,8 +52,8 @@ const removeUndefinedKeys = <T extends Record<string, any>>(obj: T): T => {
 }
 
 /**
- * Concat values of the given array using the lowest item length in the array.
- * Ex: concatValues([["a1", "b1"], ["a2"]]) returns ["a1 a2"]
+ * Concat values of the given array using the lowest sub-array length.
+ * Ex: concatValues([["a1", "b1"], ["a2"]]) returns ['a1 a2']
  */
 const concatValues = (arrayTab: string[][]) => {
   const res = []
@@ -77,10 +77,11 @@ const concatValues = (arrayTab: string[][]) => {
  * @param chunkSize maximum length of each chunked array
  */
 const chunk = <T>(array: T[], chunkSize: number) => {
-  const res = []
+  const res: T[][] = []
 
-  for (let i = 0, l = array.length; i < l; i += chunkSize)
+  for (let i = 0, l = array.length; i < l; i += chunkSize) {
     res.push(array.slice(i, i + chunkSize))
+  }
 
   return res
 }
@@ -98,13 +99,15 @@ const hasDuplicates = (array: any[]) => {
 
 /**
  * Rename the specified keys in the given object and return it.
- * @param obj object in which the keys will renamed
+ * @param object object in which the keys will renamed
  * @param keysMap map of old and new keys. { 'oldKey': 'newKey' }
  */
 const renameKeys = (
-  obj: Record<string, any>,
+  object: Record<string, any>,
   ...keysMap: Record<string, string>[]
 ): any => {
+  const obj = { ...object }
+
   keysMap.forEach(keyMap => {
     const oldKey = Object.keys(keyMap)[0]
     const newKey = keyMap[oldKey]
@@ -119,7 +122,9 @@ const renameKeys = (
  * Return `true` if any property of the specified object has falsy value, `false` otherwise
  * @param obj object
  */
-const hasFalsyValue = (obj: object) => Object.values(obj).some(v => !v)
+const hasFalsyValue = (obj: Record<string, any>) => {
+  return Object.values(obj).some(v => !v)
+}
 
 export {
   isEmpty,
