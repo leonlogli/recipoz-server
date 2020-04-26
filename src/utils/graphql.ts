@@ -69,6 +69,7 @@ const handleFirebaseError = (error: any) => {
   if (error.code === USER_NOT_FOUND) {
     return { success, message: i18n.t(userNotFound), code: 404 }
   }
+  // We don't translate developer error messages because the end user have not to see it
   if (error.code === ID_TOKEN_EXPIRED) {
     return { success, message: 'ID token expired', code: ID_TOKEN_EXPIRED }
   }
