@@ -4,6 +4,8 @@ import pluralize from 'pluralize'
 import { detectLanguage, SupportedLanguage } from './i18n'
 import { ingredients } from '../resources'
 
+type Item = typeof ingredients.en[number]
+
 /**
  * Remove the trailing numbers and punctuations characters of the specified text
  */
@@ -22,58 +24,48 @@ const purifyTrailingChar = (text: string) => {
   return res
 }
 
-const getCategoryFromIngredient = (ingr: string, lang?: SupportedLanguage) => {
+/**
+ * Return true if the given item match the specified ingredient
+ */
+const isMatchedItem = (item: Item, ingredient: string) => {
+  return (
+    ingredient.includes(`${item.name} `) ||
+    ingredient.includes(`${item.name},`) ||
+    ingredient.includes(`${item.name}s `) ||
+    ingredient.includes(`${pluralize(item.name)} `) ||
+    ingredient.includes(`${pluralize.singular(item.name)} `) ||
+    ingredient.endsWith(item.name) ||
+    ingredient.endsWith(`${item.name}s`) ||
+    ingredient.endsWith(pluralize(item.name)) ||
+    ingredient.endsWith(pluralize.singular(item.name))
+  )
+}
+
+const findCategory = (ingredient: string, lang?: SupportedLanguage) => {
   let ingredientsData = ingredients.en
 
   if (lang === 'fr') {
     ingredientsData = ingredients.fr
   }
-  let item = ingredientsData.find(i => i.name === ingr)
+  const itemFound = ingredientsData.find(i => i.name === ingredient)
 
-  if (item) {
-    return item.category
+  if (itemFound) {
+    return itemFound.category
   }
-  const items = ingredientsData.filter(
-    i =>
-      ingr.includes(i.name) ||
-      ingr.includes(pluralize(i.name)) ||
-      ingr.includes(pluralize.singular(i.name))
-  )
+  const items = ingredientsData
+    .filter(
+      i =>
+        ingredient.includes(i.name) ||
+        ingredient.includes(pluralize(i.name)) ||
+        ingredient.includes(pluralize.singular(i.name))
+    )
+    .sort((a, b) => b.name.length - a.name.length)
 
   if (items.length > 0) {
-    item = items.find(i => ingr.includes(`${i.name} `))
-    if (item) {
-      return item.category
-    }
-
-    item = items.find(i => ingr.includes(`${i.name}s `))
-    if (item) {
-      return item.category
-    }
-
-    item = items.find(i => ingr.includes(`${pluralize(i.name)} `))
-    if (item) {
-      return item.category
-    }
-
-    item = items.find(i => ingr.includes(`${pluralize.singular(i.name)} `))
-    if (item) {
-      return item.category
-    }
-
-    item = items.find(i => ingr.endsWith(i.name) || ingr.endsWith(`${i.name}s`))
-    if (item) {
-      return item.category
-    }
-
-    item = items.find(i => ingr.endsWith(pluralize(i.name)))
-    if (item) {
-      return item.category
-    }
-
-    item = items.find(i => ingr.endsWith(pluralize.singular(i.name)))
-    if (item) {
-      return item.category
+    for (const item of items) {
+      if (isMatchedItem(item, ingredient)) {
+        return item.category
+      }
     }
   }
 }
@@ -84,14 +76,14 @@ const getIngredientCategory = (ingredient: string) => {
   let category
 
   if (!lang || lang === 'fr') {
-    category = getCategoryFromIngredient(ingr, 'fr')
+    category = findCategory(ingr, 'fr')
 
     if (category) {
       return category
     }
   }
 
-  category = getCategoryFromIngredient(ingr, 'en')
+  category = findCategory(ingr, 'en')
 
   return category || 'OTHER'
 }
