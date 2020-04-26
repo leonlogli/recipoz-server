@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { errorMessages, statusMessages } from '../../../constants/locales'
+import { errorMessages } from '../../../../constants/locales'
 
 describe('constants > locale', () => {
   it('should prepend namespace to i18n keys', () => {
@@ -7,13 +7,6 @@ describe('constants > locale', () => {
       forbidden: 'errorMessages:forbidden',
       comment: {
         notFound: 'errorMessages:commentNotFound'
-      }
-    })
-
-    expect(statusMessages).to.deep.include({
-      notification: {
-        updated: 'statusMessages:notification.updated',
-        deleted: 'statusMessages:notification.deleted'
       }
     })
   })
