@@ -1,11 +1,5 @@
 import { APP_DEFAULT_LANGUAGE } from '../config'
-import {
-  dotify,
-  toNestedObject,
-  renameKeys,
-  hasOwnProperties,
-  isString
-} from './Util'
+import { dotify, toNestedObject, renameKeys, hasOwnProperties } from './Util'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const franc = require('franc-min')
@@ -35,20 +29,17 @@ const i18n: I18N = {
 /**
  * Formats i18n record by using the current locale.
  * Ex: toLocale({ en: 'data', fr: 'données' }) == 'data' in case the current locale is 'en'
- * @param record i18n object to format
+ * @param obj i18n object to format
  */
-const toLocale = (record: Record<SupportedLanguage, string>) => {
-  if (!record || isString(record)) {
-    return record
+const toLocale = (obj: Record<SupportedLanguage, string>) => {
+  if (!obj || typeof obj !== 'object') {
+    return obj
   }
 
   return (
-    record[i18n.currentLanguage] ||
-    record[APP_DEFAULT_LANGUAGE] ||
-    record[
-      Object.keys(record).find(k => isSupportedLanguage(k)) as SupportedLanguage
-    ] ||
-    record[Object.keys(record)[0] as SupportedLanguage]
+    obj[i18n.currentLanguage] ||
+    obj[APP_DEFAULT_LANGUAGE] ||
+    obj[Object.keys(obj).find(k => isSupportedLanguage(k)) as SupportedLanguage]
   )
 }
 
