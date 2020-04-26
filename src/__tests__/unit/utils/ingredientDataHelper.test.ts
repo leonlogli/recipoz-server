@@ -26,7 +26,7 @@ describe('ingredientData Helper', () => {
       expect(getIngredientCategory('salt')).to.equal('HERBS_AND_SPICES')
     })
 
-    it('should properly return the spices category', () => {
+    it('should properly return the dairy category', () => {
       expect(getIngredientCategory('egg')).to.equal('DAIRY')
     })
 
