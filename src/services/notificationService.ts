@@ -1,9 +1,9 @@
-import { errorMessages, statusMessages } from '../constants'
 import { Notification, NotificationDocument } from '../models'
-import { i18n, DataLoaders, errorRes } from '../utils'
+import { i18n, DataLoaders, errorRes, locales } from '../utils'
 import ModelService from './base/ModelService'
 import { logger } from '../config'
 
+const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.notification
 const { updated, deleted } = statusMessages.notification
 

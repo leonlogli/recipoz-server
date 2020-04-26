@@ -1,11 +1,11 @@
 import { ADMIN_EMAIL, logger } from '../config'
-import { errorMessages, statusMessages, USER, ADMIN } from '../constants'
 import { Account, UserDocument, AccountDocument } from '../models'
 import {
   DataLoaders,
   i18n,
   handleFirebaseError,
-  isDuplicateError
+  isDuplicateError,
+  locales
 } from '../utils'
 import { ModelService } from './base'
 import followershipService from './followershipService'
@@ -18,7 +18,9 @@ import abuseReportService from './abuseReportService'
 import savedRecipeService from './savedRecipeService'
 import { fcmService, userService } from './firebase'
 import recipeCollectionService from './recipeCollectionService'
+import { USER, ADMIN } from '../constants'
 
+const { statusMessages, errorMessages } = locales
 const { notFound, alreadyExists, userNotFound } = errorMessages.account
 const { created, deleted, updated } = statusMessages.account
 

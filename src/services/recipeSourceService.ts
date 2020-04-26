@@ -1,17 +1,17 @@
-import { errorMessages, statusMessages } from '../constants'
 import { RecipeSource, RecipeSourceDocument } from '../models'
-import { i18n, isDuplicateError, errorRes } from '../utils'
+import { i18n, isDuplicateError, errorRes, locales } from '../utils'
 import ModelService from './base/ModelService'
 import followershipService from './followershipService'
 import recipeService from './recipeService'
 import { logger } from '../config'
 
+const { statusMessages, errorMessages } = locales
+const { created, deleted, updated } = statusMessages.recipeSource
 const {
   notFound,
   nameAlreadyExists,
   websiteAlreadyExists
 } = errorMessages.recipeSource
-const { created, deleted, updated } = statusMessages.recipeSource
 
 const recipeSourceModel = new ModelService<RecipeSourceDocument>({
   model: RecipeSource,

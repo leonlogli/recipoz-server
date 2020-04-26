@@ -1,13 +1,19 @@
-import { errorMessages, statusMessages } from '../constants'
 import {
   RecipeCollection,
   RecipeCollectionDocument,
   SavedRecipe
 } from '../models'
-import { i18n, DataLoaders, errorRes, isDuplicateError } from '../utils'
+import {
+  i18n,
+  DataLoaders,
+  errorRes,
+  isDuplicateError,
+  locales
+} from '../utils'
 import ModelService from './base/ModelService'
 import { logger } from '../config'
 
+const { statusMessages, errorMessages } = locales
 const { notFound, alreadyExists } = errorMessages.recipeCollection
 const { created, deleted, updated } = statusMessages.recipeCollection
 

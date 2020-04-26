@@ -1,5 +1,4 @@
-import { statusMessages } from '../constants'
-import { DataLoaders, i18n, errorRes } from '../utils'
+import { DataLoaders, i18n, errorRes, locales } from '../utils'
 import { ModelService } from './base'
 import {
   CommentReaction,
@@ -8,6 +7,7 @@ import {
 } from '../models'
 import { logger } from '../config'
 
+const { statusMessages } = locales
 const { like, updated } = statusMessages.comment
 
 const commentReactionModel = new ModelService<CommentReactionDocument>({

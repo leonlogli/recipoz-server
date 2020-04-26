@@ -1,14 +1,15 @@
-import { errorMessages, statusMessages } from '../constants'
 import { ShoppingListItem, ShoppingListItemDocument } from '../models'
 import {
   DataLoaders,
   i18n,
   removeUndefinedKeys,
   getIngredientCategory,
-  errorRes
+  errorRes,
+  locales
 } from '../utils'
 import ModelService from './base/ModelService'
 
+const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.shoppingListItem
 const { internalServerError } = errorMessages
 const { deleted, updated, added } = statusMessages.shoppingListItem

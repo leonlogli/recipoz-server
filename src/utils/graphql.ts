@@ -1,7 +1,6 @@
-import { i18n } from './i18n'
+import { i18n, locales } from './i18n'
 import { logger } from '../config'
 import {
-  errorMessages,
   EMAIL_ALREADY_EXISTS,
   PHONE_NUMBER_ALREADY_EXISTS,
   USER_NOT_FOUND,
@@ -9,6 +8,12 @@ import {
   ID_TOKEN_REVOKED,
   INVALID_ID_TOKEN
 } from '../constants'
+
+const {
+  emailAlreadyExists,
+  userNotFound,
+  phoneNumberAlreadyExists
+} = locales.errorMessages.account
 
 /**
  * Returns query empty connection response
@@ -45,7 +50,7 @@ const errorRes = (err: any, input?: { clientMutationId?: string }) => {
   if (err.extensions?.code === 'NOT_FOUND') {
     return { success: false, message, code: 404, clientMutationId }
   }
-  message = i18n.t(errorMessages.internalServerError)
+  message = i18n.t(locales.errorMessages.internalServerError)
   logger.error('', err)
 
   return { success: false, message, code: 500, clientMutationId }
@@ -56,8 +61,6 @@ const errorRes = (err: any, input?: { clientMutationId?: string }) => {
  * @param error firebase error thrown by a service
  */
 const handleFirebaseError = (error: any) => {
-  const msg = errorMessages.account
-  const { emailAlreadyExists, userNotFound, phoneNumberAlreadyExists } = msg
   const success = false
 
   if (error.code === EMAIL_ALREADY_EXISTS) {

@@ -1,9 +1,15 @@
-import { errorMessages, statusMessages } from '../constants'
 import { Comment, CommentDocument } from '../models'
-import { i18n, DataLoaders, getDataLoaderByModel, errorRes } from '../utils'
+import {
+  i18n,
+  DataLoaders,
+  getDataLoaderByModel,
+  errorRes,
+  locales
+} from '../utils'
 import ModelService from './base/ModelService'
 import { logger } from '../config'
 
+const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.comment
 const { created, deleted, updated } = statusMessages.comment
 

@@ -1,10 +1,10 @@
-import { errorMessages, statusMessages } from '../constants'
 import { Category, CategoryDocument, Recipe } from '../models'
 import ModelService from './base/ModelService'
 import {
   DataLoaders,
   buildFilterQuery,
   i18n,
+  locales,
   OffsetPage,
   errorRes,
   isDuplicateError
@@ -12,6 +12,7 @@ import {
 import followershipService from './followershipService'
 import { logger } from '../config'
 
+const { statusMessages, errorMessages } = locales
 const { created, deleted, updated } = statusMessages.category
 const { notFound, nameAlreadyExists } = errorMessages.category
 

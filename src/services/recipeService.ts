@@ -1,15 +1,16 @@
-import { errorMessages, statusMessages } from '../constants'
 import { Recipe, RecipeDocument } from '../models'
 import {
   DataLoaders,
   i18n,
   OffsetPage,
   buildFilterQuery,
-  errorRes
+  errorRes,
+  locales
 } from '../utils'
 import ModelService from './base/ModelService'
 import { logger } from '../config'
 
+const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.recipe
 const { created, deleted, updated } = statusMessages.recipe
 

@@ -1,4 +1,3 @@
-import { errorMessages, statusMessages } from '../constants'
 import {
   AbuseReport,
   AbuseReportDocument,
@@ -6,10 +5,17 @@ import {
   AbuseReportDataType,
   AbuseReportStatus
 } from '../models'
-import { i18n, getDataLoaderByModel, errorRes, DataLoaders } from '../utils'
+import {
+  i18n,
+  getDataLoaderByModel,
+  errorRes,
+  DataLoaders,
+  locales
+} from '../utils'
 import ModelService from './base/ModelService'
 import { logger } from '../config'
 
+const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.abuseReport
 const { cannotReportAbuseOnYourData: cannotReport } = errorMessages.account
 const { created, deleted, updated } = statusMessages.abuseReport

@@ -1,5 +1,10 @@
-import { statusMessages, errorMessages } from '../constants'
-import { DataLoaders, i18n, getDataLoaderByModel, errorRes } from '../utils'
+import {
+  DataLoaders,
+  i18n,
+  getDataLoaderByModel,
+  errorRes,
+  locales
+} from '../utils'
 import { ModelService } from './base'
 import { FollowershipDocument, Followership, FollowedDataType } from '../models'
 import { logger } from '../config'
@@ -8,6 +13,7 @@ const followershipModel = new ModelService<FollowershipDocument>({
   model: Followership
 })
 
+const { statusMessages, errorMessages } = locales
 const { follow, unfollow } = statusMessages.account
 const { cannotFollowYourself } = errorMessages.account
 
