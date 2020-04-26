@@ -96,17 +96,17 @@ const prime = (dataLoader: DataLoader<any, any>, ...docs: Document[]) => {
     .forEach(doc => {
       dataLoader.prime(doc._id, doc)
     })
+
+  return dataLoader
 }
 
 const updateDataLoaderCache = (
   dataLoader: DataLoader<string, any>,
   data: Document | UserDocument
 ) => {
-  if (!data || !dataLoader) {
-    return
-  }
   dataLoader.clear(data._id)
-  dataLoader.prime(data._id, data)
+
+  return prime(dataLoader, data as Document)
 }
 
 const dataByQueryLoaderOptions: Options<object, any, string> = {
