@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 
 import { stopWords } from '../../resources'
 import { SupportedLanguage } from '../i18n'
-import { isString } from '../Util'
 
 const { ObjectId } = mongoose.Types
 
@@ -15,21 +14,17 @@ export interface OffsetPage {
 }
 
 /**
- * Creates an ObjectId from the specified date
- * @param date Date object or string input
+ * Creates an ObjectId from the specified datetime value
+ * @param value datetime value or timestamp in milliseconds
  */
-const objectIdFromDateTime = (date: Date | string) => {
-  let timestamp: any = date
+const objectIdFromDateTime = (value: Date | string | number) => {
+  const time = new Date(value).getTime() / 1000
 
-  if (isString(timestamp)) {
-    timestamp = new Date(timestamp)
-  }
-
-  return ObjectId.createFromTime(timestamp / 1000)
+  return ObjectId.createFromTime(time)
 }
 
-const removeStopwords = (text: string, language?: string) => {
-  const stopwords = stopWords[language as SupportedLanguage] || stopWords.en
+const removeStopwords = (text: string, language: SupportedLanguage) => {
+  const stopwords = stopWords[language] || stopWords.en
 
   const words = text
     .split(' ')
@@ -51,10 +46,6 @@ const isValidObjectId = (id: any) => {
   return new ObjectId(id).toString() === String(id)
 }
 
-const areValidObjectIds = (...ids: any[]) => {
-  return ids.every(id => isValidObjectId(id))
-}
-
 const isDuplicateError = (error: any) => {
   return error.name === 'MongoError' && error.code === 11000
 }
@@ -63,7 +54,6 @@ export {
   toObjectId,
   removeStopwords,
   objectIdFromDateTime,
-  areValidObjectIds,
   isValidObjectId,
   isDuplicateError
 }

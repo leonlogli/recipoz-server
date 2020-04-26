@@ -79,7 +79,7 @@ class TextAutocompleteService {
 
       if (text) {
         if (this.options.i18nFields?.includes(field)) {
-          tags.push(removeStopwords(text, field.split('.').pop()))
+          tags.push(removeStopwords(text, field.split('.').pop() as any))
         } else {
           tags.push(removeStopwords(text, detectLanguage(text)))
         }
