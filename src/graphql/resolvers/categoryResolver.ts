@@ -11,7 +11,7 @@ import { Context } from '../context'
 export default {
   Query: {
     categories: (_: any, { filter, ...options }: any, ctx: Context) => {
-      const criteria = buildFilterQuery(filter, 'parent')
+      const criteria = buildFilterQuery(filter, { parent: 'Category' })
       const cursorQuery = validateCursorQuery(options)
       const { categoryByQueryLoader } = ctx.dataLoaders
 

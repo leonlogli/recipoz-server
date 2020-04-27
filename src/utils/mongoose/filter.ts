@@ -1,5 +1,5 @@
-import { dotify, toNestedObject, isEmpty } from '../Util'
-import { fromGlobalId } from '../globalIdHelper'
+import { dotify, toNestedObject } from '../Util'
+import { toLocalIds, toLocalId } from '../globalIdHelper'
 
 /**
  * Filter meta operators that joins query clauses with 'or', 'and', 'nor' operators
@@ -36,17 +36,6 @@ const formatFilterPathOperators = (path: string) => {
   return paths.join('.') + filterOp
 }
 
-/**
- * Check if the given path contains any of the specified global id fields
- * @param path path to check
- * @param idFields global id fields
- */
-const isGlobalIdPath = (path: string, ...idFields: string[]) => {
-  const idField = path.split('.').slice(-2)[0]
-
-  return idFields.includes(idField)
-}
-
 const buildRegexFilterValue = (regPath: string, value: any): any => {
   if (regPath.endsWith('$like')) {
     return new RegExp(value, 'i')
@@ -61,31 +50,51 @@ const buildRegexFilterValue = (regPath: string, value: any): any => {
   return value
 }
 
+const isRegExPath = (path: string) => {
+  return path.endsWith('$like') || path.endsWith('$sw') || path.endsWith('$ew')
+}
+
+const buildFilterValue = (
+  path: string,
+  oldValue: string,
+  ...idFieldsMap: Record<string, string>[]
+) => {
+  const idField = path.split('.').slice(-2)[0]
+  const globalIdPathMap = idFieldsMap.find(
+    map => Object.keys(map).pop() === idField
+  )
+
+  if (globalIdPathMap) {
+    const type = globalIdPathMap && Object.values(globalIdPathMap).pop()
+
+    if (Array.isArray(oldValue)) {
+      return toLocalIds(oldValue, type || '')
+    }
+
+    return toLocalId(oldValue, type || '').id
+  }
+
+  return oldValue
+}
+
 /**
  * Build a mongodb filter query from the specified parameters
  * @param filter filter expressions
- * @param idFields globalId (GUID) fields that need to be converted to ObjectID
+ * @param idFieldsMap globalId (GUID) fields that need to be converted to ObjectID.
+ * Must be in the form { 'field': 'type' }.
+ * Ex: { 'author': 'Account' }
  */
 const buildFilterQuery = (
   filter: Record<string, any>,
-  ...idFields: string[]
+  ...idFieldsMap: Record<string, string>[]
 ) => {
-  if (isEmpty(filter)) {
-    return {}
-  }
   const filterObj = dotify(filter)
 
   Object.keys(filterObj).forEach(oldKey => {
     let newKey = formatFilterPathOperators(oldKey)
-    let value = isGlobalIdPath(oldKey, ...idFields)
-      ? fromGlobalId(filterObj[oldKey]).id || null
-      : filterObj[oldKey]
+    let value = buildFilterValue(oldKey, filterObj[oldKey], ...idFieldsMap)
 
-    if (
-      newKey.endsWith('$like') ||
-      newKey.endsWith('$sw') ||
-      newKey.endsWith('$ew')
-    ) {
+    if (isRegExPath(newKey)) {
       value = buildRegexFilterValue(newKey, value)
       const paths = newKey.split('.').slice(0, -1)
 
