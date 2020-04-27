@@ -98,10 +98,10 @@ const buildCursorQuery = (opts: CursorPagingQuery) => {
   if (shouldSecondarySortOnId) {
     return {
       $or: [
-        { [paginatedField]: { [comparisonOp]: cursor.id } },
+        { [paginatedField]: { [comparisonOp]: cursor.paginatedField } },
         {
-          [paginatedField]: { $eq: cursor.id },
-          _id: { [comparisonOp]: cursor.paginatedField }
+          [paginatedField]: { $eq: cursor.paginatedField },
+          _id: { [comparisonOp]: cursor.id }
         }
       ]
     }
