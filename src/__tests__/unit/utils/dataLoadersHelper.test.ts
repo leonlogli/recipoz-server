@@ -12,6 +12,12 @@ describe('DataLoaders helper', () => {
     expect(dataByQueryLoaderOptions).to.have.ownProperty('cacheKeyFn')
   })
 
+  it('should produce hashable cache key for a given object key', () => {
+    const { cacheKeyFn } = dataByQueryLoaderOptions as any
+
+    expect(cacheKeyFn({})).to.be.string
+  })
+
   describe('The DataLoaders instance', () => {
     describe('when initialized', () => {
       const dataloaders = createDataLoaders()
@@ -26,6 +32,12 @@ describe('DataLoaders helper', () => {
         const expected = dataloaders.userLoader
 
         expect(getDataLoaderByModel('User', dataloaders)).to.eql(expected)
+      })
+
+      it('should properly find categoryLoader by model name', () => {
+        const expected = dataloaders.categoryLoader
+
+        expect(getDataLoaderByModel('Category', dataloaders)).to.eql(expected)
       })
 
       it('should properly find recipeLoader by model name', () => {

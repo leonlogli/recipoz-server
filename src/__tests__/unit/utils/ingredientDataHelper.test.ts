@@ -4,7 +4,7 @@ import { getIngredientCategory } from '../../../utils/ingredientDataHelper'
 
 describe('ingredientData Helper', () => {
   it('should return the right category for unkown ingredients', () => {
-    expect(getIngredientCategory('unknown ingredient')).to.equal('OTHER')
+    expect(getIngredientCategory('unknown ingredient.')).to.equal('OTHER')
   })
 
   describe('french ingredients process', () => {

@@ -32,7 +32,10 @@ describe('Error helper', () => {
   })
 
   it('should throw UserInputError when there is error validation error', () => {
-    const error: any = { name: 'ValidationError', details: [] }
+    const error: any = {
+      name: 'ValidationError',
+      details: [{ message: 'error', path: 'author', type: 'any.invalid' }]
+    }
 
     expect(() => checkAndSendValidationErrors(error)).to.throw(
       UserInputError,
