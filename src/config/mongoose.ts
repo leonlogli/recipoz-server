@@ -8,7 +8,7 @@ mongoose.set('useUnifiedTopology', true)
 
 // Exit application on error
 mongoose.connection.on('error', (err: any) => {
-  logger.error(`MongoDB connection error: ${err}`)
+  logger.error('MongoDB connection error: ', err)
   process.exit(-1)
 })
 
@@ -24,6 +24,10 @@ mongoose.set('debug', DEV_ENV)
  * @param uri Mongodb uri
  */
 const connectDb = async (uri = MONGO.URI) => {
+  if (!uri) {
+    return null
+  }
+
   return mongoose
     .connect(uri, {
       useCreateIndex: true,
