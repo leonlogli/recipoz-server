@@ -9,7 +9,7 @@ import middlewares from './middlewares'
  */
 const app = express()
 
-// connect to the database and starts tasks scheduling
+// connect to the database
 connectDb()
 
 // secure apps by setting various HTTP headers

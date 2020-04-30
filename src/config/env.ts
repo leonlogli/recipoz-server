@@ -6,7 +6,13 @@ import { SupportedLanguage } from '../utils'
 logger.debug('Using .env file to supply config environment variables')
 dotenv.config()
 
-const { JWT_SECRET, JWT_EXPIRATION, ADMIN_EMAIL, NODE_ENV } = process.env
+const {
+  JWT_SECRET,
+  JWT_EXPIRATION,
+  ADMIN_EMAIL,
+  NODE_ENV,
+  APOLLO_KEY
+} = process.env
 
 /** App default language */
 const APP_DEFAULT_LANGUAGE = process.env
@@ -17,9 +23,6 @@ const DEFAULT_PAGE_SIZE = Number(process.env.DEFAULT_PAGE_SIZE)
 
 /** Max items number per page */
 const MAX_PAGE_SIZE = Number(process.env.MAX_PAGE_SIZE)
-
-/** Indicates whether to use mongoose in-memory databse for test instead of real database */
-const USE_MEMORY_TEST_DB = process.env.USE_MEMORY_TEST_DB === 'true'
 
 /** Indicates whether NODE_ENV is test */
 const TEST_ENV = NODE_ENV === 'test'
@@ -34,9 +37,7 @@ const PORT = TEST_ENV ? process.env.TEST_PORT : process.env.PORT
 
 /** Mongo db config */
 const MONGO = {
-  URI: (TEST_ENV
-    ? process.env.MONGO_URI_TESTS
-    : process.env.MONGO_URI) as string
+  URI: process.env.MONGO_URI as string
 }
 
 /** Firebase configs */
@@ -76,9 +77,9 @@ export {
   DEV_ENV,
   APP_DEFAULT_LANGUAGE,
   ADMIN_EMAIL,
-  USE_MEMORY_TEST_DB,
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
   MONGO,
-  FIREBASE
+  FIREBASE,
+  APOLLO_KEY
 }

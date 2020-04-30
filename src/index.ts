@@ -1,18 +1,21 @@
 import { ApolloServer } from 'apollo-server-express'
 
-import { PORT, NODE_ENV, logger } from './config'
+import { PORT, NODE_ENV, logger, APOLLO_KEY } from './config'
 import { typeDefs, resolvers, context, schemaDirectives } from './graphql'
 import app from './app'
-import { formatError, rewriteError } from './utils'
+import { formatError } from './utils'
 
-// Setup GraphQL Apollo server.
+/**
+ * Apollo graphQL production-ready server
+ */
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context,
   schemaDirectives,
   engine: {
-    rewriteError
+    apiKey: APOLLO_KEY,
+    schemaTag: 'production'
   },
   formatError
 })

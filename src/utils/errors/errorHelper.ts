@@ -3,10 +3,8 @@ import { GraphQLError } from 'graphql'
 import { ValidationError } from '@hapi/joi'
 import { UserInputError } from 'apollo-server-express'
 
-import { PROD_ENV, logger } from '../../config'
+import { PROD_ENV } from '../../config'
 import { ApiError } from './ApiError'
-import { AuthenticationError } from './AuthenticationError'
-import { ForbiddenError } from './ForbiddenError'
 
 export type StatusCode = keyof Omit<HttpStatus, 'classes' | 'extra'>
 
@@ -44,31 +42,4 @@ const formatError = (error: GraphQLError) => {
   return error
 }
 
-/**
- * Ensures that any lower-severity or predefined error (AuthenticationError, UserInputError, etc.)
- * that's thrown within a resolver is only reported to the client, and never sent to Apollo
- * Graph Manager. All other errors are transmitted to Graph Manager normally.
- * @param error graphql error
- */
-const rewriteError = (error: GraphQLError) => {
-  if (
-    error instanceof AuthenticationError ||
-    error instanceof ForbiddenError ||
-    error instanceof UserInputError
-  ) {
-    // do not report error
-    return null
-  }
-
-  logger.error('', error)
-
-  // report the error.
-  return error
-}
-
-export {
-  formatError,
-  checkAndSendValidationErrors,
-  rewriteError,
-  statusCodeName
-}
+export { formatError, checkAndSendValidationErrors, statusCodeName }

@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import i18next from 'i18next'
-import i18nextMiddleware from 'i18next-express-middleware'
-import Backend from 'i18next-node-fs-backend'
 
 import { APP_DEFAULT_LANGUAGE } from './env'
 import { supportedLanguages } from '../utils'
+
+const Backend = require('i18next-fs-backend')
+const i18nextMiddleware = require('i18next-http-middleware')
 
 i18next
   .use(Backend)
