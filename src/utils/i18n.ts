@@ -37,11 +37,18 @@ const toLocale = (obj: Record<SupportedLanguage, string>) => {
     return obj
   }
 
-  return (
-    obj[i18n.currentLanguage] ||
-    obj[APP_DEFAULT_LANGUAGE] ||
-    obj[Object.keys(obj).find(k => isSupportedLanguage(k)) as SupportedLanguage]
+  if (obj[i18n.currentLanguage]) {
+    return obj[i18n.currentLanguage]
+  }
+
+  if (obj[APP_DEFAULT_LANGUAGE]) {
+    return obj[APP_DEFAULT_LANGUAGE]
+  }
+  const key = Object.keys(obj).find(
+    k => isSupportedLanguage(k) && !!obj[k as SupportedLanguage]
   )
+
+  return obj[key as SupportedLanguage]
 }
 
 /**
