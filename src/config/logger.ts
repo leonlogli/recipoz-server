@@ -1,6 +1,6 @@
 import { format, transports, createLogger } from 'winston'
 
-import { DEV_ENV } from './env'
+import { PROD_ENV } from './env'
 
 const logger = createLogger({
   level: 'info',
@@ -23,10 +23,10 @@ const logger = createLogger({
 })
 
 //
-// If we're in dev env then log to the `console` with the format:
+// If we're not in production then log to the `console` with the format:
 // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
 //
-if (DEV_ENV) {
+if (!PROD_ENV) {
   logger.add(
     new transports.Console({
       format: format.simple()
