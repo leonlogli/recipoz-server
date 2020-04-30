@@ -1,9 +1,8 @@
 import jwt from 'jsonwebtoken'
 import { Response, NextFunction } from 'express'
 
-import { JWT, logger } from '../config'
+import { JWT } from '../config'
 import { DecodedAccessToken } from '../models'
-import { AuthenticationError } from '../utils'
 
 const extractAccessToken = (req: any) => {
   const { authorization } = req.headers
@@ -24,8 +23,7 @@ const checkIfAuthenticated = (req: any, _res: Response, next: NextFunction) => {
     req.accountId = payload.id
     req.userRoles = payload.roles
   } catch (error) {
-    req.error = new AuthenticationError()
-    logger.error('Error checking authentication: ', error)
+    req.error = error
   }
 
   next()
