@@ -1,11 +1,6 @@
 import { Request as BaseRequest, Response } from 'express'
 
-import {
-  AuthenticationError,
-  DataLoaders,
-  ApiError,
-  isValidObjectId
-} from '../utils'
+import { AuthenticationError, DataLoaders, isValidObjectId } from '../utils'
 import { Role } from '../models'
 import createDataLoaders from './dataloaders'
 import { ADMIN } from '../constants'
@@ -30,7 +25,7 @@ export type Request = BaseRequest & {
   userRoles?: Role[]
 }
 
-export type Context = Pick<Request, 'accountId' | 'userRoles'> & {
+export type Context = Pick<Request, 'accountId' | 'userRoles' | 'error'> & {
   /**
    * Indicates whether the current user has `ADMIN` role or not
    */
@@ -62,11 +57,7 @@ const context = ({ req }: ExpressContext): Context => {
     }
   }
 
-  if (error) {
-    throw error instanceof ApiError ? error : new ApiError()
-  }
-
-  return { accountId, userRoles, isAdmin, requireAuth, dataLoaders }
+  return { accountId, userRoles, isAdmin, requireAuth, dataLoaders, error }
 }
 
 export default context
