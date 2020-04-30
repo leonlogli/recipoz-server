@@ -55,7 +55,8 @@ export const User = {
    */
   transform: (fireBaseUser: UserRecord): UserDocument => {
     const _id = fireBaseUser.uid
-    const roles = fireBaseUser.customClaims?.roles
+    const claims: any = fireBaseUser.customClaims
+    const roles = claims?.roles
 
     return { ...fireBaseUser, _id, roles }
   }
