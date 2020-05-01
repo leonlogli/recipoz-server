@@ -3,7 +3,7 @@ import { GraphQLError } from 'graphql'
 import { ValidationError } from '@hapi/joi'
 import { UserInputError } from 'apollo-server-express'
 
-import { PROD_ENV } from '../../config'
+import { PROD_ENV, logger } from '../../config'
 import { ApiError } from './ApiError'
 
 export type StatusCode = keyof Omit<HttpStatus, 'classes' | 'extra'>
@@ -35,8 +35,10 @@ const formatError = (error: GraphQLError) => {
   const code = error.extensions?.code
   const isInternalError = code === statusCodeName('500') || code === 500
 
-  if (PROD_ENV && isInternalError) {
-    return new ApiError()
+  if (isInternalError) {
+    logger.error('', error)
+
+    return PROD_ENV ? new ApiError() : error
   }
 
   return error
