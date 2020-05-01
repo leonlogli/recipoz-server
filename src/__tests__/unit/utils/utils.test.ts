@@ -30,7 +30,7 @@ describe('Object helper', () => {
   })
 
   it('should return empty object when object to dotify is null', () => {
-    expect(dotify(null)).to.eql({})
+    expect(dotify(null as any)).to.eql({})
   })
 
   it('should convert doted object to nested one', () => {
@@ -40,7 +40,7 @@ describe('Object helper', () => {
   })
 
   it('should return empty object when object to nestify is undefined', () => {
-    expect(toNestedObject(undefined)).to.eql({})
+    expect(toNestedObject(undefined as any)).to.eql({})
   })
 
   it('should return true when the object has property', () => {

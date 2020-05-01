@@ -4,24 +4,16 @@ import dotObject from 'dot-object'
  * Convert object to dotted-key/value pair
  * @param object object to convert
  */
-const dotify = (object?: any) => {
-  if (!object) {
-    return {}
-  }
-
-  return dotObject.dot(object)
+const dotify = (object: Record<string, any>) => {
+  return dotObject.dot({ ...object })
 }
 
 /**
  * Converts an object with dotted-key/value pairs to it's expanded version
  * @param dotedObject object to convert
  */
-const toNestedObject = (dotedObject?: Record<string, any>): any => {
-  if (!dotedObject) {
-    return {}
-  }
-
-  return dotObject.object(dotedObject)
+const toNestedObject = (dotedObject: Record<string, any>): any => {
+  return dotObject.object({ ...dotedObject })
 }
 
 const isString = (val: any) => {
@@ -30,16 +22,12 @@ const isString = (val: any) => {
 
 /**
  * Determines whether an object has properties with the specified names.
- * @param object object.
+ * @param obj object.
  * @param keys A property names.
  * @returns true if all the specified keys are the given object properties, false otherwise
  */
-const hasOwnProperties = (object: Record<string, any>, ...keys: string[]) => {
-  if (!Object.keys({ ...object }).length) {
-    return false
-  }
-
-  return keys.every(key => Object.prototype.hasOwnProperty.call(object, key))
+const hasOwnProperties = (obj: Record<string, any>, ...keys: string[]) => {
+  return keys.every(k => Object.prototype.hasOwnProperty.call({ ...obj }, k))
 }
 
 const removeUndefinedKeys = <T extends Record<string, any>>(obj: T): T => {
