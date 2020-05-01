@@ -10,17 +10,17 @@ import {
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../config'
 
 const offsetPageSchema = Joi.object({
-  number: Joi.number()
+  pageNumber: Joi.number()
     .integer()
     .positive()
     .default(1),
-  size: Joi.number()
+  pageSize: Joi.number()
     .positive()
     .default(DEFAULT_PAGE_SIZE)
     .max(MAX_PAGE_SIZE)
 }).default({
-  number: 1,
-  size: DEFAULT_PAGE_SIZE
+  pageNumber: 1,
+  pageSize: DEFAULT_PAGE_SIZE
 })
 
 const cursorQuerySchema = Joi.object({
@@ -46,8 +46,9 @@ const validateOffsetPage = (opts: Partial<OffsetPage>) => {
   )
 
   checkAndSendValidationErrors(error)
+  const { pageNumber: number, pageSize: size } = value
 
-  return value as OffsetPage
+  return { number, size } as OffsetPage
 }
 
 const validateCursorQuery = (opts: CursorPagingQueryBase) => {
