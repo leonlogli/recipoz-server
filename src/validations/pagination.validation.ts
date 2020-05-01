@@ -4,7 +4,8 @@ import {
   checkAndSendValidationErrors,
   buildCursorParams,
   CursorPagingQueryBase,
-  OffsetPage
+  OffsetPage,
+  CursorPagingQuery
 } from '../utils'
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../config'
 
@@ -22,7 +23,7 @@ const offsetPageSchema = Joi.object({
   size: DEFAULT_PAGE_SIZE
 })
 
-const cursorQueryOptionsSchema = Joi.object({
+const cursorQuerySchema = Joi.object({
   orderBy: Joi.string(),
   first: Joi.number()
     .positive()
@@ -50,14 +51,27 @@ const validateOffsetPage = (opts: Partial<OffsetPage>) => {
 }
 
 const validateCursorQuery = (opts: CursorPagingQueryBase) => {
-  const { error, value } = cursorQueryOptionsSchema.validate(
+  const { error, value } = cursorQuerySchema.validate(
     { ...opts },
     { abortEarly: false }
   )
+  let cursorQuery
 
+  try {
+    cursorQuery = buildCursorParams({ ...value, paginatedField: value.orderBy })
+  } catch (e) {
+    if (!e.message?.includes('contains an invalid value')) {
+      throw e
+    }
+    const path = e.message.split(' ')[0].slice(1, -1)
+    const err: any = { ...error, details: error?.details || [] }
+
+    err.details.push({ message: e.message, path: [path], type: 'any.invalid' })
+    checkAndSendValidationErrors(err)
+  }
   checkAndSendValidationErrors(error)
 
-  return buildCursorParams({ ...value, paginatedField: value.orderBy })
+  return cursorQuery as CursorPagingQuery
 }
 
 export { validateOffsetPage, validateCursorQuery }

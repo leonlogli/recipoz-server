@@ -37,12 +37,21 @@ const buildCursorParams = (opts?: CursorPagingQueryBase) => {
   const params: any = opts || {}
 
   if (opts?.before) {
-    params.before = JSON.parse(fromBase64(opts.before))
-    params.before.id = toObjectId(params.before.id)
+    try {
+      params.before = JSON.parse(fromBase64(opts.before))
+      params.before.id = toObjectId(params.before.id)
+    } catch (error) {
+      throw Error('"before" contains an invalid value')
+    }
   }
+
   if (opts?.after) {
-    params.after = JSON.parse(fromBase64(opts.after))
-    params.after.id = toObjectId(params.after.id)
+    try {
+      params.after = JSON.parse(fromBase64(opts.after))
+      params.after.id = toObjectId(params.after.id)
+    } catch (error) {
+      throw Error('"after" contains an invalid value')
+    }
   }
 
   params.limit = opts?.first || opts?.last || DEFAULT_PAGE_SIZE
