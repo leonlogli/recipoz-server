@@ -4,15 +4,15 @@ import { Context } from '../context'
 
 export default {
   Query: {
-    search: (_: any, args: any, ctx: Context) => {
+    search: (_: any, args: any, { dataLoaders }: Context) => {
       const { query, type, filter, ...pageOpts } = args
-      const _page = validateOffsetPage(pageOpts)
+      const page = validateOffsetPage(pageOpts)
 
       if (type === 'CATEGORY') {
-        return categoryService.search(query, _page, filter, ctx.dataLoaders)
+        return categoryService.search(query, page, filter, dataLoaders)
       }
 
-      return recipeService.search(query, _page, filter, ctx.dataLoaders)
+      return recipeService.search(query, page, filter, dataLoaders)
     },
     autocomplete: (_: any, { query, type }: any) => {
       if (type === 'CATEGORY') {
@@ -40,12 +40,10 @@ export default {
       return count
     },
     page: async ({ count, query }: any, _: any) => {
-      count.then((totalCount: number) => {
-        return {
-          count: Math.ceil(totalCount / query.page.size),
-          ...query.page
-        }
-      })
+      return {
+        count: Math.ceil((await count) / query.page.size),
+        ...query.page
+      }
     }
   }
 }
