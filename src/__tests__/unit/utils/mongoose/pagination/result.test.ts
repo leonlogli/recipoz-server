@@ -42,12 +42,12 @@ describe('Cursor pagination', () => {
     })
 
     it('should the correct backward pagination result', () => {
-      const query = { before: {} as any, limit: 2, paginatedField: '_id' }
+      const query = { before: 'fakeCursor', limit: 2, paginatedField: '_id' }
       const res = buildPagedResponse(docs as any, query as any)
 
-      const hasPreviousPage = false
+      const hasPreviousPage = true
 
-      expect(res.pageInfo).to.include({ hasNextPage: true, hasPreviousPage })
+      expect(res.pageInfo).to.include({ hasNextPage: false, hasPreviousPage })
       expect(res).to.not.haveOwnProperty('totalCount')
       expect(res.edges)
         .to.be.an('array')

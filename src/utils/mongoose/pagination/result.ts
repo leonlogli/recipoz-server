@@ -41,8 +41,8 @@ const buildPagedResponse = <T extends Document = Document>(
   if (hasMore) {
     docs.pop()
   }
-  const hasPreviousPage = !!query.after || !!(query.before && hasMore)
-  const hasNextPage = !!query.before || hasMore
+  const hasPreviousPage = !!query.after || (!!query.before && docs.length > 0)
+  const hasNextPage = hasMore
 
   // If we sorted reverse to get the previous page, correct the sort order.
   if (query.before || query.last) {
