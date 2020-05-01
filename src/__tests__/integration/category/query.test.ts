@@ -4,7 +4,7 @@ import { client } from '../setup.test'
 import { addCategories } from './util'
 import { GET_CATEGORIES } from './graph'
 
-describe('Category graph ', () => {
+describe('Category graph', () => {
   let dbCategories: any[] = []
 
   beforeEach(async () => {
@@ -56,5 +56,22 @@ describe('Category graph ', () => {
     expect(categories.nodes[0]).to.deep.include({ name: 'Beninese' })
     expect(categories.nodes[3]).to.deep.include({ name: 'Cuisine' })
     expect(categories.pageInfo).to.include(expectPageInfo)
+  })
+
+  it('should fetch no categories at the end of connection', async () => {
+    const { data } = await client.useQuery(GET_CATEGORIES, { first: 6 })
+    const after = data.categories.pageInfo.endCursor
+
+    const res = await client.useQuery(GET_CATEGORIES, { first: 2, after })
+    const { categories } = res.data
+
+    const pageInfo = {
+      hasNextPage: false,
+      hasPreviousPage: true,
+      startCursor: null,
+      endCursor: null
+    }
+
+    expect(categories).to.deep.include({ nodes: [], edges: [], pageInfo })
   })
 })
