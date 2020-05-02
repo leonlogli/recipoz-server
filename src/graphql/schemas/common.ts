@@ -33,15 +33,13 @@ export default gql`
   }
 
   #################################################
-  #      DIRECTIVE
+  #      DIRECTIVES
   #################################################
 
   """
-  Require user to be authenticated and authorized with the specified role.
-  As any user has 'USER' role by default, even if this directive is applied
-  without parameters, this requires the user to be at least authenticated
+  Require user to be authenticated and authorized with the specified role
   """
-  directive @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION
+  directive @auth(requires: Role) on OBJECT | FIELD_DEFINITION
 
   """
   Build a global unique id (GUID) from mongoose _id field and its parent

@@ -7,7 +7,7 @@ import { ForbiddenError } from '../../utils'
 class AuthDirective extends SchemaDirectiveVisitor {
   visitObject(type) {
     this.ensureFieldsWrapped(type)
-    type.requiredRole = this.args.requires
+    type.requiredRole = this.args.requires || 'USER'
   }
 
   // Visitor methods for nested types like fields and arguments
@@ -15,7 +15,7 @@ class AuthDirective extends SchemaDirectiveVisitor {
   // the parent and grandparent types.
   visitFieldDefinition(field, details) {
     this.ensureFieldsWrapped(details.objectType)
-    field.requiredRole = this.args.requires
+    field.requiredRole = this.args.requires || 'USER'
   }
 
   ensureFieldsWrapped(objectType) {
