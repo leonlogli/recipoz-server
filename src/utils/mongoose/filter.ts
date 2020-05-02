@@ -24,6 +24,21 @@ const operators = [
   'ew' // ends with
 ] as const
 
+/**
+ * Higlights dotted field in the path by replacing its dots by slash
+ * @param path the path without final operator. Ex: 'name.fr', 'author.profile.age'
+ */
+const handleDottedField = (path: string) => {
+  const index = path.lastIndexOf('].')
+  const fieldStartIndex = index > 0 ? index + 2 : 0
+  let dottedField = path.substring(fieldStartIndex)
+
+  dottedField = dottedField.split('.').join('/')
+  const finalPath = path.substring(0, fieldStartIndex) + dottedField
+
+  return finalPath
+}
+
 const formatFilterPathOperators = (path: string) => {
   let pathStr = path
 
@@ -32,8 +47,10 @@ const formatFilterPathOperators = (path: string) => {
   })
   const paths = pathStr.split('.')
   const filterOp = `.$${paths.pop()}`
+  const pathWithoutOperator = paths.join('.')
+  const finalPath = handleDottedField(pathWithoutOperator)
 
-  return paths.join('.') + filterOp
+  return finalPath + filterOp
 }
 
 const buildRegexFilterValue = (regPath: string, value: any): any => {
@@ -77,6 +94,23 @@ const buildFilterValue = (
   return oldValue
 }
 
+// Replace the slash char in the dot paths by dot
+const restoreDottedFields = (res: Record<string, any>) => {
+  Object.keys(res).forEach(oldKey => {
+    if (oldKey.includes('/')) {
+      const newKey = oldKey.split('/').join('.')
+
+      delete Object.assign(res, { [newKey]: res[oldKey] })[oldKey]
+    }
+
+    if (filterMetaOperators.includes(`${oldKey.slice(1)}` as any)) {
+      res[oldKey].forEach((obj: object) => {
+        restoreDottedFields(obj)
+      })
+    }
+  })
+}
+
 /**
  * Build a mongodb filter query from the specified parameters
  * @param filter filter expressions
@@ -103,8 +137,11 @@ const buildFilterQuery = (
 
     delete Object.assign(filterObj, { [newKey]: value })[oldKey]
   })
+  const res: Record<string, any> = toNestedObject(filterObj)
 
-  return toNestedObject(filterObj) as Record<string, any>
+  restoreDottedFields(res)
+
+  return res
 }
 
 export type FilterOperator = typeof operators[number]

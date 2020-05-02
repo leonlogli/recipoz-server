@@ -8,12 +8,16 @@ describe('Mongoose filter builder', () => {
   })
 
   it('should build simple filter query', () => {
-    const filter = { title: { exists: true }, quantity: { lt: 5 } }
-    const query = buildFilterQuery(filter)
+    const filter = { quantity: { lt: 5 } }
 
-    const expected = { title: { $exists: true }, quantity: { $lt: 5 } }
+    expect(buildFilterQuery(filter)).to.eql({ quantity: { $lt: 5 } })
+  })
 
-    expect(query).to.eql(expected)
+  it('should build filter query with dotted path', () => {
+    const filter = { ingredients: { name: { eq: 'tomato' } } }
+    const expected = { 'ingredients.name': { $eq: 'tomato' } }
+
+    expect(buildFilterQuery(filter)).to.eql(expected)
   })
 
   it('should build regex filter query', () => {
@@ -52,6 +56,38 @@ describe('Mongoose filter builder', () => {
 
     const expected = {
       $or: [{ title: { $eq: 'value' } }, { quantity: { $gte: 5 } }]
+    }
+
+    expect(buildFilterQuery(filter)).to.eql(expected)
+  })
+
+  it('should build complex deep filter query with meta operator and dotted field', () => {
+    const filter = {
+      instructions: { text: { like: 'fry' } },
+      or: [
+        { cuisine: { sw: 'Africa' } },
+        { ingredients: { group: { eq: 'sauce' } } },
+        {
+          and: [
+            { ingredients: { name: { ew: 'egg' } } },
+            { title: { nin: ['Rice'] } }
+          ]
+        }
+      ]
+    }
+
+    const expected = {
+      $or: [
+        { cuisine: { $regex: /^Africa/i } },
+        { 'ingredients.group': { $eq: 'sauce' } },
+        {
+          $and: [
+            { 'ingredients.name': { $regex: /egg$/i } },
+            { title: { $nin: ['Rice'] } }
+          ]
+        }
+      ],
+      'instructions.text': { $regex: /fry/i }
     }
 
     expect(buildFilterQuery(filter)).to.eql(expected)
