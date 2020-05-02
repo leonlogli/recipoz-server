@@ -2,7 +2,7 @@ import { expect } from 'chai'
 
 import { client } from '../setup.test'
 import { addCategories } from './util'
-import { GET_CATEGORIES } from './graph'
+import { GET_CATEGORIES, SEARCH, CATEGORY } from './graph'
 
 describe('Category graph', () => {
   let dbCategories: any[] = []
@@ -12,16 +12,34 @@ describe('Category graph', () => {
   })
 
   it('should get category by id', async () => {
-    const expected = dbCategories[0]
-    const res = await client.queryNode(expected.id)
+    const vege = dbCategories.find(c => c.name === 'Vegetarian')
+    const res = await client.queryNode(vege.id)
 
-    expect(res.data.node).to.eql(expected)
+    expect(res.data.node).to.eql({ id: vege.id, name: 'Vegetarian' })
   })
 
   it('should return null when non-existent category id is specified', async () => {
     const res = await client.queryNode('fakeGlobalId')
 
     expect(res.data.node).to.equal(null)
+  })
+
+  it('should fetch with its sub categories', async () => {
+    const cuisineId = dbCategories.find(c => c.name === 'Cuisine').id
+    const res = await client.useQuery(CATEGORY, { id: cuisineId })
+
+    const expected = {
+      nodes: [{ name: 'Togolese' }, { name: 'Beninese' }, { name: 'Moroccan' }]
+    }
+
+    expect(res.data.node.subCategories).to.eql(expected)
+  })
+
+  it('should fetch with its parent', async () => {
+    const togo = dbCategories.find(c => c.name === 'Togolese').id
+    const res = await client.useQuery(CATEGORY, { id: togo })
+
+    expect(res.data.node.parent).to.eql({ name: 'Cuisine' })
   })
 
   describe('Forward pagination', () => {
@@ -128,5 +146,34 @@ describe('Category graph', () => {
 
       expect(categories).to.deep.include({ nodes: [], edges: [], pageInfo })
     })
+  })
+
+  it('should search categories', async () => {
+    const res = await client.useQuery(SEARCH, {
+      query: 'cuisine',
+      type: 'CATEGORY'
+    })
+    const { search } = res.data
+
+    expect(search.totalCount).to.equal(4)
+    expect(search.page).to.eql({ number: 1, size: 20, count: 1 })
+    expect(search.content[0]).to.deep.include({ name: 'Cuisine' })
+    expect(search.content[1]).to.deep.include({ name: 'Moroccan' })
+    expect(search.content[2]).to.deep.include({ name: 'Togolese' })
+    expect(search.content[3]).to.deep.include({ name: 'Beninese' })
+  })
+
+  it('should paging category search result', async () => {
+    const res = await client.useQuery(SEARCH, {
+      query: 'cuisine',
+      type: 'CATEGORY',
+      pageNumber: 2,
+      pageSize: 3
+    })
+    const { search } = res.data
+
+    expect(search.totalCount).to.equal(4)
+    expect(search.page).to.eql({ number: 2, size: 3, count: 2 })
+    expect(search.content[0]).to.deep.include({ name: 'Beninese' })
   })
 })

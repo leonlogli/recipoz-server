@@ -36,9 +36,11 @@ const addCategories = async () => {
   const cuisine = dbCategories.find(c => c.name === 'Cuisine')
   const input = { parent: cuisine.id, language: 'EN' }
 
-  return Promise.all(
-    [togo, moroccan, benin].map(data => updateCategory({ ...data, ...input }))
+  await Promise.all(
+    [togo, benin, moroccan].map(data => updateCategory({ ...data, ...input }))
   )
+
+  return dbCategories
 }
 
 export { addCategories }

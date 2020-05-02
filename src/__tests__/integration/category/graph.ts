@@ -11,6 +11,55 @@ export const NODE = gql`
   }
 `
 
+export const CATEGORY = gql`
+  query node($id: ID!) {
+    node(id: $id) {
+      id
+      ... on Category {
+        name
+        parent {
+          name
+        }
+        subCategories {
+          nodes {
+            name
+          }
+        }
+      }
+    }
+  }
+`
+
+export const SEARCH = gql`
+  query search(
+    $query: String!
+    $type: SearchDataType!
+    $pageNumber: Int
+    $pageSize: Int
+  ) {
+    search(
+      query: $query
+      type: $type
+      pageNumber: $pageNumber
+      pageSize: $pageSize
+    ) {
+      content {
+        ... on Category {
+          id
+          name
+          description
+        }
+      }
+      totalCount
+      page {
+        number
+        size
+        count
+      }
+    }
+  }
+`
+
 export const GET_CATEGORIES = gql`
   query categories(
     $filter: CategoryFilter
