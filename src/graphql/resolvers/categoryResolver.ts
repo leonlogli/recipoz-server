@@ -3,7 +3,8 @@ import {
   buildFilterQuery,
   loadFollowersFromFollowerships,
   withClientMutationId,
-  toLocalId
+  toLocalId,
+  i18n
 } from '../../utils'
 import { validateCategory, validateCursorQuery } from '../../validations'
 import { Context } from '../context'
@@ -39,7 +40,10 @@ export default {
     deleteCategory: (_: any, { input }: any) => {
       const { id } = toLocalId(input.id, 'Category')
 
-      const category = validateCategory({ ...input, id }, false)
+      // We set manually language because it is required for validation but not required
+      // to delete the category since the category id is the same for all languages
+      const language = i18n.currentLanguage
+      const category = validateCategory({ ...input, id, language }, false)
       const payload = categoryService.deleteCategory(category.id)
 
       return withClientMutationId(payload, input)
