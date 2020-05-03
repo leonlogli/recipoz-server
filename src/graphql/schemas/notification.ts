@@ -8,8 +8,8 @@ export default gql`
     recipient: Account!
     data: NotificationData!
     read: Boolean!
-    createdAt: String!
-    updatedAt: String
+    createdAt: DateTime!
+    updatedAt: DateTime
   }
 
   type NotificationEdge {

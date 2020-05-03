@@ -5,8 +5,8 @@ export default gql`
     id: ID! @guid
     user: User!
     settings: AccountSettings
-    createdAt: String!
-    updatedAt: String
+    createdAt: DateTime!
+    updatedAt: DateTime
     followers(
       first: Int
       after: String

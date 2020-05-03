@@ -8,8 +8,8 @@ export default gql`
     "The reported data"
     data: AbuseReportData!
     status: AbuseReportStatus!
-    createdAt: String!
-    updatedAt: String
+    createdAt: DateTime!
+    updatedAt: DateTime
   }
 
   enum AbuseReportOrderBy {

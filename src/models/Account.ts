@@ -12,11 +12,20 @@ export type NotificationSetting = {
   codes: NotificationCode[]
 }
 
+type Household = {
+  adults: number
+  children: number
+}
+
 export type AccountDocument = Document & {
   user: UserDocument
   registrationTokens: string[]
   settings?: {
     notifications?: NotificationSetting[]
+    allergies: Allergy[]
+    dislikedIngredients: string[]
+    cookingExperience: CookingExperience
+    household: Household
   }
 }
 
@@ -54,7 +63,7 @@ const accountSchema = new Schema(
       },
       allergies: { type: [String], enum: allergies },
       dislikedIngredients: [String], // at most 1000/account
-      cookingExperience: { type: [String], enum: cookingExperiences },
+      cookingExperience: { type: String, enum: cookingExperiences },
       household: {
         adults: { type: Number, default: 1 },
         children: Number

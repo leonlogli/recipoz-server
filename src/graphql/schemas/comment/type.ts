@@ -9,8 +9,8 @@ export default gql`
     attachmentUrl: String
     rating: CommentRating
     mentionedAccounts: [Account!]!
-    createdAt: String!
-    updatedAt: String
+    createdAt: DateTime!
+    updatedAt: DateTime
     replies(
       first: Int
       after: String
