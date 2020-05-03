@@ -1,8 +1,7 @@
 import { ApolloError } from 'apollo-server-express'
 
-import { i18n } from '../i18n'
+import { i18n, locales } from '../i18n'
 import { statusCodeName, StatusCode } from './errorHelper'
-import { errorMessages } from '../../constants'
 
 export class ApiError extends ApolloError {
   constructor(
@@ -10,7 +9,7 @@ export class ApiError extends ApolloError {
     code?: StatusCode,
     properties?: Record<string, any>
   ) {
-    const { notFound, internalServerError: serverError } = errorMessages
+    const { notFound, internalServerError: serverError } = locales.errorMessages
     const notFoundMsg = i18n.t(message || notFound)
     const msg = code === '404' ? notFoundMsg : i18n.t(message || serverError)
 

@@ -1,10 +1,9 @@
 import { ForbiddenError as ForbiddenErrorBase } from 'apollo-server-express'
 
-import { errorMessages } from '../../constants'
-import { i18n } from '../i18n'
+import { i18n, locales } from '../i18n'
 
 export class ForbiddenError extends ForbiddenErrorBase {
-  constructor(message = i18n.t(errorMessages.forbidden)) {
+  constructor(message = i18n.t(locales.errorMessages.forbidden)) {
     super(i18n.t(message))
   }
 }
