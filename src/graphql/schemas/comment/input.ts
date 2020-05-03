@@ -36,8 +36,4 @@ export default gql`
     comment: ID!
     clientMutationId: String
   }
-
-  input CommentFilter {
-    topic: ID!
-  }
 `

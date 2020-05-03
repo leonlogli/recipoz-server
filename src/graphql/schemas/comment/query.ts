@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-express'
 export default gql`
   extend type Query {
     comments(
-      filter: CommentFilter!
+      topic: ID!
       orderBy: CommentOrderBy
       first: Int
       after: String
