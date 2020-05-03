@@ -30,7 +30,7 @@ export default gql`
     rating: RatingSummary
     "Recipe reviews"
     comments(
-      CommentOrderBy: RecipeOrderBy
+      orderBy: RecipeOrderBy
       first: Int
       after: String
       last: Int
