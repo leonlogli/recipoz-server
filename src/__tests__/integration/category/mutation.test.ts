@@ -25,7 +25,7 @@ describe('Category graph ', () => {
       expect(data.addCategory.category).to.deep.include({ name: 'Vegetarian' })
     })
 
-    it('should throw authentication error if the current user is not admin', async () => {
+    it('should throw access error if the current user is not admin', async () => {
       const ctx = { accountId: String(toObjectId(1)), userRoles: ['USER'] }
       const input = categories[0]
 

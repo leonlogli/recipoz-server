@@ -24,7 +24,7 @@ describe('Category graph', () => {
     expect(res.data.node).to.equal(null)
   })
 
-  it('should fetch with its sub categories', async () => {
+  it('should fetch category with its sub categories', async () => {
     const cuisineId = dbCategories.find(c => c.name === 'Cuisine').id
     const res = await client.useQuery(CATEGORY, { id: cuisineId })
 
@@ -35,7 +35,7 @@ describe('Category graph', () => {
     expect(res.data.node.subCategories).to.eql(expected)
   })
 
-  it('should fetch with its parent', async () => {
+  it('should fetch category with its parent', async () => {
     const togo = dbCategories.find(c => c.name === 'Togolese').id
     const res = await client.useQuery(CATEGORY, { id: togo })
 
