@@ -1,0 +1,26 @@
+[
+  {
+    "user": "1",
+    "settings": {
+      "allergies": "DAIRY"
+    }
+  },
+  {
+    "user": "2",
+    "settings": {
+      "allergies": "EGG"
+    }
+  },
+  {
+    "user": "3",
+    "settings": {
+      "allergies": "GLUTEN"
+    }
+  },
+  {
+    "user": "4",
+    "settings": {
+      "allergies": "FISH"
+    }
+  }
+]
