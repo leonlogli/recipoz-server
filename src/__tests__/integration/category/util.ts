@@ -1,12 +1,8 @@
-/* eslint-disable quotes */
 import { client } from '../setup.test'
 import { ADD_CATEGORY, UPDATE_CATEGORY } from './graph'
 import categories from './categories.json'
 import { toObjectId } from '../../../utils'
 
-// helpers
-
-/** Helper function to add category and return its id */
 const addCategory = async (input: any) => {
   const { useMutation } = client
   const ctx = { accountId: String(toObjectId(1)), userRoles: ['ADMIN', 'USER'] }
