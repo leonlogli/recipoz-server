@@ -24,7 +24,7 @@ type TestingClient = {
   ) => Promise<any>
   useQuery: (
     query: DocumentNode,
-    variables: Record<string, any>,
+    variables?: Record<string, any>,
     ctx?: Partial<Context>
   ) => Promise<any>
   queryNode: (globalId: string, ctx?: Partial<Context>) => Promise<any>
@@ -52,7 +52,7 @@ const useMutation = async (
 
 const useQuery = async (
   query: DocumentNode,
-  variables: Record<string, any>,
+  variables?: Record<string, any>,
   ctx?: Partial<Context>
 ) => {
   const { query: q } = ctx ? apolloClient.setContext(ctx) : apolloClient
