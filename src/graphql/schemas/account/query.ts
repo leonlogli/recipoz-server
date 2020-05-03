@@ -8,6 +8,6 @@ export default gql`
       after: String
       last: Int
       before: String
-    ): AccountConnection!
+    ): AccountConnection! @auth(requires: ADMIN)
   }
 `
