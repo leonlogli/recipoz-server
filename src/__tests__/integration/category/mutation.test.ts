@@ -14,7 +14,7 @@ describe('Category graph ', () => {
     })
   })
 
-  describe('Add new product', () => {
+  describe('Add new category', () => {
     it('should properly save category', async () => {
       const vege = categories[0]
       const { data } = await client.useMutation(ADD_CATEGORY, vege)
