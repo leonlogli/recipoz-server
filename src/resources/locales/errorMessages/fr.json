@@ -14,7 +14,7 @@
   "recipeSource.nameAlreadyExists": "Une source de recette du même nom existe déjà",
   "recipeSource.websiteAlreadyExists": "Une source de recette avec le même site web existe déjà",
   "accountNotFound": "Il n'y a aucun compte existant correspondant à l'identifiant fourni",
-  "account.cannotFollowYourself": "Vous ne pouvez pas vous abonnez à vous-même",
+  "account.cannotFollowYourself": "Vous ne pouvez pas vous abonner à vous-même",
   "account.cannotReportAbuseOnYourData": "Vous ne pouvez pas signaler vos propres données",
   "account.alreadyExists": "Ce compte existe déjà",
   "emailAlreadyExists": "L'e-mail fourni est déjà utilisé par un utilisateur existant",
