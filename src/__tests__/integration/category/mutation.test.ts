@@ -6,7 +6,7 @@ import categories from './categories.json'
 import { toObjectId } from '../../../utils'
 import { addCategories } from './util'
 
-describe('Category graph ', () => {
+describe('Category graph', () => {
   beforeEach(async () => {
     client.setContext({
       accountId: String(toObjectId(1)),
