@@ -10,34 +10,35 @@ import { validateCursorQuery, validateSavedRecipe } from '../../validations'
 
 export default {
   Query: {
-    savedRecipes: (_: any, { account, filter, ...opts }: any, ctx: Context) => {
+    savedRecipes: (_: any, args: any, { dataLoaders }: Context) => {
+      const { collection, account, ...opts } = args
       const { id } = toLocalId(account, 'Account')
 
       if (!id) {
         return emptyConnection()
       }
       const cursorQuery = validateCursorQuery(opts)
-      const recipeCollection = toLocalId(filter.collection, 'RecipeCollection')
+      const recipeCollection = toLocalId(collection, 'RecipeCollection')
       const criteria = { account: id, recipeCollection }
-      const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
+      const { savedRecipeByQueryLoader: loader } = dataLoaders
 
       return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
-        return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
+        return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
       })
     },
-    mySavedRecipes: (_: any, { filter, ...opts }: any, ctx: Context) => {
-      const { accountId: account } = ctx
+    mySavedRecipes: (_: any, { collection, ...opts }: any, ctx: Context) => {
+      const { accountId: account, dataLoaders } = ctx
 
       if (!account) {
         return emptyConnection()
       }
       const cursorQuery = validateCursorQuery(opts)
-      const recipeCollection = toLocalId(filter.collection, 'RecipeCollection')
+      const recipeCollection = toLocalId(collection, 'RecipeCollection')
       const criteria = { account, recipeCollection }
-      const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
+      const { savedRecipeByQueryLoader: loader } = dataLoaders
 
       return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
-        return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
+        return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
       })
     }
   },

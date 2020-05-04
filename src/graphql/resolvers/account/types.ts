@@ -3,7 +3,8 @@ import {
   buildFilterQuery,
   loadFollowersFromFollowerships,
   loadFollowingFromFollowerships,
-  loadRecipesFromSavedRecipes
+  loadRecipesFromSavedRecipes,
+  toLocalId
 } from '../../../utils'
 import { validateCursorQuery } from '../../../validations'
 import { abuseReportDataTypes } from '../../../models'
@@ -52,10 +53,10 @@ export default {
       })
     },
     savedRecipes: async ({ _id: account }: any, args: any, ctx: Context) => {
-      const { filter, ...opts } = args
-      const filterQuery = buildFilterQuery(filter)
+      const { collection, ...opts } = args
       const cursorQuery = validateCursorQuery(opts)
-      const criteria = { account, ...filterQuery }
+      const recipeCollection = toLocalId(collection, 'RecipeCollection')
+      const criteria = { account, recipeCollection }
       const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
 
       return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {

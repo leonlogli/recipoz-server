@@ -87,10 +87,6 @@ export default gql`
     clientMutationId: String
   }
 
-  input SavedRecipeFilter {
-    collection: ID
-  }
-
   #################################################
   #      QUERY, MUTATION & SUBSCRIBTION
   #################################################
@@ -98,14 +94,14 @@ export default gql`
   extend type Query {
     savedRecipes(
       account: ID!
-      filter: SavedRecipeFilter
+      collection: ID
       first: Int
       after: String
       last: Int
       before: String
     ): RecipeConnection!
     mySavedRecipes(
-      filter: SavedRecipeFilter
+      collection: ID
       first: Int
       after: String
       last: Int

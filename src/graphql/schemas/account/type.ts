@@ -34,7 +34,7 @@ export default gql`
       before: String
     ): RecipeConnection!
     savedRecipes(
-      filter: SavedRecipeFilter
+      collection: ID
       first: Int
       after: String
       last: Int
