@@ -14,7 +14,7 @@ export default gql`
       before: String
     ): AccountConnection!
     following(
-      filter: FollowingFilter
+      followingTypes: [FollowingType!]
       first: Int
       after: String
       last: Int

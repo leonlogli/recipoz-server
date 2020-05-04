@@ -11,20 +11,34 @@ import { validateCursorQuery, validateFollowership } from '../../validations'
 
 export default {
   Query: {
-    following: (_: any, { account, filter, ...opts }: any, ctx: Context) => {
+    followers: (_: any, { account, ...opts }: any, ctx: Context) => {
       const { id } = toLocalId(account, 'Account')
 
       if (!id) {
         return emptyConnection()
       }
       const cursorQuery = validateCursorQuery(opts)
-      const { followingTypes: types } = filter
-      const filterQuery = { ...(types && { followedDataType: { $in: types } }) }
-      const criteria = { follower: id, ...filterQuery }
+      const criteria = { followedData: id, followedDataType: 'Account' }
       const { followershipByQueryLoader: loader } = ctx.dataLoaders
 
       return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
         return loadFollowingFromFollowerships(savedRecipes, ctx.dataLoaders)
+      })
+    },
+    following: (_: any, args: any, { dataLoaders }: Context) => {
+      const { account, followingTypes: types, ...opts } = args
+      const { id } = toLocalId(account, 'Account')
+
+      if (!id) {
+        return emptyConnection()
+      }
+      const cursorQuery = validateCursorQuery(opts)
+      const filterQuery = { ...(types && { followedDataType: { $in: types } }) }
+      const criteria = { follower: id, ...filterQuery }
+      const { followershipByQueryLoader: loader } = dataLoaders
+
+      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+        return loadFollowingFromFollowerships(savedRecipes, dataLoaders)
       })
     }
   },

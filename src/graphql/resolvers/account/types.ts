@@ -23,8 +23,7 @@ export default {
       })
     },
     following: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
-      const { filter, ...opts } = args
-      const { followingTypes: types } = filter
+      const { followingTypes: types, ...opts } = args
       const cursorQuery = validateCursorQuery(opts)
       const filterQuery = { ...(types && { followedDataType: { $in: types } }) }
       const criteria = { follower: _id, ...filterQuery }

@@ -21,10 +21,6 @@ export default gql`
     ACCOUNT
   }
 
-  input FollowingFilter {
-    followingTypes: [FollowingType!]
-  }
-
   type FollowPayload {
     code: String!
     success: Boolean!
@@ -49,8 +45,8 @@ export default gql`
     clientMutationId: String
   }
 
-  input UnFollowInput {
-    "ID of data to unfollow"
+  input UnfollowInput {
+    "ID of data to Unfollow"
     data: ID!
     clientMutationId: String
   }
@@ -62,11 +58,10 @@ export default gql`
   extend type Query {
     followers(
       """
-      ID of the data whose following will be fetched.
-      Can be account id, recipe source id or category id
+      ID of the data whose followers will be fetched.
+      Can be either account id, recipe source id or category id
       """
       data: ID!
-      filter: FollowingFilter
       first: Int
       after: String
       last: Int
@@ -74,10 +69,11 @@ export default gql`
     ): AccountConnection!
     following(
       """
-      ID of the account whose following will be fetched
+      ID of the account whose following will be fetched.
+      Can be either account id, recipe source id or category id
       """
       account: ID!
-      filter: FollowingFilter
+      followingTypes: [FollowingType!]
       first: Int
       after: String
       last: Int
@@ -87,6 +83,6 @@ export default gql`
 
   extend type Mutation {
     follow(input: FollowInput!): FollowPayload! @auth
-    unfollow(input: UnFollowInput!): UnfollowPayload! @auth
+    unfollow(input: UnfollowInput!): UnfollowPayload! @auth
   }
 `
