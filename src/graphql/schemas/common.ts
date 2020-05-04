@@ -1,7 +1,9 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
+  "An object with an ID"
   interface Node {
+    "The id of the object"
     id: ID!
   }
 
@@ -19,14 +21,19 @@ export default gql`
     count: Int!
   }
 
-  "Cursor based page info"
+  "Cursor based pagination info"
   type PageInfo {
+    "When paginating forwards, indicates whether there are there more items"
     hasNextPage: Boolean!
+    "When paginating backwards, indicates whether there are there more items"
     hasPreviousPage: Boolean!
+    "When paginating backwards, the cursor to continue"
     startCursor: String
+    "When paginating forwards, the cursor to continue"
     endCursor: String
   }
 
+  "App supported languages"
   enum Language {
     EN
     FR
@@ -49,7 +56,6 @@ export default gql`
 
   """
   Resolve i18n field to match the current language.
-  Ex. 'title.en': 'val' becomes 'title': 'val'
   """
   directive @i18n on FIELD_DEFINITION
 `
