@@ -85,6 +85,7 @@ export default gql`
     dislikedIngredients: [String!]
     cookingExperience: CookingExperience
     household: Household
+    mealTimes: MealTimes
   }
 
   type NotificationSettings {
@@ -95,6 +96,17 @@ export default gql`
   type Household {
     adults: Int
     children: Int
+  }
+
+  type MealTimes {
+    "User's breakfast time in hours"
+    breakfastTime: Int
+    "User's lunch time in hours"
+    lunchTime: Int
+    "User's dinner time in hours"
+    dinnerTime: Int
+    "Positive or negative offset from UTC in hours"
+    timezoneOffset: Int
   }
 
   enum Allergy {

@@ -17,6 +17,17 @@ type Household = {
   children: number
 }
 
+type MealTimes = {
+  /** User's breakfast time in hours */
+  breakfastTime: number
+  /** User's lunch time in hours */
+  lunchTime: number
+  /** User's dinner time in hours */
+  dinnerTime: number
+  /** Positive or negative offset from UTC in hours */
+  timezoneOffset: number
+}
+
 export type AccountDocument = Document & {
   user: UserDocument
   registrationTokens: string[]
@@ -26,6 +37,7 @@ export type AccountDocument = Document & {
     dislikedIngredients: string[]
     cookingExperience: CookingExperience
     household: Household
+    mealTimes: MealTimes
   }
 }
 
@@ -67,6 +79,12 @@ const accountSchema = new Schema(
       household: {
         adults: { type: Number, default: 1 },
         children: Number
+      },
+      mealTimes: {
+        breakfastTime: { type: Number, default: 8 },
+        lunchTime: { type: Number, default: 12 },
+        dinnerTime: { type: Number, default: 18 },
+        timezoneOffset: { type: Number, default: 0 }
       }
     }
   },

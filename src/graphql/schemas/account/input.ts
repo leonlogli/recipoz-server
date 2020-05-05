@@ -7,8 +7,15 @@ export default gql`
   }
 
   input HouseholdInput {
-    adults: Int
-    children: Int
+    adults: PositiveInt
+    children: PositiveInt
+  }
+
+  input MealTimesInput {
+    breakfastTime: PositiveInt
+    lunchTime: PositiveInt
+    dinnerTime: PositiveInt
+    timezoneOffset: Int
   }
 
   input AccountSettingsInput {
@@ -17,6 +24,7 @@ export default gql`
     dislikedIngredients: [String!]
     cookingExperience: CookingExperience
     household: HouseholdInput
+    mealTimes: MealTimesInput
   }
 
   input AddAccountInput {

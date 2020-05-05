@@ -43,8 +43,31 @@ const notificationSettingSchema = Joi.object({
 })
 
 const householdSchema = Joi.object({
-  adults: Joi.number().positive(),
-  children: Joi.number().positive()
+  adults: Joi.number()
+    .integer()
+    .positive(),
+  children: Joi.number()
+    .integer()
+    .positive()
+})
+
+const mealTimesSchema = Joi.object({
+  breakfastTime: Joi.number()
+    .integer()
+    .min(0)
+    .max(23),
+  lunchTime: Joi.number()
+    .integer()
+    .min(0)
+    .max(23),
+  dinnerTime: Joi.number()
+    .integer()
+    .min(0)
+    .max(23),
+  timezoneOffset: Joi.number()
+    .integer()
+    .min(-12)
+    .max(14)
 })
 
 const accountSchema = Joi.object({
@@ -85,6 +108,7 @@ const accountSchema = Joi.object({
       .items(Joi.string().valid(...allergies))
       .unique(),
     household: householdSchema,
+    mealTimes: mealTimesSchema,
     cookingExperience: Joi.string().valid(...cookingExperiences),
     dislikedIngredients: Joi.array()
       .items(
