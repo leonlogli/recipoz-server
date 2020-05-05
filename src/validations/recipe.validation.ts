@@ -53,12 +53,17 @@ const recipeSchema = Joi.object({
     .max(10)
     .invalid(Joi.ref('image')),
   servings: Joi.number()
+    .integer()
     .positive()
     .when('$isNew', { is: true, then: required }),
   difficultyLevel: Joi.string().valid(...difficultyLevels),
   cost: Joi.string().valid(...costs),
-  prepTime: Joi.number().positive(),
-  cookTime: Joi.number().positive(),
+  prepTime: Joi.number()
+    .integer()
+    .positive(),
+  cookTime: Joi.number()
+    .integer()
+    .positive(),
   private: Joi.bool(),
   ingredients: Joi.array()
     .items(ingredientSchema)

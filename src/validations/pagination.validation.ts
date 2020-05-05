@@ -15,6 +15,7 @@ const offsetPageSchema = Joi.object({
     .positive()
     .default(1),
   pageSize: Joi.number()
+    .integer()
     .positive()
     .default(DEFAULT_PAGE_SIZE)
     .max(MAX_PAGE_SIZE)
@@ -26,10 +27,12 @@ const offsetPageSchema = Joi.object({
 const cursorQuerySchema = Joi.object({
   orderBy: Joi.string(),
   first: Joi.number()
+    .integer()
     .positive()
     .max(MAX_PAGE_SIZE),
   after: Joi.string(),
   last: Joi.number()
+    .integer()
     .positive()
     .max(MAX_PAGE_SIZE),
   before: Joi.string()
