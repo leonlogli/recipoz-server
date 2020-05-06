@@ -35,13 +35,6 @@ export default gql`
     NEW_RECIPE_FROM_MY_FOLLOWING
   }
 
-  enum NotificationType {
-    "Push notification"
-    PUSH
-    "Email notification"
-    EMAIL
-  }
-
   input NotificationFilter {
     or: [NotificationFilter!]
     and: [NotificationFilter!]

@@ -1,16 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
 import { UserDocument, NotificationCode } from '.'
-import {
-  notificationCodes,
-  notificationTypes,
-  NotificationType
-} from './Notification'
-
-export type NotificationSettings = {
-  type: NotificationType
-  codes: NotificationCode[]
-}
+import { notificationCodes } from './Notification'
 
 type Household = {
   adults: number
@@ -28,11 +19,16 @@ type MealTimes = {
   timezoneOffset: number
 }
 
+type NotificationSettings = {
+  email: NotificationCode[]
+  push: NotificationCode[]
+}
+
 export type AccountDocument = Document & {
   user: UserDocument
   registrationTokens: string[]
   // settings
-  notificationSettings: NotificationSettings[]
+  notificationSettings: NotificationSettings
   allergies: Allergy[]
   dislikedIngredients: string[]
   cookingExperience?: CookingExperience
@@ -68,8 +64,8 @@ const accountSchema = new Schema(
     user: { type: String, unique: true },
     registrationTokens: [String], // FCM SDK registration tokens par user
     notificationSettings: {
-      type: { type: String, enum: notificationTypes },
-      codes: { type: [String], enum: notificationCodes }
+      email: [{ type: [String], enum: notificationCodes }],
+      push: [{ type: [String], enum: notificationCodes }]
     },
     allergies: { type: [String], enum: allergies },
     dislikedIngredients: [String], // at most 1000/account

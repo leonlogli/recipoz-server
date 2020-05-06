@@ -4,12 +4,12 @@ export default gql`
   type Account implements Node {
     id: ID! @guid
     user: User!
-    notificationSettings: NotificationSettings
-    allergies: [Allergy!]
-    dislikedIngredients: [String!]
+    notificationSettings: NotificationSettings!
+    allergies: [Allergy!]!
+    dislikedIngredients: [String!]!
+    household: Household!
+    mealTimes: MealTimes!
     cookingExperience: CookingExperience
-    household: Household
-    mealTimes: MealTimes
     createdAt: DateTime!
     updatedAt: DateTime
     followers(
@@ -85,24 +85,24 @@ export default gql`
   }
 
   type NotificationSettings {
-    type: NotificationType!
-    codes: [NotificationCode!]!
+    email: [NotificationCode!]
+    push: [NotificationCode!]!
   }
 
   type Household {
-    adults: Int
+    adults: Int!
     children: Int
   }
 
   type MealTimes {
     "User's breakfast time in hours"
-    breakfastTime: Int
+    breakfastTime: Int!
     "User's lunch time in hours"
-    lunchTime: Int
+    lunchTime: Int!
     "User's dinner time in hours"
-    dinnerTime: Int
+    dinnerTime: Int!
     "Positive or negative offset from UTC in hours"
-    timezoneOffset: Int
+    timezoneOffset: Int!
   }
 
   enum Allergy {

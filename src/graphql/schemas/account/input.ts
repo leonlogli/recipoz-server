@@ -2,8 +2,8 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   input NotificationSettingsInput {
-    type: NotificationType!
-    codes: [NotificationCode!]!
+    email: [NotificationCode!]
+    push: [NotificationCode!]
   }
 
   input HouseholdInput {

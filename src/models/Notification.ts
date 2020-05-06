@@ -19,10 +19,6 @@ export type NotificationDataType = typeof notificationDataTypes[number]
 
 export type NotificationCode = typeof notificationCodes[number]
 
-export const notificationTypes = ['PUSH', 'EMAIL'] as const
-
-export type NotificationType = typeof notificationTypes[number]
-
 export type NotificationDocument = Document & {
   code: NotificationCode
   recipient: AccountDocument

@@ -1,12 +1,7 @@
 import Joi from '@hapi/joi'
 
 import { checkAndSendValidationErrors } from '../utils'
-import {
-  notificationTypes,
-  notificationCodes,
-  allergies,
-  cookingExperiences
-} from '../models'
+import { notificationCodes, allergies, cookingExperiences } from '../models'
 import { id, uri } from './common.validation'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -32,8 +27,14 @@ const userRegisterSchema = Joi.object({
   .or('phoneNumber', 'email')
 
 const notificationSettingsSchema = Joi.object({
-  type: Joi.string().valid(...notificationTypes),
-  code: Joi.array()
+  email: Joi.array()
+    .items(
+      Joi.string()
+        .valid(...notificationCodes)
+        .required()
+    )
+    .unique(),
+  push: Joi.array()
     .items(
       Joi.string()
         .valid(...notificationCodes)
@@ -110,9 +111,7 @@ const accountSchema = Joi.object({
     instagram: uri,
     twitter: uri
   }),
-  notificationSettings: Joi.array()
-    .items(notificationSettingsSchema)
-    .unique(),
+  notificationSettings: notificationSettingsSchema,
   allergies: Joi.array()
     .items(Joi.string().valid(...allergies))
     .unique(),
