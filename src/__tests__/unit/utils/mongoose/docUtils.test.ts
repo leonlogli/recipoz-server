@@ -3,9 +3,10 @@ import { expect } from 'chai'
 import {
   isDuplicateError,
   isValidObjectId,
-  objectIdFromDateTime,
+  objectIdFromDate,
   removeStopwords,
-  toObjectId
+  toObjectId,
+  objectIdToDate
 } from '../../../../utils/mongoose/docUtils'
 
 describe('Mongoose docs helper', () => {
@@ -16,9 +17,15 @@ describe('Mongoose docs helper', () => {
   })
 
   it('should convert datetime to ObjectId', () => {
-    const id = objectIdFromDateTime(Date.now())
+    const id = objectIdFromDate('2020-05-06T05:19:41.000Z')
 
-    expect(String(id)).to.have.lengthOf(24)
+    expect(String(id)).to.equal('5eb248ed0000000000000000')
+  })
+
+  it('should convert ObjectId to date', () => {
+    const date = objectIdToDate('5eb248ed0000000000000000')
+
+    expect(date).to.eql(new Date('2020-05-06T05:19:41.000Z'))
   })
 
   describe('ObjectId validation', () => {
