@@ -13,13 +13,13 @@ export const notificationCodes = [
   'NEW_RECIPE_FROM_MY_FOLLOWING'
 ] as const
 
-export const notificationTypes = ['PUSH', 'EMAIL', 'PLATFORM'] as const
-
 export const notificationDataTypes = ['Comment', 'Recipe', 'Account'] as const
 
 export type NotificationDataType = typeof notificationDataTypes[number]
 
 export type NotificationCode = typeof notificationCodes[number]
+
+export const notificationTypes = ['PUSH', 'EMAIL'] as const
 
 export type NotificationType = typeof notificationTypes[number]
 

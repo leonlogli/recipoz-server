@@ -67,7 +67,6 @@ const accountSchema = new Schema(
   {
     user: { type: String, unique: true },
     registrationTokens: [String], // FCM SDK registration tokens par user
-    // settings
     notificationSettings: {
       type: { type: String, enum: notificationTypes },
       codes: { type: [String], enum: notificationCodes }

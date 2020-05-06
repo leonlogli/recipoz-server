@@ -40,8 +40,6 @@ export default gql`
     PUSH
     "Email notification"
     EMAIL
-    "ON_APP notification."
-    PLATFORM
   }
 
   input NotificationFilter {
