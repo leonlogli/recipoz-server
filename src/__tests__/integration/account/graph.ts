@@ -5,9 +5,7 @@ export const GET_ACCOUNTS = gql`
     accounts(first: $first, after: $after, last: $last, before: $before) {
       nodes {
         id
-        settings {
-          allergies
-        }
+        allergies
       }
       totalCount
     }
@@ -18,9 +16,7 @@ export const ME = gql`
   query me {
     me {
       id
-      settings {
-        allergies
-      }
+      allergies
     }
   }
 `

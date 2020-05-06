@@ -1,26 +1,18 @@
 [
   {
     "user": "1",
-    "settings": {
-      "allergies": "DAIRY"
-    }
+    "allergies": "DAIRY"
   },
   {
     "user": "2",
-    "settings": {
-      "allergies": "EGG"
-    }
+    "allergies": "EGG"
   },
   {
     "user": "3",
-    "settings": {
-      "allergies": "GLUTEN"
-    }
+    "allergies": "GLUTEN"
   },
   {
     "user": "4",
-    "settings": {
-      "allergies": "FISH"
-    }
+    "allergies": "FISH"
   }
 ]

@@ -7,7 +7,7 @@ import {
   NotificationType
 } from './Notification'
 
-export type NotificationSetting = {
+export type NotificationSettings = {
   type: NotificationType
   codes: NotificationCode[]
 }
@@ -31,14 +31,13 @@ type MealTimes = {
 export type AccountDocument = Document & {
   user: UserDocument
   registrationTokens: string[]
-  settings?: {
-    notifications?: NotificationSetting[]
-    allergies: Allergy[]
-    dislikedIngredients: string[]
-    cookingExperience: CookingExperience
-    household: Household
-    mealTimes: MealTimes
-  }
+  // settings
+  notificationSettings: NotificationSettings[]
+  allergies: Allergy[]
+  dislikedIngredients: string[]
+  cookingExperience?: CookingExperience
+  household: Household
+  mealTimes: MealTimes
 }
 
 export const allergies = [
@@ -68,24 +67,23 @@ const accountSchema = new Schema(
   {
     user: { type: String, unique: true },
     registrationTokens: [String], // FCM SDK registration tokens par user
-    settings: {
-      notifications: {
-        type: { type: String, enum: notificationTypes },
-        codes: { type: [String], enum: notificationCodes }
-      },
-      allergies: { type: [String], enum: allergies },
-      dislikedIngredients: [String], // at most 1000/account
-      cookingExperience: { type: String, enum: cookingExperiences },
-      household: {
-        adults: { type: Number, default: 1 },
-        children: Number
-      },
-      mealTimes: {
-        breakfastTime: { type: Number, default: 8 },
-        lunchTime: { type: Number, default: 12 },
-        dinnerTime: { type: Number, default: 18 },
-        timezoneOffset: { type: Number, default: 0 }
-      }
+    // settings
+    notificationSettings: {
+      type: { type: String, enum: notificationTypes },
+      codes: { type: [String], enum: notificationCodes }
+    },
+    allergies: { type: [String], enum: allergies },
+    dislikedIngredients: [String], // at most 1000/account
+    cookingExperience: { type: String, enum: cookingExperiences },
+    household: {
+      adults: { type: Number, default: 1 },
+      children: Number
+    },
+    mealTimes: {
+      breakfastTime: { type: Number, default: 8 },
+      lunchTime: { type: Number, default: 12 },
+      dinnerTime: { type: Number, default: 18 },
+      timezoneOffset: { type: Number, default: 0 }
     }
   },
   { timestamps: true }

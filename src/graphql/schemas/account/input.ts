@@ -18,15 +18,6 @@ export default gql`
     timezoneOffset: Int
   }
 
-  input AccountSettingsInput {
-    notifications: NotificationSettingsInput
-    allergies: [Allergy!]
-    dislikedIngredients: [String!]
-    cookingExperience: CookingExperience
-    household: HouseholdInput
-    mealTimes: MealTimesInput
-  }
-
   input AddAccountInput {
     "Firebase existing user idToken"
     idToken: String!
@@ -35,7 +26,12 @@ export default gql`
 
   input UpdateAccountInput {
     user: UserInput
-    settings: AccountSettingsInput
+    notificationSettings: NotificationSettingsInput
+    allergies: [Allergy!]
+    dislikedIngredients: [String!]
+    cookingExperience: CookingExperience
+    household: HouseholdInput
+    mealTimes: MealTimesInput
     clientMutationId: String
   }
 

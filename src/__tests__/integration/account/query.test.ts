@@ -30,8 +30,8 @@ describe('Account graph', () => {
       const { nodes, totalCount } = res.data.accounts
 
       expect(totalCount).to.equal(4)
-      expect(nodes[0]).to.deep.include({ settings: { allergies: ['DAIRY'] } })
-      expect(nodes[3]).to.deep.include({ settings: { allergies: ['FISH'] } })
+      expect(nodes[0]).to.deep.include({ allergies: ['DAIRY'] })
+      expect(nodes[3]).to.deep.include({ allergies: ['FISH'] })
     })
 
     it('should fetch the current user', async () => {
@@ -41,7 +41,7 @@ describe('Account graph', () => {
       const res = await client.useQuery(ME, undefined, ctx)
       const { me } = res.data
 
-      expect(me).to.deep.include({ settings: { allergies: ['DAIRY'] } })
+      expect(me).to.deep.include({ allergies: ['DAIRY'] })
     })
   })
 })

@@ -4,7 +4,12 @@ export default gql`
   type Account implements Node {
     id: ID! @guid
     user: User!
-    settings: AccountSettings
+    notificationSettings: NotificationSettings
+    allergies: [Allergy!]
+    dislikedIngredients: [String!]
+    cookingExperience: CookingExperience
+    household: Household
+    mealTimes: MealTimes
     createdAt: DateTime!
     updatedAt: DateTime
     followers(
@@ -77,15 +82,6 @@ export default gql`
     nodes: [Account!]!
     pageInfo: PageInfo!
     totalCount: Int!
-  }
-
-  type AccountSettings {
-    notifications: NotificationSettings
-    allergies: [Allergy!]
-    dislikedIngredients: [String!]
-    cookingExperience: CookingExperience
-    household: Household
-    mealTimes: MealTimes
   }
 
   type NotificationSettings {

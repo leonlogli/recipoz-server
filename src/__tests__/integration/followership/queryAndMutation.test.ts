@@ -19,8 +19,8 @@ describe('Account followership graph', () => {
     const res = await client.useMutation(FOLLOW, input, ctx)
     const { following, me } = res.data.follow
 
-    expect(me).to.deep.include({ settings: { allergies: ['DAIRY'] } })
-    expect(following).to.deep.include({ settings: { allergies: ['EGG'] } })
+    expect(me).to.deep.include({ allergies: ['DAIRY'] })
+    expect(following).to.deep.include({ allergies: ['EGG'] })
   })
 
   it('should properly unfollow account', async () => {
@@ -34,8 +34,8 @@ describe('Account followership graph', () => {
 
     console.log(res)
 
-    expect(me).to.deep.include({ settings: { allergies: ['DAIRY'] } })
-    expect(following).to.deep.include({ settings: { allergies: ['EGG'] } })
+    expect(me).to.deep.include({ allergies: ['DAIRY'] })
+    expect(following).to.deep.include({ allergies: ['EGG'] })
   })
 
   it('should properly fetch account followers', async () => {
@@ -55,9 +55,9 @@ describe('Account followership graph', () => {
     const { nodes } = data.me.followers
 
     expect(data.me.followers.totalCount).to.equal(3)
-    expect(nodes[0]).to.deep.include({ settings: { allergies: ['EGG'] } })
-    expect(nodes[1]).to.deep.include({ settings: { allergies: ['GLUTEN'] } })
-    expect(nodes[2]).to.deep.include({ settings: { allergies: ['FISH'] } })
+    expect(nodes[0]).to.deep.include({ allergies: ['EGG'] })
+    expect(nodes[1]).to.deep.include({ allergies: ['GLUTEN'] })
+    expect(nodes[2]).to.deep.include({ allergies: ['FISH'] })
   })
 
   it('should properly fetch account following', async () => {
@@ -74,9 +74,9 @@ describe('Account followership graph', () => {
     const { nodes } = res.data.me.following
 
     expect(res.data.me.following.totalCount).to.equal(3)
-    expect(nodes[0]).to.deep.include({ settings: { allergies: ['EGG'] } })
-    expect(nodes[1]).to.deep.include({ settings: { allergies: ['GLUTEN'] } })
-    expect(nodes[2]).to.deep.include({ settings: { allergies: ['FISH'] } })
+    expect(nodes[0]).to.deep.include({ allergies: ['EGG'] })
+    expect(nodes[1]).to.deep.include({ allergies: ['GLUTEN'] })
+    expect(nodes[2]).to.deep.include({ allergies: ['FISH'] })
   })
 
   it('should properly paging account following', async () => {
@@ -93,7 +93,7 @@ describe('Account followership graph', () => {
     const { nodes } = res.data.me.following
 
     expect(nodes).to.have.length(2)
-    expect(nodes[0]).to.deep.include({ settings: { allergies: ['EGG'] } })
-    expect(nodes[1]).to.deep.include({ settings: { allergies: ['GLUTEN'] } })
+    expect(nodes[0]).to.deep.include({ allergies: ['EGG'] })
+    expect(nodes[1]).to.deep.include({ allergies: ['GLUTEN'] })
   })
 })

@@ -4,15 +4,11 @@ export const ME = gql`
   query me($first: Int, $after: String, $last: Int, $before: String) {
     me {
       id
-      settings {
-        allergies
-      }
+      allergies
       followers(first: $first, after: $after, last: $last, before: $before) {
         nodes {
           id
-          settings {
-            allergies
-          }
+          allergies
         }
         totalCount
       }
@@ -20,9 +16,7 @@ export const ME = gql`
         nodes {
           ... on Account {
             id
-            settings {
-              allergies
-            }
+            allergies
           }
         }
         totalCount
@@ -40,16 +34,12 @@ export const FOLLOW = gql`
       clientMutationId
       me {
         id
-        settings {
-          allergies
-        }
+        allergies
       }
       following {
         ... on Account {
           id
-          settings {
-            allergies
-          }
+          allergies
         }
       }
     }
@@ -65,16 +55,12 @@ export const UNFOLLOW = gql`
       clientMutationId
       me {
         id
-        settings {
-          allergies
-        }
+        allergies
       }
       following {
         ... on Account {
           id
-          settings {
-            allergies
-          }
+          allergies
         }
       }
     }

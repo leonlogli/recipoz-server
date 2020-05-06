@@ -31,7 +31,7 @@ const userRegisterSchema = Joi.object({
   .with('phoneNumber', 'password')
   .or('phoneNumber', 'email')
 
-const notificationSettingSchema = Joi.object({
+const notificationSettingsSchema = Joi.object({
   type: Joi.string().valid(...notificationTypes),
   code: Joi.array()
     .items(
@@ -70,6 +70,16 @@ const mealTimesSchema = Joi.object({
     .max(14)
 })
 
+const dislikedIngredientsSchema = Joi.array()
+  .items(
+    Joi.string()
+      .min(3)
+      .max(80)
+  )
+  .min(1)
+  .max(1000)
+  .unique()
+
 const accountSchema = Joi.object({
   id,
   user: Joi.object({
@@ -100,26 +110,16 @@ const accountSchema = Joi.object({
     instagram: uri,
     twitter: uri
   }),
-  settings: Joi.object({
-    notifications: Joi.array()
-      .items(notificationSettingSchema)
-      .unique(),
-    allergies: Joi.array()
-      .items(Joi.string().valid(...allergies))
-      .unique(),
-    household: householdSchema,
-    mealTimes: mealTimesSchema,
-    cookingExperience: Joi.string().valid(...cookingExperiences),
-    dislikedIngredients: Joi.array()
-      .items(
-        Joi.string()
-          .min(3)
-          .max(80)
-      )
-      .min(1)
-      .max(1000)
-      .unique()
-  })
+  notificationSettings: Joi.array()
+    .items(notificationSettingsSchema)
+    .unique(),
+  allergies: Joi.array()
+    .items(Joi.string().valid(...allergies))
+    .unique(),
+  household: householdSchema,
+  mealTimes: mealTimesSchema,
+  cookingExperience: Joi.string().valid(...cookingExperiences),
+  dislikedIngredients: dislikedIngredientsSchema
 })
 
 const validateUserRegister = (data: any) => {
