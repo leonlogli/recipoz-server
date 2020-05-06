@@ -12,6 +12,7 @@ import { logger } from '../config'
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.comment
 const { created, deleted, updated } = statusMessages.comment
+const { t } = i18n
 
 const commentModel = new ModelService<CommentDocument>({
   model: Comment,
@@ -36,9 +37,8 @@ const addComment = async (input: any, loaders: DataLoaders) => {
     } else await loader.load(topic)
 
     const comment = await commentModel.create(topic)
-    const message = i18n.t(created)
 
-    return { success: true, message, code: 201, comment }
+    return { success: true, message: t(created), code: 201, comment }
   } catch (error) {
     return errorRes(error)
   }
@@ -46,7 +46,7 @@ const addComment = async (input: any, loaders: DataLoaders) => {
 
 const suitableErrorResponse = async (commentId: any) => {
   const exists = await commentModel.exists(commentId)
-  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
+  const message = t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
@@ -59,13 +59,11 @@ const updateComment = async (input: any, loaders: DataLoaders) => {
       await loaders.accountLoader.loadMany(mentionedAccounts)
     }
     const set = { $set: { ...data, mentionedAccounts } }
+
     const comment = await commentModel.updateOne({ _id, author }, set, loaders)
+    const res = { success: true, message: t(updated), code: 200, comment }
 
-    if (!comment) {
-      return suitableErrorResponse(_id)
-    }
-
-    return { success: true, message: i18n.t(updated), code: 200, comment }
+    return comment ? res : suitableErrorResponse(_id)
   } catch (error) {
     return errorRes(error)
   }
@@ -74,13 +72,11 @@ const updateComment = async (input: any, loaders: DataLoaders) => {
 const deleteComment = async (input: any) => {
   try {
     const { id: _id, author } = input
+
     const comment = await commentModel.deleteOne({ _id, author })
+    const res = { success: true, message: t(deleted), code: 200, comment }
 
-    if (!comment) {
-      return suitableErrorResponse(_id)
-    }
-
-    return { success: true, message: i18n.t(deleted), code: 200, comment }
+    return comment ? res : suitableErrorResponse(_id)
   } catch (error) {
     return errorRes(error)
   }

@@ -16,6 +16,7 @@ import { logger } from '../config'
 const { statusMessages, errorMessages } = locales
 const { notFound, alreadyExists } = errorMessages.recipeCollection
 const { created, deleted, updated } = statusMessages.recipeCollection
+const { t } = i18n
 
 const collectionModel = new ModelService<RecipeCollectionDocument>({
   model: RecipeCollection,
@@ -39,9 +40,8 @@ const addCollection = async (input: any, loaders: DataLoaders) => {
   try {
     await loaders.accountLoader.load(input.account)
     const recipeCollection = await collectionModel.create(input)
-    const message = i18n.t(created)
 
-    return { success: true, message, code: 201, recipeCollection }
+    return { success: true, message: t(created), code: 201, recipeCollection }
   } catch (error) {
     return handleMutationError(error)
   }
@@ -49,7 +49,7 @@ const addCollection = async (input: any, loaders: DataLoaders) => {
 
 const suitableErrorResponse = async (collectionId: any) => {
   const exists = await collectionModel.exists(collectionId)
-  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
+  const message = t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
@@ -58,14 +58,12 @@ const updateCollection = async (input: any, loaders: DataLoaders) => {
   try {
     const { id: _id, account, ...data } = input
     const set = { $set: data }
+
     const doc = await collectionModel.updateOne({ _id, account }, set, loaders)
+    const message = t(updated)
+    const res = { success: true, message, code: 200, recipeCollection: doc }
 
-    if (!doc) {
-      return suitableErrorResponse(_id)
-    }
-    const message = i18n.t(updated)
-
-    return { success: true, message, code: 200, recipeCollection: doc }
+    return doc ? res : suitableErrorResponse(_id)
   } catch (error) {
     return handleMutationError(error)
   }
@@ -85,7 +83,7 @@ const deleteCollection = async (input: any) => {
         logger.error(`Error deleting collection (${_id}) recipes: `, e)
       })
 
-    return { success: 1, message: i18n.t(deleted), code: 200, recipeCollection }
+    return { success: 1, message: t(deleted), code: 200, recipeCollection }
   } catch (error) {
     return errorRes(error)
   }

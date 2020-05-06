@@ -6,6 +6,7 @@ import { logger } from '../config'
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.notification
 const { updated, deleted } = statusMessages.notification
+const { t } = i18n
 
 const notificationModel = new ModelService<NotificationDocument>({
   model: Notification,
@@ -33,7 +34,7 @@ const addNotification = async (input: Partial<NotificationDocument>) => {
 
 const suitableErrorResponse = async (notificationId: any) => {
   const exists = await notificationModel.exists(notificationId)
-  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
+  const message = t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
@@ -44,12 +45,9 @@ const updateNotification = async (input: any, loaders: DataLoaders) => {
     const set = { $set: data }
     const query = { _id, recipient }
     const notification = await notificationModel.updateOne(query, set, loaders)
+    const res = { success: true, message: t(updated), code: 200, notification }
 
-    if (!notification) {
-      return suitableErrorResponse(_id)
-    }
-
-    return { success: true, message: i18n.t(updated), code: 200, notification }
+    return notification ? res : suitableErrorResponse(_id)
   } catch (error) {
     return errorRes(error)
   }
@@ -59,12 +57,9 @@ const deleteNotification = async (input: any) => {
   try {
     const { id: _id, recipient } = input
     const notification = await notificationModel.deleteOne({ _id, recipient })
+    const res = { success: true, message: t(deleted), code: 200, notification }
 
-    if (!notification) {
-      return suitableErrorResponse(_id)
-    }
-
-    return { success: true, message: i18n.t(deleted), code: 200, notification }
+    return notification ? res : suitableErrorResponse(_id)
   } catch (error) {
     return errorRes(error)
   }

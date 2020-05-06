@@ -19,6 +19,7 @@ const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.abuseReport
 const { cannotReportAbuseOnYourData: cannotReport } = errorMessages.account
 const { created, deleted, updated } = statusMessages.abuseReport
+const { t } = i18n
 
 const abuseReportModel = new ModelService<AbuseReportDocument>({
   model: AbuseReport,
@@ -59,13 +60,14 @@ const reportAbuse = async (input: ReportInput, loaders: DataLoaders) => {
     const { data, dataType, type, author } = input
 
     if (await isDataAuthor(input, loaders)) {
-      return { success: false, message: i18n.t(cannotReport), code: 422 }
+      return { success: false, message: t(cannotReport), code: 422 }
     }
     const query = { dataType, data, author }
     const set = { $set: { author, data, dataType, type } }
+
     const abuseReport = await abuseReportModel.createOrUpdate(query, set)
 
-    return { success: true, message: i18n.t(created), code: 201, abuseReport }
+    return { success: true, message: t(created), code: 201, abuseReport }
   } catch (error) {
     return errorRes(error)
   }
@@ -73,23 +75,21 @@ const reportAbuse = async (input: ReportInput, loaders: DataLoaders) => {
 
 const suitableErrorResponse = async (abuseReportId: any) => {
   const exists = await abuseReportModel.exists(abuseReportId)
-  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
+  const message = t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
 
 const updateAbuseReport = async (input: ReportInput, isAdmin = false) => {
   try {
-    const { id, status, type, author } = input
-    const query = { _id: id, ...(!isAdmin && { author }) }
+    const { id: _id, status, type, author } = input
+    const query = { _id, ...(!isAdmin && { author }) }
     const set = { $set: { type, ...(isAdmin && { status }) } }
+
     const abuseReport = await abuseReportModel.updateOne(query, set)
+    const res = { success: true, message: t(updated), code: 200, abuseReport }
 
-    if (!abuseReport) {
-      return suitableErrorResponse(id)
-    }
-
-    return { success: true, message: i18n.t(updated), code: 200, abuseReport }
+    return abuseReport ? res : suitableErrorResponse(_id)
   } catch (error) {
     return errorRes(error)
   }
@@ -99,10 +99,11 @@ const changeDataAbuseReportsStatus = async (input: ReportInput) => {
   try {
     const { dataType, data, status } = input
     const query: any = { dataType, data }
+
     const res = await AbuseReport.updateMany(query, { $set: { status } }).exec()
     const mutatedCount = res.mutatedCount || 0
     const success = mutatedCount > 0
-    const message = success ? i18n.t(updated) : i18n.t(notFound)
+    const message = t(success ? updated : notFound)
 
     return { success, message, code: success ? 200 : 404, mutatedCount }
   } catch (error) {
@@ -114,13 +115,11 @@ const deleteAbuseReport = async (input: ReportInput, isAdmin = false) => {
   try {
     const { author, id: _id } = input
     const query = { _id, ...(!isAdmin && { author }) }
+
     const abuseReport = await abuseReportModel.deleteOne(query)
+    const res = { success: true, message: t(deleted), code: 200, abuseReport }
 
-    if (!abuseReport) {
-      return suitableErrorResponse(_id)
-    }
-
-    return { success: true, message: i18n.t(deleted), code: 200, abuseReport }
+    return abuseReport ? res : suitableErrorResponse(_id)
   } catch (error) {
     return errorRes(error)
   }

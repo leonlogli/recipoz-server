@@ -13,6 +13,7 @@ import { logger } from '../config'
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.recipe
 const { created, deleted, updated } = statusMessages.recipe
+const { t } = i18n
 
 const recipeModel = new ModelService<RecipeDocument>({
   autocompleteField: 'name',
@@ -43,9 +44,8 @@ const addRecipe = async (data: any, loaders: DataLoaders) => {
       await loaders.recipeSourceLoader.load(data.author)
     }
     const recipe = await recipeModel.create(data)
-    const message = i18n.t(created)
 
-    return { success: true, message, code: 201, recipe }
+    return { success: true, message: t(created), code: 201, recipe }
   } catch (error) {
     return errorRes(error)
   }
@@ -53,7 +53,7 @@ const addRecipe = async (data: any, loaders: DataLoaders) => {
 
 const suitableErrorResponse = async (recipeId: any) => {
   const exists = await recipeModel.exists(recipeId)
-  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
+  const message = t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
@@ -61,18 +61,15 @@ const suitableErrorResponse = async (recipeId: any) => {
 const updateRecipe = async (data: any, loaders: DataLoaders) => {
   try {
     const { id: _id, author, ...input } = data
+    const query = { _id, author }
 
     if (data.source) {
       await loaders.recipeSourceLoader.load(author)
     }
-    const query = { _id, author }
     const recipe = await recipeModel.updateOne(query, { $set: input })
+    const res = { success: true, message: t(updated), code: 200, recipe }
 
-    if (!recipe) {
-      return suitableErrorResponse(_id)
-    }
-
-    return { success: true, message: i18n.t(updated), code: 200, recipe }
+    return recipe ? res : suitableErrorResponse(_id)
   } catch (error) {
     return errorRes(error)
   }
@@ -83,12 +80,9 @@ const deleteRecipe = async (input: any, isAdmin = false) => {
     const { author, id: _id } = input
     const query = { _id, ...(!isAdmin && { author }) }
     const recipe = await recipeModel.deleteOne(query)
+    const res = { success: true, message: t(deleted), code: 200, recipe }
 
-    if (!recipe) {
-      return suitableErrorResponse(_id)
-    }
-
-    return { success: true, message: i18n.t(deleted), code: 200, recipe }
+    return recipe ? res : suitableErrorResponse(_id)
   } catch (error) {
     return errorRes(error)
   }
