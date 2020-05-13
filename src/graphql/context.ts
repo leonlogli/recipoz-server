@@ -31,6 +31,10 @@ export type Context = Pick<Request, 'accountId' | 'userRoles' | 'error'> & {
    */
   isAdmin: boolean
   /**
+   * Indicates whether the current user is authenticated or not
+   */
+  isAuth: boolean
+  /**
    * Require user authentification before accessing the requested resource.
    * Unauthenticated error is thrown if the user is not authenticated.
    */
@@ -51,13 +55,23 @@ const context = ({ req }: ExpressContext): Context => {
   const isAdmin = userRoles?.includes(ADMIN) || false
   const dataLoaders = createDataLoaders()
 
+  const isAuth = isValidObjectId(accountId)
+
   const requireAuth = () => {
-    if (!isValidObjectId(accountId)) {
+    if (!isAuth) {
       throw new AuthenticationError()
     }
   }
 
-  return { accountId, userRoles, isAdmin, requireAuth, dataLoaders, error }
+  return {
+    accountId,
+    userRoles,
+    isAdmin,
+    requireAuth,
+    isAuth,
+    dataLoaders,
+    error
+  }
 }
 
 export default context
