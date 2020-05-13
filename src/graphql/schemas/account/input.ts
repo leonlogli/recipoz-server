@@ -28,6 +28,7 @@ export default gql`
     user: UserInput
     notificationSettings: NotificationSettingsInput
     allergies: [Allergy!]
+    "at most 1000"
     dislikedIngredients: [String!]
     cookingExperience: CookingExperience
     household: HouseholdInput

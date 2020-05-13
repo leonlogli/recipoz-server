@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
 import { UserDocument, NotificationCode } from '.'
-import { notificationCodes } from './Notification'
+import { notificationCodes as codes } from './Notification'
 
 type Household = {
   adults: number
@@ -64,11 +64,11 @@ const accountSchema = new Schema(
     user: { type: String, unique: true },
     registrationTokens: [String], // FCM SDK registration tokens par user
     notificationSettings: {
-      email: [{ type: [String], enum: notificationCodes }],
-      push: [{ type: [String], enum: notificationCodes }]
+      email: { type: [String], enum: codes },
+      push: { type: [String], enum: codes, default: codes }
     },
     allergies: { type: [String], enum: allergies },
-    dislikedIngredients: [String], // at most 1000/account
+    dislikedIngredients: [String],
     cookingExperience: { type: String, enum: cookingExperiences },
     household: {
       adults: { type: Number, default: 1 },
