@@ -31,24 +31,24 @@ export default {
   },
   Mutation: {
     addComment: (_: any, { input }: any, ctx: Context) => {
-      const { topic, mentionedAccounts: mentioned, ...props } = input
+      const { topic, taggedAccounts: tagged, ...props } = input
       const { type, id } = toLocalId(topic, ...commentTopics)
       const { accountId: author, dataLoaders } = ctx
-      const mentionedAccounts = mentioned && toLocalIds(mentioned, 'Account')
+      const taggedAccounts = tagged && toLocalIds(tagged, 'Account')
 
-      const value = { topicType: type, topic: id, mentionedAccounts, author }
+      const value = { topicType: type, topic: id, taggedAccounts, author }
       const comment = validateComment({ ...props, ...value })
       const payload = commentService.addComment(comment, dataLoaders)
 
       return withClientMutationId(payload, input)
     },
     updateComment: (_: any, { input }: any, ctx: Context) => {
-      const { mentionedAccounts: mentioned, ...props } = input
+      const { taggedAccounts: tagged, ...props } = input
       const { id } = toLocalId(input.id, 'Comment')
       const { accountId: author, dataLoaders } = ctx
-      const mentionedAccounts = mentioned && toLocalIds(mentioned, 'Account')
+      const taggedAccounts = tagged && toLocalIds(tagged, 'Account')
 
-      const data = validateComment({ ...props, id, mentionedAccounts, author })
+      const data = validateComment({ ...props, id, taggedAccounts, author })
       const payload = commentService.updateComment(data, dataLoaders)
 
       return withClientMutationId(payload, input)
@@ -106,8 +106,8 @@ export default {
 
       return loaders.commentByQueryLoader.load({ ...cursorQuery, criteria })
     },
-    mentionedAccounts: ({ mentionedAccounts }: any, _: any, ctx: Context) => {
-      return ctx.dataLoaders.accountLoader.loadMany(mentionedAccounts)
+    taggedAccounts: ({ taggedAccounts }: any, _: any, ctx: Context) => {
+      return ctx.dataLoaders.accountLoader.loadMany(taggedAccounts)
     },
     likedBy: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
       const opts = validateCursorQuery(args)

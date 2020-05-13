@@ -5,15 +5,20 @@ import { CommentDocument, RecipeDocument, AccountDocument } from '.'
 const { ObjectId } = Schema.Types
 
 export const notificationCodes = [
-  'MY_RECIPE_IS_COMMENTED',
-  'SOMEONE_REPLIED_TO_MY_COMMENT',
-  'SOMEONE_MENTIONED_ME',
-  'MY_COMMENT_IS_LIKED',
-  'SOMEONE_STARTED_FOLLOWING_ME',
-  'NEW_RECIPE_FROM_MY_FOLLOWING'
+  'COMMENTS',
+  'TAGS',
+  'LIKES',
+  'NEW_FOLLOWERS',
+  'RECIPES'
 ] as const
 
-export const notificationDataTypes = ['Comment', 'Recipe', 'Account'] as const
+export const notificationDataTypes = [
+  'Comment',
+  'Recipe',
+  'Account',
+  'RecipeSource',
+  'Category'
+] as const
 
 export type NotificationDataType = typeof notificationDataTypes[number]
 

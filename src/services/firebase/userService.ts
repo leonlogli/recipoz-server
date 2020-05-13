@@ -8,11 +8,7 @@ import {
   UserAdditionalInfo,
   UserDocument
 } from '../../models'
-import {
-  removeUndefinedKeys,
-  updateDataLoaderCache,
-  DataLoaders
-} from '../../utils'
+import { clean, updateDataLoaderCache, DataLoaders } from '../../utils'
 import { JWT, logger } from '../../config'
 
 const auth = firebaseAdmin.auth()
@@ -25,6 +21,8 @@ const getUserInfo = (id: string) => {
     .once('value')
     .then(res => res.val())
 }
+
+const getUserRecord = auth.getUser
 
 const getUserById = async (id: string): Promise<UserDocument | null> => {
   return Promise.all([auth.getUser(id), getUserInfo(id)])
@@ -54,7 +52,7 @@ const extractDataToUpdate = (dataToUpdate: UpdateRequest) => {
     ...additionalUserInfo
   } = dataToUpdate || {}
 
-  const userInfo = removeUndefinedKeys({
+  const userInfo = clean({
     disabled,
     displayName,
     email,
@@ -64,10 +62,7 @@ const extractDataToUpdate = (dataToUpdate: UpdateRequest) => {
     photoURL
   })
 
-  return {
-    userInfo,
-    additionalUserInfo: removeUndefinedKeys(additionalUserInfo)
-  }
+  return { userInfo, additionalUserInfo: clean(additionalUserInfo) }
 }
 
 const createUser = async (data: firebaseAdmin.auth.CreateRequest) => {
@@ -132,6 +127,7 @@ export const userService = {
   setRoles,
   verifyIdToken,
   revokeRefreshTokens,
-  generateAccessToken
+  generateAccessToken,
+  getUserRecord
 }
 export default userService

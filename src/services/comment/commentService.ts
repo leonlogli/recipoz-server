@@ -1,13 +1,20 @@
-import { Comment, CommentDocument } from '../models'
+import { Comment, CommentDocument, RecipeDocument } from '../../models'
 import {
   i18n,
   DataLoaders,
   getDataLoaderByModel,
   errorRes,
   locales
-} from '../utils'
-import ModelService from './base/ModelService'
-import { logger } from '../config'
+} from '../../utils'
+import ModelService from '../base/ModelService'
+import { logger } from '../../config'
+import { notificationService } from '../notification'
+import {
+  updateCommentNotification,
+  loadCommentRatingSummary,
+  CommentInput,
+  addCommentNotifications
+} from './helper'
 
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.comment
@@ -24,19 +31,18 @@ const getComments = commentModel.findByIds
 const getCommentsByBatch = commentModel.batchFind
 const getCommentAndSelect = commentModel.findOne
 
-const addComment = async (input: any, loaders: DataLoaders) => {
+const addComment = async (input: CommentInput, loaders: DataLoaders) => {
   try {
-    const { topic, topicType, mentionedAccounts } = input
+    const { topic, topicType, taggedAccounts: tagged } = input
     const loader: any = getDataLoaderByModel(topicType, loaders)
 
-    if (mentionedAccounts) {
-      await Promise.all([
-        loader.load(topic),
-        loaders.accountLoader.loadMany(mentionedAccounts)
-      ])
-    } else await loader.load(topic)
+    const [topicDoc] = await Promise.all([
+      loader.load(topic) as Promise<CommentDocument | RecipeDocument>,
+      tagged && loaders.accountLoader.loadMany(tagged as any)
+    ])
+    const comment = await commentModel.create(input)
 
-    const comment = await commentModel.create(topic)
+    addCommentNotifications(comment, topicDoc, loaders)
 
     return { success: true, message: t(created), code: 201, comment }
   } catch (error) {
@@ -51,19 +57,28 @@ const suitableErrorResponse = async (commentId: any) => {
   return { success: false, message, code: exists ? 403 : 404 }
 }
 
-const updateComment = async (input: any, loaders: DataLoaders) => {
+const updateComment = async (input: CommentInput, loaders: DataLoaders) => {
   try {
-    const { id: _id, author, mentionedAccounts, ...data } = input
+    const { id: _id, author, taggedAccounts, ...data } = input
+    let oldComment
 
-    if (mentionedAccounts) {
-      await loaders.accountLoader.loadMany(mentionedAccounts)
+    if (taggedAccounts) {
+      const [, _oldComment] = await Promise.all([
+        loaders.accountLoader.loadMany(taggedAccounts),
+        Comment.findById(_id, 'taggedAccounts', { lean: true }).exec()
+      ])
+
+      oldComment = _oldComment
     }
-    const set = { $set: { ...data, mentionedAccounts } }
-
+    const set = { $set: { ...data, taggedAccounts } }
     const comment = await commentModel.updateOne({ _id, author }, set, loaders)
-    const res = { success: true, message: t(updated), code: 200, comment }
 
-    return comment ? res : suitableErrorResponse(_id)
+    if (!comment) {
+      return suitableErrorResponse(_id)
+    }
+    updateCommentNotification(loaders, comment, oldComment as any)
+
+    return { success: true, message: t(updated), code: 200, comment }
   } catch (error) {
     return errorRes(error)
   }
@@ -72,11 +87,14 @@ const updateComment = async (input: any, loaders: DataLoaders) => {
 const deleteComment = async (input: any) => {
   try {
     const { id: _id, author } = input
-
     const comment = await commentModel.deleteOne({ _id, author })
-    const res = { success: true, message: t(deleted), code: 200, comment }
 
-    return comment ? res : suitableErrorResponse(_id)
+    if (!comment) {
+      return suitableErrorResponse(_id)
+    }
+    notificationService.deleteNotifications({ data: _id, dataType: 'Comment' })
+
+    return { success: true, message: t(deleted), code: 200, comment }
   } catch (error) {
     return errorRes(error)
   }
@@ -88,25 +106,6 @@ const deleteComments = async (accountId: string) => {
     .catch(e =>
       logger.error(`Error deleting account (${accountId}) comments: `, e)
     )
-}
-
-const loadCommentRatingSummary = (criteria: any, dataLoaders: DataLoaders) => {
-  return dataLoaders.commentCountLoader
-    .loadMany([
-      { ...criteria, rating: { $exists: true } },
-      { ...criteria, rating: 1 },
-      { ...criteria, rating: 2 },
-      { ...criteria, rating: 3 },
-      { ...criteria, rating: 4 },
-      { ...criteria, rating: 5 }
-    ])
-    .then(res => {
-      const [totalCount, one, two, three, four, five] = res as number[]
-      const average =
-        1 * one + 2 * two + 3 * three + 4 * three + 3 * four + 2 * five
-
-      return { totalCount, one, two, three, four, five, average }
-    })
 }
 
 export const commentService = {

@@ -2,7 +2,7 @@ import { ShoppingListItem, ShoppingListItemDocument } from '../models'
 import {
   DataLoaders,
   i18n,
-  removeUndefinedKeys,
+  clean,
   getIngredientCategory,
   errorRes,
   locales
@@ -29,7 +29,7 @@ const getShoppingListItems = shoppingListModel.search
 const addShoppingListItem = async (input: any, loaders: DataLoaders) => {
   try {
     const { account, name, quantity, recipe } = input
-    let query: any = removeUndefinedKeys({ account, name, quantity })
+    let query: any = clean({ account, name, quantity })
     const category = getIngredientCategory(name)
     let data: any = { $set: input, $setOnInsert: { category } }
 

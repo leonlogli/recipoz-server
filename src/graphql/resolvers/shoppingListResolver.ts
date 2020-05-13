@@ -72,14 +72,14 @@ export default {
       return withClientMutationId(payload, input)
     },
     clearCheckedItems: (_: any, { input }: any, ctx: Context) => {
-      const { accountId: account, dataLoaders: loaders } = ctx
-      const payload = shoppingListService.clearCheckedItems(account, loaders)
+      const { accountId, dataLoaders: loaders } = ctx
+      const payload = shoppingListService.clearCheckedItems(accountId, loaders)
 
       return withClientMutationId(payload, input)
     },
     clearShoppingList: (_: any, { input }: any, ctx: Context) => {
-      const { accountId: account, dataLoaders: loaders } = ctx
-      const payload = shoppingListService.clearShoppingList(account, loaders)
+      const { accountId, dataLoaders: loaders } = ctx
+      const payload = shoppingListService.clearShoppingList(accountId, loaders)
 
       return withClientMutationId(payload, input)
     }

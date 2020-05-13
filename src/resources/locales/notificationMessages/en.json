@@ -1,0 +1,30 @@
+{
+  "authorCommentsHisRecipe": "{{author}} also commented on his recipe.",
+  "userCommentsYourRecipe": "{{user}} has commented on your recipe.",
+  "usersCommentYourRecipe": "{{user1}} and {{user2}} have commented on your recipe.",
+  "usersCommentYourRecipe_plural": "{{user}} and {{count}} others commented on your recipe.",
+  "userCommentsRecipe": "{{user}} also commented on the recipe '{{recipe}}'.",
+  "usersCommentRecipe": "{{user1}} and {{user2}} also commented on the recipe '{{recipe}}'.",
+  "usersCommentRecipe_plural": "{{user}} and {{count}} others commented on the recipe '{{recipe}}'.",
+
+  "userLikesYourComment": "{{user}} likes your comment: '{{comment}}'.",
+  "usersLikeYourComment": "{{user1}} and {{user2}} liked your comment: '{{comment}}'.",
+  "usersLikeYourComment_plural": "{{user}} and {{count}} others liked your comment: '{{comment}}'.",
+
+  "youAreTagged": "{{user}} mentioned you in a comment.",
+
+  "userFollowsYou": "{{user}} started following you.",
+  "usersFollowYou": "{{user1}} and {{user2}} have started following you.",
+  "usersFollowYou_plural": "{{user}} and {{count}} others have started following you.",
+
+  "newRecipePublished": "'{{user}}' posted a new recipe.",
+  "newRecipePublished_plural": "'{{user}}' posted {{count}} new recipes.",
+
+  "userRepliedToYourComment": "{{user}} replied to your comment: '{{comment}}'.",
+  "usersRepliedToYourComment": "{{user1}} and {{user2}} replied to your comment: '{{comment}}'.",
+  "usersRepliedToYourComment_plural": "{{user}} and {{count}} others replied to your comment: '{{comment}}'.",
+
+  "userRepliedToCommentYouAreTaggedIn": "{{user}} replied to a comment in which you're tagged in.",
+  "usersRepliedToCommentYouAreTaggedIn": "{{user1}} et {{user2}} replied to a comment in which you're tagged in.",
+  "usersRepliedToCommentYouAreTaggedIn_plural": "{{user}} et {{count}} others replied to a comment in which you're tagged in."
+}

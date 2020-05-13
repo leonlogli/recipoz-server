@@ -76,10 +76,9 @@ class ModelService<T extends Document> extends ModelServiceBase<T> {
     const conditions = { $text: { $search: query }, ...filter }
     const projection = textScore
     const skip = page.size * (page.number - 1)
-    const options = { lean: true, skip, limit: page.size, sort: textScore }
+    const opts = { lean: true, skip, limit: page.size, sort: textScore }
 
-    const docsQuery = this.model.find(conditions, projection, options)
-    const docs: T[] = await docsQuery.exec()
+    const docs: T[] = await this.model.find(conditions, projection, opts).exec()
     const count = this.model.countDocuments(conditions).exec()
 
     this.primeDataLoader(loaders, ...docs)

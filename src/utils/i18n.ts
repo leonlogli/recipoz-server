@@ -1,6 +1,10 @@
 import { APP_DEFAULT_LANGUAGE } from '../config'
 import { dotify, toNestedObject, renameKeys, hasOwnProperties } from './Util'
-import { statusMessages, errorMessages } from '../constants'
+import {
+  statusMessages,
+  errorMessages,
+  notificationMessages
+} from '../constants'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const franc = require('franc-min')
@@ -94,7 +98,11 @@ const appendLangsToFields = (...i18nFields: string[]) => {
  */
 const locales = {
   statusMessages: withNamespace(statusMessages, 'statusMessages'),
-  errorMessages: withNamespace(errorMessages, 'errorMessages')
+  errorMessages: withNamespace(errorMessages, 'errorMessages'),
+  notificationMessages: withNamespace(
+    notificationMessages,
+    'notificationMessages'
+  )
 }
 
 const languageConverter: Record<string, SupportedLanguage> = {

@@ -8,6 +8,7 @@ import {
 import { ModelService } from './base'
 import { FollowershipDocument, Followership, FollowedDataType } from '../models'
 import { logger } from '../config'
+import { notificationService } from './notification'
 
 const followershipModel = new ModelService<FollowershipDocument>({
   model: Followership
@@ -34,13 +35,25 @@ const addFollowership = async (input: FollowInput, loaders: DataLoaders) => {
       return { success: 0, message: i18n.t(cannotFollowYourself), code: 422 }
     }
     const loader: any = getDataLoaderByModel(followedDataType, loaders)
-    const account = loaders.accountLoader.load(follower)
 
-    const [me, data] = await Promise.all([account, loader.load(followedData)])
+    const [me, data] = await Promise.all([
+      loaders.accountLoader.load(follower),
+      loader.load(followedData)
+    ])
     const query = { followedData, followedDataType, follower }
 
     await followershipModel.createOrUpdate(query, { $set: query })
     const message = i18n.t(follow)
+
+    if (followedDataType === 'Account') {
+      const code = 'NEW_FOLLOWERS'
+      const recipient = followedData
+
+      notificationService.addNotification(
+        { code, data: recipient, dataType: 'Account', recipient },
+        loaders
+      )
+    }
 
     return { success: true, message, code: 200, me, following: data }
   } catch (error) {

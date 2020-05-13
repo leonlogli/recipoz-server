@@ -1,17 +1,17 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
 import { AccountDocument, RecipeDocument } from '.'
-import { CategoryDocument } from './Category'
 
 const { ObjectId } = Schema.Types
 
 export type CommentDocument = Document & {
   author: AccountDocument
-  topic: CategoryDocument | RecipeDocument
+  topic: CommentDocument | RecipeDocument
   content: string
   attachmentUrl?: string
   rating?: number
-  mentionedAccounts?: AccountDocument[]
+  topicType: Commenttopic
+  taggedAccounts: AccountDocument[]
 }
 
 export const commentTopics = ['Recipe', 'Comment'] as const
@@ -26,7 +26,7 @@ const commentSchema = new Schema(
     rating: Number,
     content: String,
     attachmentUrl: String,
-    mentionedAccounts: [{ type: ObjectId, ref: 'Account' }]
+    taggedAccounts: [{ type: ObjectId, ref: 'Account' }]
   },
   { timestamps: true }
 )

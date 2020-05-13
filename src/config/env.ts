@@ -11,7 +11,8 @@ const {
   JWT_EXPIRATION,
   ADMIN_EMAIL,
   NODE_ENV,
-  APOLLO_KEY
+  APOLLO_KEY,
+  PUSH_NOTIFICATION_WEB_ACTION_LINK
 } = process.env
 
 /** App default language */
@@ -23,6 +24,14 @@ const DEFAULT_PAGE_SIZE = Number(process.env.DEFAULT_PAGE_SIZE)
 
 /** Max items number per page */
 const MAX_PAGE_SIZE = Number(process.env.MAX_PAGE_SIZE)
+
+/** Number beyond which no push notification will be sent to the user on this day */
+const DAILY_MAX_PUSH_NOTIFICATION =
+  Number(process.env.DAILY_MAX_PUSH_NOTIFICATION) || 3
+
+/** Number beyond which old app notifications are deleted */
+const MAX_APP_NOTIFICATION_PAR_ACCOUNT =
+  Number(process.env.MAX_APP_NOTIFICATION_PAR_ACCOUNT) || 50
 
 /** Indicates whether NODE_ENV is test */
 const TEST_ENV = NODE_ENV === 'test'
@@ -81,5 +90,8 @@ export {
   MAX_PAGE_SIZE,
   MONGO,
   FIREBASE,
-  APOLLO_KEY
+  APOLLO_KEY,
+  DAILY_MAX_PUSH_NOTIFICATION,
+  MAX_APP_NOTIFICATION_PAR_ACCOUNT,
+  PUSH_NOTIFICATION_WEB_ACTION_LINK
 }

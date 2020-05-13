@@ -9,8 +9,9 @@ import {
   hasDuplicates,
   hasFalsyValue,
   isEmpty,
-  removeUndefinedKeys,
-  renameKeys
+  clean,
+  renameKeys,
+  truncate
 } from '../../../utils/Util'
 
 describe('String helper', () => {
@@ -19,6 +20,17 @@ describe('String helper', () => {
   })
   it('should return false for nullable variable', () => {
     expect(isString(null)).to.be.equal(false)
+  })
+  it('should properly truncate the passed string', () => {
+    expect(truncate('Hello world', 8)).to.equal('Hello...')
+  })
+
+  it('should truncate the passed string with custom ellipsis', () => {
+    expect(truncate('Hello world', 8, '***')).to.equal('Hello***')
+  })
+
+  it('should not truncate when the max length is not exceed', () => {
+    expect(truncate('Hello world', 100)).to.equal('Hello world')
   })
 })
 
@@ -97,16 +109,24 @@ describe('Object helper', () => {
     })
   })
 
-  it('should remove undefined keys in the passed object', () => {
-    const obj = { title: 'val', name: undefined }
+  describe('object cleaner', () => {
+    it('should remove undefined attributes in the passed object', () => {
+      const obj = { title: 'val', name: undefined, msg: null }
 
-    expect(removeUndefinedKeys(obj)).to.eql({ title: 'val' })
-  })
+      expect(clean(obj)).to.eql({ title: 'val', msg: null })
+    })
 
-  it('should remove undefined keys in the passed object', () => {
-    const obj = { message: 'val', name: 'Leon' }
-    const expected = { msg: 'val', name: 'Leon' }
+    it('should remove undefined and null attributes in the passed object', () => {
+      const obj = { msg: 'Hello', test: null, bah: undefined, qty: 0 }
 
-    expect(renameKeys(obj, { message: 'msg' })).to.eql(expected)
+      expect(clean(obj, true)).to.eql({ msg: 'Hello', qty: 0 })
+    })
+
+    it('should remove undefined keys in the passed object', () => {
+      const obj = { message: 'val', name: 'Leon' }
+      const expected = { msg: 'val', name: 'Leon' }
+
+      expect(renameKeys(obj, { message: 'msg' })).to.eql(expected)
+    })
   })
 })

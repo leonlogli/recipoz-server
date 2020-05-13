@@ -6,8 +6,8 @@ export default gql`
     content: String!
     attachmentUrl: String
     rating: CommentRating
-    "IDs of mentioned accounts. Up to 50"
-    mentionedAccounts: [ID!]
+    "IDs of tagged accounts. Up to 50"
+    taggedAccounts: [ID!]
     clientMutationId: String
   }
 
@@ -16,8 +16,8 @@ export default gql`
     content: String
     attachmentUrl: String
     rating: CommentRating
-    "IDs of mentioned accounts. Up to 50"
-    mentionedAccounts: [ID!]
+    "IDs of tagged accounts. Up to 50"
+    taggedAccounts: [ID!]
     clientMutationId: String
   }
 

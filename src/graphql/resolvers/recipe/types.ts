@@ -22,7 +22,7 @@ export default {
       return dataLoaders.categoryLoader.loadMany(categories)
     },
     rating: ({ _id: topic }: any, args: any, { dataLoaders }: Context) => {
-      const criteria = { topic, topicType: 'Recipe' }
+      const criteria = { topic, topicType: 'Recipe' } as const
 
       return commentService.loadCommentRatingSummary(criteria, dataLoaders)
     },

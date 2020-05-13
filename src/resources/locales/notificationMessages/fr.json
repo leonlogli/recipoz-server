@@ -1,0 +1,30 @@
+{
+  "authorCommentsHisRecipe": "{{author}} a également commenté sa recette.",
+  "userCommentsYourRecipe": "{{user}} a commenté votre recette.",
+  "usersCommentYourRecipe": "{{user1}} et {{user2}} ont commenté votre recette.",
+  "usersCommentYourRecipe_plural": "{{user}} et {{count}} autres personnes ont commenté votre la recette.",
+  "userCommentsRecipe": "{{user}} a également commenté la recette '{{recipe}}'.",
+  "usersCommentRecipe": "{{user1}} et {{user2}} ont également commenté la recette '{{recipe}}'.",
+  "usersCommentRecipe_plural": "{{user}} and {{count}} others also commented on the recipe '{{recipe}}'.",
+
+  "userLikesYourComment": "{{user}} aime votre commentaire: '{{comment}}'.",
+  "usersLikeYourComment": "{{user1}} et {{user2}} ont aimé votre commentaire: '{{comment}}'.",
+  "usersLikeYourComment_plural": "{{user}} et {{count}} autres personnes ont aimé votre commentaire: '{{comment}}'.",
+
+  "youAreTagged": "{{user}} a mentionné votre nom dans un commentaire.",
+  
+  "userFollowsYou": "{{user}} a commencé à vous suivre.",
+  "usersFollowYou": "{{user1}} et {{user2}} ont commencé à vous suivre.",
+  "usersFollowYou_plural": "{{user}} et {{count}} autres personnes ont commencé à vous suivre.",
+
+  "newRecipePublished": "'{{user}}' a publié une nouvelle recette '{{recipe}}'.",
+  "newRecipePublished_plural": "'{{user}}' a publié {{count}} nouvelles recettes.",
+
+  "userRepliedToYourComment": "{{user}} a repondu à votre commentaire: '{{comment}}'.",
+  "usersRepliedToYourComment": "{{user1}} et {{user2}} ont répondu à votre commentaire: '{{comment}}'..",
+  "usersRepliedToYourComment_plural": "{{user}} et {{count}} autres personnes ont répondu à votre commentaire: '{{comment}}'.",
+  
+  "userRepliedToCommentYouAreTaggedIn": "{{user}} a repondu à un commentaire dans lequel vous êtes identifié.",
+  "usersRepliedToCommentYouAreTaggedIn": "{{user1}} et {{user2}} ont répondu à un commentaire dans lequel vous êtes identifié.",
+  "usersRepliedToCommentYouAreTaggedIn_plural": "{{user}} et {{count}} autres personnes ont répondu à un commentaire dans lequel vous êtes identifié."
+}

@@ -25,6 +25,12 @@ export default {
 
       return withClientMutationId(payload, input)
     },
+    markAllNotificationsAsRead: (_: any, { input }: any, ctx: Context) => {
+      const { markAllNotificationsAsRead } = notificationService
+      const payload = markAllNotificationsAsRead(ctx.accountId)
+
+      return withClientMutationId(payload, input)
+    },
     deleteNotification: (_: any, { input }: any, { accountId }: Context) => {
       const { id } = toLocalId(input.id, 'Notification')
 

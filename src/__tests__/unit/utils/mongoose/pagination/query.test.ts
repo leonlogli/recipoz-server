@@ -13,7 +13,7 @@ describe('Cursor pagination', () => {
     const expected = {
       limit: DEFAULT_PAGE_SIZE,
       paginatedField: '_id',
-      query: {}
+      criteria: {}
     }
 
     expect(buildCursorParams({})).to.eql(expected)
@@ -30,8 +30,7 @@ describe('Cursor pagination', () => {
       after: { id },
       criteria: { title: 'value' },
       limit: 100,
-      paginatedField: '_id',
-      query: { title: 'value' }
+      paginatedField: '_id'
     }
 
     expect(res).to.eql(expected)
@@ -47,8 +46,7 @@ describe('Cursor pagination', () => {
       before: { id: toObjectId('5e61e1fa2e265826c4136e0b') },
       criteria: { title: 'value' },
       limit: 50,
-      paginatedField: '_id',
-      query: { title: 'value' }
+      paginatedField: '_id'
     }
 
     expect(res).to.eql(expected)

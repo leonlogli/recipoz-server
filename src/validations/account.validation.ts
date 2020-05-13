@@ -9,8 +9,8 @@ const customJoi = Joi.extend(require('joi-phone-number'))
 
 const userRegisterSchemaObject = {
   displayName: Joi.string()
-    .min(3)
-    .max(100),
+    .min(2)
+    .max(50),
   email: Joi.string().email(),
   phoneNumber: customJoi.string().phoneNumber({ format: 'e164' }),
   password: Joi.string()

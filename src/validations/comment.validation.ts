@@ -17,7 +17,7 @@ const commentSchema = Joi.object({
     .valid(...commentTopics)
     .when('$isNew', { is: true, then: required }),
   attachmentUrl: Joi.string().uri(),
-  mentionedAccounts: Joi.array()
+  taggedAccounts: Joi.array()
     .items(objectId.required())
     .min(1)
     .min(50)

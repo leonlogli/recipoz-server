@@ -56,7 +56,7 @@ const buildCursorParams = (opts?: CursorPagingQueryBase) => {
 
   params.limit = opts?.first || opts?.last || DEFAULT_PAGE_SIZE
   params.paginatedField = opts?.paginatedField || '_id'
-  params.query = opts?.criteria || {}
+  params.criteria = opts?.criteria || {}
 
   return params as CursorPagingQuery
 }

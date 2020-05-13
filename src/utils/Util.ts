@@ -30,13 +30,17 @@ const hasOwnProperties = (obj: Record<string, any>, ...keys: string[]) => {
   return keys.every(k => Object.prototype.hasOwnProperty.call({ ...obj }, k))
 }
 
-const removeUndefinedKeys = <T extends Record<string, any>>(obj: T): T => {
+/**
+ * Recursively removes  all attributes which are undefined or null in a the specified object
+ * @param obj object to clean
+ * @param checkNull indicates whether null values can be deleted as well. Default: false
+ */
+const clean = <T extends Record<string, any>>(obj: T, checkNull = false): T => {
+  const isInvalid = (val: any) => (checkNull ? val == null : val === undefined)
+
   return Object.entries(obj)
-    .map(([k, v]) => [
-      k,
-      v && typeof v === 'object' ? removeUndefinedKeys(v) : v
-    ])
-    .reduce((a, [k, v]) => (v === undefined ? a : { ...a, [k]: v }), {} as T)
+    .map(([k, v]) => [k, v && typeof v === 'object' ? clean(v) : v])
+    .reduce((a, [k, v]) => (isInvalid(v) ? a : { ...a, [k]: v }), {} as T)
 }
 
 /**
@@ -114,16 +118,25 @@ const hasFalsyValue = (obj: Record<string, any>) => {
   return Object.values(obj).some(v => !v)
 }
 
+const truncate = (text: string, maxLength = 50, ellipsis = '...') => {
+  if (text.length <= maxLength) {
+    return text
+  }
+
+  return `${text.substring(0, maxLength - ellipsis.length)}${ellipsis}`
+}
+
 export {
   isEmpty,
   chunk,
   dotify,
   toNestedObject,
   isString,
-  removeUndefinedKeys,
+  clean,
   hasOwnProperties,
   concatValues,
   hasDuplicates,
   renameKeys,
-  hasFalsyValue
+  hasFalsyValue,
+  truncate
 }

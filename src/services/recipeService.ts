@@ -1,4 +1,4 @@
-import { Recipe, RecipeDocument } from '../models'
+import { Recipe, RecipeDocument, Followership } from '../models'
 import {
   DataLoaders,
   i18n,
@@ -9,11 +9,14 @@ import {
 } from '../utils'
 import ModelService from './base/ModelService'
 import { logger } from '../config'
+import { notificationService } from './notification'
 
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.recipe
 const { created, deleted, updated } = statusMessages.recipe
 const { t } = i18n
+
+const { addNotifications, deleteNotifications } = notificationService
 
 const recipeModel = new ModelService<RecipeDocument>({
   autocompleteField: 'name',
@@ -38,12 +41,30 @@ const search = (
   return recipeModel.search(query, page, filterQuery, loaders)
 }
 
-const addRecipe = async (data: any, loaders: DataLoaders) => {
+const addRecipeNotification = async (
+  recipe: RecipeDocument,
+  loaders: DataLoaders
+) => {
+  const followedDataType = recipe.source ? 'RecipeSource' : 'Account'
+  const followedData = recipe.source ? recipe.source : recipe.author
+
+  const query = { followedData, followedDataType } as const
+  const docs = await Followership.find(query, 'follower', { lean: true }).exec()
+
+  const followers = docs.map(doc => doc.follower)
+  const msg = { code: 'RECIPES', data: recipe._id, dataType: 'Recipe' } as const
+
+  return addNotifications(msg, followers, loaders)
+}
+
+const addRecipe = async (input: any, loaders: DataLoaders) => {
   try {
-    if (data.source) {
-      await loaders.recipeSourceLoader.load(data.author)
+    if (input.source) {
+      await loaders.recipeSourceLoader.load(input.author)
     }
-    const recipe = await recipeModel.create(data)
+    const recipe = await recipeModel.create(input)
+
+    addRecipeNotification(recipe, loaders)
 
     return { success: true, message: t(created), code: 201, recipe }
   } catch (error) {
@@ -80,9 +101,13 @@ const deleteRecipe = async (input: any, isAdmin = false) => {
     const { author, id: _id } = input
     const query = { _id, ...(!isAdmin && { author }) }
     const recipe = await recipeModel.deleteOne(query)
-    const res = { success: true, message: t(deleted), code: 200, recipe }
 
-    return recipe ? res : suitableErrorResponse(_id)
+    if (!recipe) {
+      suitableErrorResponse(_id)
+    }
+    deleteNotifications({ data: _id, dataType: 'Recipe' })
+
+    return { success: true, message: t(deleted), code: 200, recipe }
   } catch (error) {
     return errorRes(error)
   }

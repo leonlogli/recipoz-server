@@ -1,11 +1,13 @@
-import { firebaseAdmin } from '../../config/firebase'
 import { logger } from '../../config'
 import { chunk } from '../../utils'
-import accountService from '../accountService'
-import { Account } from '../../models'
-
-export type Message = firebaseAdmin.messaging.Message
-export type MulticastMessage = firebaseAdmin.messaging.MulticastMessage
+import { Account, AccountDocument } from '../../models'
+import {
+  MulticastMessage,
+  Notification,
+  buildCrossPlatformMessage,
+  Message,
+  messaging
+} from './fcmServiceBase'
 
 const removeFailedRegistrationTokens = async (...failedTokens: string[]) => {
   if (failedTokens.length === 0) {
@@ -19,8 +21,7 @@ const removeFailedRegistrationTokens = async (...failedTokens: string[]) => {
 }
 
 const sendMessageToDevices = async (message: MulticastMessage) => {
-  return firebaseAdmin
-    .messaging()
+  return messaging
     .sendMulticast(message)
     .then(async response => {
       if (response.failureCount > 0) {
@@ -38,8 +39,7 @@ const sendMessageToDevices = async (message: MulticastMessage) => {
 }
 
 const subscribeToTopic = async (registrationToken: string, topic: string) => {
-  return firebaseAdmin
-    .messaging()
+  return messaging
     .subscribeToTopic(registrationToken, topic)
     .then(response => response.successCount === 1)
     .catch(error => {
@@ -51,43 +51,41 @@ const subscribeToTopic = async (registrationToken: string, topic: string) => {
 
 /**
  * Sends the given message to all devices of the specified users.
- * @param accounts account ids
+ * @param accounts account
  * @param message message to send
  */
 const sendMessageToUsers = async (
-  message: Omit<MulticastMessage, 'tokens'>,
-  ...accounts: string[]
+  message: Notification,
+  ...accounts: AccountDocument[]
 ) => {
   if (accounts.length === 0) {
     return
   }
-  const accountDocs = await accountService.getAccountsAndSelect(
-    { _id: { $in: accounts } },
-    'registrationTokens'
-  )
   const registrationTokens: string[] = []
+  const msg = buildCrossPlatformMessage(message)
 
-  accountDocs.forEach(account => {
+  accounts.forEach(account => {
     registrationTokens.push(...account.registrationTokens)
   })
 
   if (registrationTokens.length === 0) {
     return
   }
-  const values = chunk(registrationTokens, 500).map(tokens =>
-    sendMessageToDevices({ ...message, tokens })
+  const promises = chunk(registrationTokens, 500).map(tokens =>
+    sendMessageToDevices({ ...msg, tokens })
   )
 
-  return Promise.all(values)
+  return Promise.all(promises)
 }
 
-const sendMessages = async (...messages: Message[]) => {
-  if (messages.length === 0) {
+const sendMessages = async (...messages: Notification[]) => {
+  const msg = messages.map(m => buildCrossPlatformMessage(m) as Message)
+
+  if (msg.length === 0) {
     return
   }
-  const values = chunk(messages, 500).map(chunkedMessages =>
-    firebaseAdmin
-      .messaging()
+  const promises = chunk(msg, 500).map(chunkedMessages =>
+    messaging
       .sendAll(chunkedMessages)
       .then(response => {
         if (response.failureCount > 0) {
@@ -106,22 +104,12 @@ const sendMessages = async (...messages: Message[]) => {
       .catch(error => logger.error('Error sending message: ', error))
   )
 
-  Promise.all(values)
-}
-
-const isValidFCMToken = async (registrationToken: string) => {
-  return firebaseAdmin
-    .messaging()
-    .send({ token: registrationToken }, true)
-    .then(() => true)
-    .catch(() => false)
+  return Promise.all(promises)
 }
 
 export const fcmService = {
   subscribeToTopic,
-  sendMessageToDevices,
   sendMessages,
-  sendMessageToUsers,
-  isValidFCMToken
+  sendMessageToUsers
 }
 export default fcmService

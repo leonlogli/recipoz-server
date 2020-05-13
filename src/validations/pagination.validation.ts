@@ -35,7 +35,10 @@ const cursorQuerySchema = Joi.object({
     .integer()
     .positive()
     .max(MAX_PAGE_SIZE),
-  before: Joi.string()
+  before: Joi.string(),
+  criteria: Joi.object()
+    .unknown(true)
+    .default({})
 })
   .without('first', 'before')
   .without('first', 'last')

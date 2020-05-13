@@ -27,12 +27,11 @@ export default gql`
   union NotificationData = Comment | Recipe | Account
 
   enum NotificationCode {
-    MY_RECIPE_IS_COMMENTED
-    SOMEONE_REPLIED_TO_MY_COMMENT
-    SOMEONE_MENTIONED_ME
-    MY_COMMENT_IS_LIKED
-    SOMEONE_STARTED_FOLLOWING_ME
-    NEW_RECIPE_FROM_MY_FOLLOWING
+    COMMENTS
+    TAGS
+    LIKES
+    NEW_FOLLOWERS
+    RECIPES
   }
 
   input NotificationFilter {
@@ -51,6 +50,16 @@ export default gql`
     notification: Notification
   }
 
+  type MarkAllNotificationsAsReadPayload {
+    code: String!
+    "Returns true if 'mutatedCount' > 0, false otherwise"
+    success: Boolean!
+    message: String!
+    clientMutationId: String
+    "Number of notification mutated (which are successfully mark as read)"
+    mutatedCount: Int
+  }
+
   type DeleteNotificationPayload {
     code: String!
     success: Boolean!
@@ -62,6 +71,10 @@ export default gql`
   input UpdateNotificationInput {
     id: ID!
     read: Boolean
+    clientMutationId: String
+  }
+
+  input MarkAllNotificationsAsReadInput {
     clientMutationId: String
   }
 
@@ -89,6 +102,9 @@ export default gql`
     updateNotification(
       input: UpdateNotificationInput!
     ): UpdateNotificationPayload! @auth
+    markAllNotificationsAsRead(
+      input: MarkAllNotificationsAsReadInput!
+    ): MarkAllNotificationsAsReadPayload! @auth
     deleteNotification(
       input: DeleteNotificationInput!
     ): DeleteNotificationPayload! @auth

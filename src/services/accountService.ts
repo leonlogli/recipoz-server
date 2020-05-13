@@ -9,16 +9,16 @@ import {
 } from '../utils'
 import { ModelService } from './base'
 import followershipService from './followershipService'
-import notificationService from './notificationService'
-import commentService from './commentService'
-import commentReactionService from './commentReactionService'
+import notificationService from './notification/notificationService'
+import { commentReactionService, commentService } from './comment'
 import recipeService from './recipeService'
 import shoppingListService from './shoppingListService'
 import abuseReportService from './abuseReportService'
 import savedRecipeService from './savedRecipeService'
-import { fcmService, userService } from './firebase'
 import recipeCollectionService from './recipeCollectionService'
 import { USER, ADMIN } from '../constants'
+import { isValidFCMToken } from './firebase/fcmServiceBase'
+import { userService } from './firebase'
 
 const { statusMessages, errorMessages } = locales
 const { notFound, alreadyExists, userNotFound } = errorMessages.account
@@ -96,7 +96,7 @@ const updateAccount = async (input: any, loaders?: DataLoaders) => {
 
 const addRegistrationToken = async (accountId: any, token: string) => {
   try {
-    if (!token.trim() || !(await fcmService.isValidFCMToken(token))) {
+    if (!token.trim() || !(await isValidFCMToken(token))) {
       return { success: 0, message: 'Invalid registration token', code: 400 }
     }
     const query = { _id: accountId, registrationTokens: { $nin: [token] } }
@@ -113,7 +113,7 @@ const deleteAccountRelatedData = async (account: AccountDocument) => {
   return Promise.all([
     userService.deleteUser(account.user as any),
     followershipService.deleteAccountFollowership(account._id),
-    notificationService.deleteNotifications(account._id),
+    notificationService.deleteNotifications({ recipient: account._id }),
     commentService.deleteComments(account._id),
     commentReactionService.deleteCommentReactions(account._id),
     recipeService.deleteAccountRecipes(account._id),
