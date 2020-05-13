@@ -23,10 +23,9 @@ export default {
         return emptyConnection()
       }
       const criteria = { topic: id, topicType: type }
-      const cursorQuery = validateCursorQuery(options)
-      const { commentByQueryLoader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...options, criteria })
 
-      return commentByQueryLoader.load({ ...cursorQuery, criteria })
+      return ctx.dataLoaders.commentByQueryLoader.load(query)
     }
   },
   Mutation: {
@@ -100,21 +99,21 @@ export default {
     author: ({ author }: any, _: any, ctx: Context) => {
       return ctx.dataLoaders.accountLoader.load(author)
     },
-    replies: ({ _id }: any, args: any, { dataLoaders: loaders }: Context) => {
+    replies: ({ _id }: any, args: any, { dataLoaders }: Context) => {
       const criteria = { topic: _id, topicType: 'Recipe' }
-      const cursorQuery = validateCursorQuery(args)
+      const query = validateCursorQuery({ ...args, criteria })
 
-      return loaders.commentByQueryLoader.load({ ...cursorQuery, criteria })
+      return dataLoaders.commentByQueryLoader.load(query)
     },
     taggedAccounts: ({ taggedAccounts }: any, _: any, ctx: Context) => {
       return ctx.dataLoaders.accountLoader.loadMany(taggedAccounts)
     },
     likedBy: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
-      const opts = validateCursorQuery(args)
       const criteria = { comment: _id, reaction: 'LIKE' }
-      const { commentReactionByQueryLoader: loader } = dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
+      const { commentReactionByQueryLoader } = dataLoaders
 
-      return loader.load({ ...opts, criteria }).then(reactions => {
+      return commentReactionByQueryLoader.load(query).then(reactions => {
         return loadAccountsFromReactions(reactions, dataLoaders)
       })
     }

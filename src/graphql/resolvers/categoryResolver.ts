@@ -13,10 +13,10 @@ export default {
   Query: {
     categories: (_: any, { filter, ...options }: any, ctx: Context) => {
       const criteria = buildFilterQuery(filter, { parent: 'Category' })
-      const cursorQuery = validateCursorQuery(options)
+      const query = validateCursorQuery({ ...options, criteria })
       const { categoryByQueryLoader } = ctx.dataLoaders
 
-      return categoryByQueryLoader.load({ ...cursorQuery, criteria })
+      return categoryByQueryLoader.load(query)
     }
   },
   Mutation: {
@@ -56,18 +56,17 @@ export default {
       return parent && categoryLoader.load(parent)
     },
     subCategories: ({ _id: parent }: any, args: any, ctx: Context) => {
-      const opts = validateCursorQuery(args)
+      const query = validateCursorQuery({ ...args, criteria: { parent } })
       const { categoryByQueryLoader } = ctx.dataLoaders
-      const criteria = { parent }
 
-      return categoryByQueryLoader.load({ ...opts, criteria })
+      return categoryByQueryLoader.load(query)
     },
     followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
-      const opts = validateCursorQuery(args)
       const criteria = { followedData: _id, followedDataType: 'Category' }
-      const { followershipByQueryLoader: loader } = dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
+      const { followershipByQueryLoader } = dataLoaders
 
-      return loader.load({ ...opts, criteria }).then(followership => {
+      return followershipByQueryLoader.load(query).then(followership => {
         return loadFollowersFromFollowerships(followership, dataLoaders)
       })
     }

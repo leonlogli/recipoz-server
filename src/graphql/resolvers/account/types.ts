@@ -15,85 +15,86 @@ export default {
       return dataLoaders.userLoader.load(user)
     },
     followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
-      const opts = validateCursorQuery(args)
       const criteria = { followedDataType: 'Account', followedData: _id }
-      const { followershipByQueryLoader: loader } = dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
+      const { followershipByQueryLoader } = dataLoaders
 
-      return loader.load({ ...opts, criteria }).then(followership => {
+      return followershipByQueryLoader.load(query).then(followership => {
         return loadFollowersFromFollowerships(followership, dataLoaders)
       })
     },
     following: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
       const { followingTypes: types, ...opts } = args
-      const cursorQuery = validateCursorQuery(opts)
       const filterQuery = { ...(types && { followedDataType: { $in: types } }) }
+
       const criteria = { follower: _id, ...filterQuery }
+      const query = validateCursorQuery({ ...opts, criteria })
       const { followershipByQueryLoader: loader } = dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(followership => {
+      return loader.load(query).then(followership => {
         return loadFollowingFromFollowerships(followership, dataLoaders)
       })
     },
     favoriteRecipes: async ({ _id: account }: any, args: any, ctx: Context) => {
-      const cursorQuery = validateCursorQuery(args)
       const criteria = { account, collectionType: 'FAVORITE' }
-      const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
+      const { savedRecipeByQueryLoader } = ctx.dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
       })
     },
     madeRecipes: async (root: any, args: any, { dataLoaders }: Context) => {
-      const cursorQuery = validateCursorQuery(args)
       const criteria = { account: root._id, collectionType: 'MADE' }
-      const { savedRecipeByQueryLoader: loader } = dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
+      const { savedRecipeByQueryLoader } = dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
       })
     },
     savedRecipes: async ({ _id: account }: any, args: any, ctx: Context) => {
       const { collection, ...opts } = args
-      const cursorQuery = validateCursorQuery(opts)
       const recipeCollection = toLocalId(collection, 'RecipeCollection')
       const criteria = { account, recipeCollection }
+
+      const query = validateCursorQuery({ ...opts, criteria })
       const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      return loader.load(query).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
       })
     },
     recipeCollections: async ({ _id }: any, args: any, ctx: Context) => {
       const { filter, ...opts } = args
       const filterQuery = buildFilterQuery(filter)
-      const cursorQuery = validateCursorQuery(opts)
-      const criteria = { account: _id, ...filterQuery }
-      const { recipeCollectionByQueryLoader } = ctx.dataLoaders
 
-      return recipeCollectionByQueryLoader.load({ ...cursorQuery, criteria })
+      const criteria = { account: _id, ...filterQuery }
+      const query = validateCursorQuery({ ...opts, criteria })
+
+      return ctx.dataLoaders.recipeCollectionByQueryLoader.load(query)
     },
     personalRecipes: async ({ _id }: any, args: any, ctx: Context) => {
-      const cursorQuery = validateCursorQuery(args)
       const criteria = { author: _id, authorType: 'Account' }
-      const { recipeByQueryLoader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
 
-      return recipeByQueryLoader.load({ ...cursorQuery, criteria })
+      return ctx.dataLoaders.recipeByQueryLoader.load(query)
     },
     shoppingList: async ({ _id }: any, args: any, ctx: Context) => {
       const { filter, ...opts } = args
       const filterQuery = buildFilterQuery(filter)
-      const cursorQuery = validateCursorQuery(opts)
       const criteria = { account: _id, ...filterQuery }
+
+      const query = validateCursorQuery({ ...opts, criteria })
       const { shoppingListItemByQueryLoader } = ctx.dataLoaders
 
-      return shoppingListItemByQueryLoader.load({ ...cursorQuery, criteria })
+      return shoppingListItemByQueryLoader.load(query)
     },
     abuseReports: ({ _id: author }: any, args: any, ctx: Context) => {
-      const cursorQuery = validateCursorQuery(args)
-      const { dataLoaders: loaders } = ctx
       const criteria = { dataType: { $in: abuseReportDataTypes }, author }
+      const query = validateCursorQuery({ ...args, criteria })
 
-      return loaders.abuseReportByQueryLoader.load({ ...cursorQuery, criteria })
+      return ctx.dataLoaders.abuseReportByQueryLoader.load(query)
     }
   },
   AccountConnection: {

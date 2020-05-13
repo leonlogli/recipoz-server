@@ -9,10 +9,9 @@ export default {
     myNotifications: (_: any, { filter, ...options }: any, ctx: Context) => {
       const filterQuery = buildFilterQuery(filter)
       const criteria = { recipient: ctx.accountId, ...filterQuery }
-      const cursorQuery = validateCursorQuery(options)
-      const { notificationByQueryLoader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...options, criteria })
 
-      return notificationByQueryLoader.load({ ...cursorQuery, criteria })
+      return ctx.dataLoaders.notificationByQueryLoader.load(query)
     }
   },
   Mutation: {

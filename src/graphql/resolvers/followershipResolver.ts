@@ -17,11 +17,11 @@ export default {
       if (!id) {
         return emptyConnection()
       }
-      const cursorQuery = validateCursorQuery(opts)
       const criteria = { followedData: id, followedDataType: 'Account' }
-      const { followershipByQueryLoader: loader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...opts, criteria })
+      const { followershipByQueryLoader } = ctx.dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      return followershipByQueryLoader.load(query).then(savedRecipes => {
         return loadFollowingFromFollowerships(savedRecipes, ctx.dataLoaders)
       })
     },
@@ -32,12 +32,13 @@ export default {
       if (!id) {
         return emptyConnection()
       }
-      const cursorQuery = validateCursorQuery(opts)
       const filterQuery = { ...(types && { followedDataType: { $in: types } }) }
       const criteria = { follower: id, ...filterQuery }
-      const { followershipByQueryLoader: loader } = dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      const query = validateCursorQuery({ ...opts, criteria })
+      const { followershipByQueryLoader } = dataLoaders
+
+      return followershipByQueryLoader.load(query).then(savedRecipes => {
         return loadFollowingFromFollowerships(savedRecipes, dataLoaders)
       })
     }

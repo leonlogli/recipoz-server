@@ -16,10 +16,9 @@ export default {
         return emptyConnection()
       }
       const criteria = { account: id, ...filter }
-      const cursorQuery = validateCursorQuery(opts)
-      const { shoppingListItemByQueryLoader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...opts, criteria })
 
-      return shoppingListItemByQueryLoader.load({ ...cursorQuery, criteria })
+      return ctx.dataLoaders.shoppingListItemByQueryLoader.load(query)
     },
     myShoppingList: (_: any, { filter, ...opts }: any, ctx: Context) => {
       const id = ctx.accountId && toLocalId(ctx.accountId, 'Account').id
@@ -28,10 +27,9 @@ export default {
         return emptyConnection()
       }
       const criteria = { account: id, ...filter }
-      const cursorQuery = validateCursorQuery(opts)
-      const { shoppingListItemByQueryLoader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...opts, criteria })
 
-      return shoppingListItemByQueryLoader.load({ ...cursorQuery, criteria })
+      return ctx.dataLoaders.shoppingListItemByQueryLoader.load(query)
     }
   },
   Mutation: {

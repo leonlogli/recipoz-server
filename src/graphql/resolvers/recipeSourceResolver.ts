@@ -41,11 +41,11 @@ export default {
   },
   RecipeSource: {
     followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
-      const opts = validateCursorQuery(args)
       const criteria = { followedData: _id, followedDataType: 'RecipeSource' }
-      const { followershipByQueryLoader: loader } = dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
+      const { followershipByQueryLoader } = dataLoaders
 
-      return loader.load({ ...opts, criteria }).then(followership => {
+      return followershipByQueryLoader.load(query).then(followership => {
         return loadFollowersFromFollowerships(followership, dataLoaders)
       })
     },

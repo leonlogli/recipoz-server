@@ -14,11 +14,11 @@ import {
 export default {
   Query: {
     myAbuseReports: (_: any, args: any, ctx: Context) => {
-      const cursorQuery = validateCursorQuery(args)
       const { dataLoaders: loaders, accountId: author } = ctx
       const criteria = { dataType: { $in: abuseReportDataTypes }, author }
+      const query = validateCursorQuery({ ...args, criteria })
 
-      return loaders.abuseReportByQueryLoader.load({ ...cursorQuery, criteria })
+      return loaders.abuseReportByQueryLoader.load({ ...query, criteria })
     },
     abuseReports: (_: any, { data, filter, ...options }: any, ctx: Context) => {
       const dataType = { $in: abuseReportDataTypes }
@@ -33,12 +33,12 @@ export default {
         dataType.$in = [type] as any
         dataLocalId = id
       }
+
       const filterQuery = buildFilterQuery(filter)
       const criteria = { dataType, data: dataLocalId, ...filterQuery }
-      const cursorQuery = validateCursorQuery(options)
-      const { abuseReportByQueryLoader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...options, criteria })
 
-      return abuseReportByQueryLoader.load({ ...cursorQuery, criteria })
+      return ctx.dataLoaders.abuseReportByQueryLoader.load(query)
     }
   },
   Mutation: {

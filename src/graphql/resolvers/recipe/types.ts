@@ -26,11 +26,11 @@ export default {
 
       return commentService.loadCommentRatingSummary(criteria, dataLoaders)
     },
-    comments: ({ _id }: any, args: any, { dataLoaders: loaders }: Context) => {
+    comments: ({ _id }: any, args: any, { dataLoaders }: Context) => {
       const criteria = { topic: _id, topicType: 'Recipe' }
-      const cursorQuery = validateCursorQuery(args)
+      const query = validateCursorQuery({ ...args, criteria })
 
-      return loaders.commentByQueryLoader.load({ ...cursorQuery, criteria })
+      return dataLoaders.commentByQueryLoader.load(query)
     },
     isFavorite: async ({ _id: recipe }: any, _: any, ctx: Context) => {
       const { dataLoaders, accountId: account } = ctx
@@ -47,20 +47,20 @@ export default {
       return savedRecipeCountLoader.load(criteria).then(count => count > 0)
     },
     favoriteBy: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
-      const opts = validateCursorQuery(args)
       const criteria = { recipe: _id, collectionType: 'FAVORITE' }
-      const { savedRecipeByQueryLoader: loader } = dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
+      const { savedRecipeByQueryLoader } = dataLoaders
 
-      return loader.load({ ...opts, criteria }).then(savedRecipes => {
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadAccountsFromSavedRecipes(savedRecipes, dataLoaders)
       })
     },
     madeBy: ({ _id }: any, args: any, { dataLoaders }: Context) => {
-      const opts = validateCursorQuery(args)
       const criteria = { recipe: _id, collectionType: 'MADE' }
-      const { savedRecipeByQueryLoader: loader } = dataLoaders
+      const query = validateCursorQuery({ ...args, criteria })
+      const { savedRecipeByQueryLoader } = dataLoaders
 
-      return loader.load({ ...opts, criteria }).then(savedRecipes => {
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadAccountsFromSavedRecipes(savedRecipes, dataLoaders)
       })
     }

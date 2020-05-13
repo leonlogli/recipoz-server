@@ -17,12 +17,13 @@ export default {
       if (!id) {
         return emptyConnection()
       }
-      const cursorQuery = validateCursorQuery(opts)
       const recipeCollection = toLocalId(collection, 'RecipeCollection')
       const criteria = { account: id, recipeCollection }
-      const { savedRecipeByQueryLoader: loader } = dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      const query = validateCursorQuery({ ...opts, criteria })
+      const { savedRecipeByQueryLoader } = dataLoaders
+
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
       })
     },
@@ -32,12 +33,13 @@ export default {
       if (!account) {
         return emptyConnection()
       }
-      const cursorQuery = validateCursorQuery(opts)
       const recipeCollection = toLocalId(collection, 'RecipeCollection')
       const criteria = { account, recipeCollection }
-      const { savedRecipeByQueryLoader: loader } = dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      const query = validateCursorQuery({ ...opts, criteria })
+      const { savedRecipeByQueryLoader } = dataLoaders
+
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
       })
     }

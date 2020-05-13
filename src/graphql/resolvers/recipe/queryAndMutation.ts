@@ -11,19 +11,18 @@ import { validateCursorQuery, validatRecipe } from '../../../validations'
 
 export default {
   Query: {
-    recipes: (_: any, args: any, ctx: Context) => {
+    recipes: (_: any, args: any, { dataLoaders }: Context) => {
       const { author: recipeAuthor, source: recipeSource, ...opts } = args
       const author = recipeAuthor && toLocalId(recipeAuthor, 'Account').id
       const source = recipeAuthor && toLocalId(recipeSource, 'RecipeSource').id
-      const criteria = { author, source }
 
-      if (hasFalsyValue(criteria)) {
+      if (hasFalsyValue({ author, source })) {
         return emptyConnection()
       }
-      const cursorQuery = validateCursorQuery(opts)
-      const { recipeByQueryLoader } = ctx.dataLoaders
+      const criteria = { author, source }
+      const query = validateCursorQuery({ ...opts, criteria })
 
-      return recipeByQueryLoader.load({ ...cursorQuery, criteria })
+      return dataLoaders.recipeByQueryLoader.load(query)
     },
     favoriteRecipes: async (_: any, args: any, ctx: Context) => {
       const { account, ...opts } = args
@@ -32,11 +31,12 @@ export default {
       if (!id) {
         return emptyConnection()
       }
-      const cursorQuery = validateCursorQuery(opts)
       const criteria = { account, collectionType: 'FAVORITE' }
-      const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      const query = validateCursorQuery({ ...opts, criteria })
+      const { savedRecipeByQueryLoader } = ctx.dataLoaders
+
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
       })
     },
@@ -47,11 +47,12 @@ export default {
       if (!id) {
         return emptyConnection()
       }
-      const cursorQuery = validateCursorQuery(opts)
       const criteria = { account: root._id, collectionType: 'MADE' }
-      const { savedRecipeByQueryLoader: loader } = dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      const query = validateCursorQuery({ ...opts, criteria })
+      const { savedRecipeByQueryLoader } = dataLoaders
+
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, dataLoaders)
       })
     }

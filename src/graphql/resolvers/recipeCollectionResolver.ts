@@ -15,24 +15,21 @@ import { Context } from '../context'
 
 export default {
   Query: {
-    recipeCollections: (_: any, { account, ...options }: any, ctx: Context) => {
+    recipeCollections: (_: any, { account, ...opts }: any, ctx: Context) => {
       const { type, id } = toLocalId(account, 'Account')
 
       if (!type || !id) {
         return emptyConnection()
       }
-      const criteria = { account: id }
-      const cursorQuery = validateCursorQuery(options)
-      const { recipeCollectionByQueryLoader } = ctx.dataLoaders
+      const query = validateCursorQuery({ ...opts, criteria: { account: id } })
 
-      return recipeCollectionByQueryLoader.load({ ...cursorQuery, criteria })
+      return ctx.dataLoaders.recipeCollectionByQueryLoader.load(query)
     },
     myRecipeCollections: (_: any, { ...opts }: any, ctx: Context) => {
-      const criteria = { account: ctx.accountId }
-      const cursorQuery = validateCursorQuery(opts)
-      const { notificationByQueryLoader } = ctx.dataLoaders
+      const { dataLoaders, accountId: account } = ctx
+      const query = validateCursorQuery({ ...opts, criteria: { account } })
 
-      return notificationByQueryLoader.load({ ...cursorQuery, criteria })
+      return dataLoaders.notificationByQueryLoader.load(query)
     }
   },
   Mutation: {
@@ -67,11 +64,12 @@ export default {
     recipes: async ({ account, _id }: any, args: any, ctx: Context) => {
       const { filter, ...opts } = args
       const filterQuery = buildFilterQuery(filter)
-      const cursorQuery = validateCursorQuery(opts)
-      const criteria = { account, recipeCollection: _id, ...filterQuery }
-      const { savedRecipeByQueryLoader: loader } = ctx.dataLoaders
 
-      return loader.load({ ...cursorQuery, criteria }).then(savedRecipes => {
+      const criteria = { account, recipeCollection: _id, ...filterQuery }
+      const query = validateCursorQuery({ ...opts, criteria })
+      const { savedRecipeByQueryLoader } = ctx.dataLoaders
+
+      return savedRecipeByQueryLoader.load(query).then(savedRecipes => {
         return loadRecipesFromSavedRecipes(savedRecipes, ctx.dataLoaders)
       })
     }
