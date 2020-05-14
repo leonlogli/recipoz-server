@@ -15,7 +15,7 @@ export interface UserAdditionalInfo {
   pinterest?: string
   twitter?: string
   instagram?: string
-  language?: string
+  languages?: string[]
   theme?: string
 }
 

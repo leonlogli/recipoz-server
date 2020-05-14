@@ -1,9 +1,7 @@
 import {
   AbuseReport,
   AbuseReportDocument,
-  AbuseType,
-  AbuseReportDataType,
-  AbuseReportStatus
+  AbuseReportDataType as DataType
 } from '../models'
 import {
   i18n,
@@ -30,29 +28,20 @@ const countAbuseReports = abuseReportModel.countByBatch
 const getAbuseReports = abuseReportModel.findByIds
 const getAbuseReportsByBatch = abuseReportModel.batchFind
 
-type ReportInput = {
-  id?: string
-  type: AbuseType
+type ReportInput = Omit<AbuseReportDocument, 'author' | 'data'> & {
   author: string
-  /** ID of the data to report */
   data: string
-  /** Type of data to report */
-  dataType: AbuseReportDataType
-  status?: AbuseReportStatus
 }
 
 /** Check if an account is the author of the data to report */
 const isDataAuthor = async (input: ReportInput, loaders: DataLoaders) => {
   const { data, dataType, author } = input
   const loader = getDataLoaderByModel(dataType, loaders)
+
   const dataToReport: any = await loader?.load(data)
   const isAuthor = author === dataToReport.author
 
-  return (
-    (dataType === 'Account' && author === data) ||
-    (dataType === 'Comment' && isAuthor) ||
-    (dataType === 'Recipe' && dataToReport.author === 'Account' && isAuthor)
-  )
+  return (dataType === 'Account' && author === data) || isAuthor
 }
 
 const reportAbuse = async (input: ReportInput, loaders: DataLoaders) => {
@@ -99,8 +88,8 @@ const changeDataAbuseReportsStatus = async (input: ReportInput) => {
   try {
     const { dataType, data, status } = input
     const query: any = { dataType, data }
-
     const res = await AbuseReport.updateMany(query, { $set: { status } }).exec()
+
     const mutatedCount = res.mutatedCount || 0
     const success = mutatedCount > 0
     const message = t(success ? updated : notFound)
@@ -133,10 +122,7 @@ const deleteAccountAbuseReports = async (accountId: string) => {
     .catch(e => logger.error('Error deleting abuse reports: ', e))
 }
 
-const deleteDataAbuseReports = async (
-  dataId: string,
-  dataType: AbuseReportDataType
-) => {
+const deleteDataAbuseReports = async (dataId: string, dataType: DataType) => {
   return AbuseReport.deleteMany({ dataType, data: dataId } as any)
     .exec()
     .catch(e => logger.error('Error deleting abuse reports: ', e))
