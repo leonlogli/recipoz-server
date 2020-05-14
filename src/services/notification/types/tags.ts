@@ -15,7 +15,8 @@ const tagNotificationInfo = async (
   const user = actor.name
   const text = t(youAreTagged, { user })
 
-  return { text, actor }
+  // Acotors field here is just for type compatibility
+  return { text, actor, actors: [actor] }
 }
 
 export { tagNotificationInfo }

@@ -56,12 +56,14 @@ const buildNotificationActors = async (
 ): Promise<Actor[]> => {
   return actors.map(async (actor: any) => {
     if (actor.logo) {
-      return { id: actor._id, photo: actor.logo, name: actor.name } as Actor
+      const { logo: photo, name, _id: id } = actor
+
+      return { id, photo, name, __typename: 'RecipeSource' } as Actor
     }
     const user = await loaders.userLoader.load(actor.user)
     const { photoURL: photo, displayName: name } = user || {}
 
-    return { id: actor._id, photo, name } as Actor
+    return { id: actor._id, photo, name, __typename: 'Account' } as Actor
   }) as any[]
 }
 

@@ -6,7 +6,7 @@ import {
 } from '../../models'
 import { DataLoaders, errorRes, i18n, locales } from '../../utils'
 import { ModelService } from '../base'
-import { sendNotification } from './notificationSender'
+import { sendNotification } from './notificationManager'
 import { NotificationInput } from './notificationServiceHelper'
 import {
   deleteOldNotifications,

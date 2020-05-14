@@ -29,7 +29,8 @@ const newRecipesNotificationInfo = async (
     text = t(newRecipePublished, { user, count })
   }
 
-  return { text, ...newRecipes }
+  // Acotors field here is just for type compatibility
+  return { text, actors: [actor], ...newRecipes }
 }
 
 export { newRecipesNotificationInfo }

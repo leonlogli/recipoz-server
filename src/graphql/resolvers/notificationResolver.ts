@@ -1,8 +1,12 @@
-import { notificationService } from '../../services'
+import { notificationService, loadNotificationInfo } from '../../services'
 import { Context } from '..'
-import { validateCursorQuery } from '../../validations'
-import { buildFilterQuery, toLocalId, withClientMutationId } from '../../utils'
-import { validateNotification } from '../../validations/notification.validation'
+import { validateCursorQuery, validateNotification } from '../../validations'
+import {
+  buildFilterQuery,
+  toLocalId,
+  withClientMutationId,
+  getDataLoaderByModel
+} from '../../utils'
 
 export default {
   Query: {
@@ -42,9 +46,33 @@ export default {
   NotificationData: {
     __resolveType: (data: any) => data.__typename
   },
+  NotificationActor: {
+    __resolveType: (actor: any) => actor.__typename
+  },
   Notification: {
-    actor: async ({ actor }: any, _: any, { dataLoaders }: Context) => {
-      return dataLoaders.accountLoader.load(actor)
+    actors: async (notification: any, _: any, { dataLoaders }: Context) => {
+      if (!notification.actors) {
+        const res = await loadNotificationInfo(notification, dataLoaders)
+
+        notification.actors = res?.actors
+        notification.text = res?.text
+      }
+
+      return notification.actors.map((actor: any) => {
+        const loader = getDataLoaderByModel(actor.__typename, dataLoaders)
+
+        return loader?.load(actor.id)
+      })
+    },
+    text: async (notification: any, _: any, { dataLoaders }: Context) => {
+      if (!notification.text) {
+        const res = await loadNotificationInfo(notification, dataLoaders)
+
+        notification.actors = res?.actors
+        notification.text = res?.text
+      }
+
+      return dataLoaders.accountLoader.load(notification.text)
     },
     recipient: async ({ recipient }: any, _: any, { dataLoaders }: Context) => {
       return dataLoaders.accountLoader.load(recipient)

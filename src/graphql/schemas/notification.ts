@@ -3,8 +3,9 @@ import { gql } from 'apollo-server-express'
 export default gql`
   type Notification implements Node {
     id: ID! @guid
+    text: String!
     code: NotificationCode!
-    actor: Account!
+    actors: [NotificationActor!]!
     recipient: Account!
     data: NotificationData!
     read: Boolean!
@@ -25,6 +26,8 @@ export default gql`
   }
 
   union NotificationData = Comment | Recipe | Account
+
+  union NotificationActor = Account | RecipeSource
 
   enum NotificationCode {
     COMMENTS

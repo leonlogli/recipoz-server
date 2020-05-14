@@ -5,11 +5,13 @@ import {
   canReceivePushNotification,
   NotificationInput
 } from './notificationServiceHelper'
-import { likeNotificationInfo } from './types/likes'
-import newRecipesNotificationInfo from './types/newRecipes'
-import commentNotificationInfo from './types/comments'
-import newFollowersNotificationInfo from './types/newFollowers'
-import tagNotificationInfo from './types/tags'
+import {
+  likeNotificationInfo,
+  newRecipesNotificationInfo,
+  commentNotificationInfo,
+  newFollowersNotificationInfo,
+  tagNotificationInfo
+} from './types'
 
 const sendNotification = async (
   input: NotificationInput,
@@ -74,5 +76,29 @@ const sendNotification = async (
   }
 }
 
-export { sendNotification }
-export default sendNotification
+const loadNotificationInfo = async (
+  input: NotificationInput,
+  loaders: DataLoaders
+) => {
+  switch (input.code) {
+    case 'LIKES': {
+      return likeNotificationInfo(input, loaders)
+    }
+    case 'RECIPES': {
+      return newRecipesNotificationInfo(input, loaders)
+    }
+    case 'COMMENTS': {
+      return commentNotificationInfo(input, loaders)
+    }
+    case 'NEW_FOLLOWERS': {
+      return newFollowersNotificationInfo(input, loaders)
+    }
+    case 'TAGS': {
+      return tagNotificationInfo(input, loaders)
+    }
+    default:
+      return null
+  }
+}
+
+export { sendNotification, loadNotificationInfo }
