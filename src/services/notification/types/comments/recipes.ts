@@ -10,7 +10,6 @@ const {
   usersCommentRecipe,
   usersCommentYourRecipe
 } = notificationMessages
-const { t } = i18n
 
 const recipeCommentNotificationInfo = async (
   input: NotificationInput,
@@ -31,27 +30,27 @@ const recipeCommentNotificationInfo = async (
 
   if (count === 1) {
     if (String(actors[0].id) === String(targetRecipe.author)) {
-      text = t(authorCommentsHisRecipe, { author: user })
+      text = i18n.t(authorCommentsHisRecipe, { author: user })
     } else if (String(targetRecipe.author) === String(recipient)) {
-      text = t(userCommentsYourRecipe, { user })
+      text = i18n.t(userCommentsYourRecipe, { user })
     } else {
-      text = t(userCommentsRecipe, { user, recipe })
+      text = i18n.t(userCommentsRecipe, { user, recipe })
     }
   }
 
   if (count === 2) {
     if (String(targetRecipe.author) === String(recipient)) {
-      text = t(usersCommentYourRecipe, { user1: user, user2 })
+      text = i18n.t(usersCommentYourRecipe, { user1: user, user2 })
     } else {
-      text = t(usersCommentRecipe, { user1: user, user2, recipe })
+      text = i18n.t(usersCommentRecipe, { user1: user, user2, recipe })
     }
   }
 
   if (count > 2) {
     if (String(targetRecipe.author) === String(recipient)) {
-      text = t(usersCommentYourRecipe, { user, count: count - 1 })
+      text = i18n.t(usersCommentYourRecipe, { user, count: count - 1 })
     } else {
-      text = t(usersCommentRecipe, { user, recipe, count: count - 1 })
+      text = i18n.t(usersCommentRecipe, { user, recipe, count: count - 1 })
     }
   }
 

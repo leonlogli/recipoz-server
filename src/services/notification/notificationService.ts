@@ -16,7 +16,6 @@ import {
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.notification
 const { updated, deleted } = statusMessages.notification
-const { t } = i18n
 
 const notificationModel = new ModelService<NotificationDocument>({
   model: Notification,
@@ -60,7 +59,7 @@ const addNotifications = (
 
 const suitableErrorResponse = async (notificationId: any) => {
   const exists = await notificationModel.exists(notificationId)
-  const message = t(exists ? errorMessages.forbidden : notFound)
+  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
@@ -75,9 +74,12 @@ const updateNotification = async (
     const query = { _id, recipient }
 
     const notification = await notificationModel.updateOne(query, set, loaders)
-    const res = { success: true, message: t(updated), code: 200, notification }
 
-    return notification ? res : suitableErrorResponse(_id)
+    if (!notification) {
+      return suitableErrorResponse(_id)
+    }
+
+    return { success: true, message: i18n.t(updated), code: 200, notification }
   } catch (error) {
     return errorRes(error)
   }
@@ -91,7 +93,7 @@ const markAllNotificationsAsRead = async (accountId: any) => {
     const res = await Notification.updateMany(query, data).exec()
     const mutatedCount = res.mutatedCount || 0
     const success = mutatedCount > 0
-    const message = t(success ? updated : notFound)
+    const message = i18n.t(success ? updated : notFound)
 
     return { success, message, code: success ? 200 : 404, mutatedCount }
   } catch (error) {
@@ -102,11 +104,13 @@ const markAllNotificationsAsRead = async (accountId: any) => {
 const deleteNotification = async (input: { id: string; recipient: string }) => {
   try {
     const { id: _id, recipient } = input
-
     const notification = await notificationModel.deleteOne({ _id, recipient })
-    const res = { success: true, message: t(deleted), code: 200, notification }
 
-    return notification ? res : suitableErrorResponse(_id)
+    if (!notification) {
+      return suitableErrorResponse(_id)
+    }
+
+    return { success: true, message: i18n.t(deleted), code: 200, notification }
   } catch (error) {
     return errorRes(error)
   }

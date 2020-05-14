@@ -13,7 +13,6 @@ import {
 const { statusMessages, errorMessages } = locales
 const { notFound, userNotFound } = errorMessages.account
 const { created, deleted, updated } = statusMessages.account
-const { t } = i18n
 
 const accountModel = new ModelService<AccountDocument>({
   model: Account,
@@ -36,7 +35,7 @@ const addAccount = async (user: UserDocument) => {
 
   await userService.updateUser(account.user as any, userDefaults)
 
-  return { success: true, message: t(created), code: 201, account }
+  return { success: true, message: i18n.t(created), code: 201, account }
 }
 
 const addAccountForNewUser = async (newUser: any) => {
@@ -52,7 +51,7 @@ const addAccountForExistingUser = async (idToken: string) => {
     const user = await userService.getUserById(uid)
 
     if (!user) {
-      return { success: true, message: t(userNotFound), code: 404 }
+      return { success: true, message: i18n.t(userNotFound), code: 404 }
     }
 
     return await addAccount(user)
@@ -68,7 +67,7 @@ const updateAccount = async (input: any, loaders?: DataLoaders) => {
 
     await userService.updateUser(account.user as any, user, loaders)
 
-    return { success: true, message: t(updated), code: 200, account }
+    return { success: true, message: i18n.t(updated), code: 200, account }
   } catch (error) {
     return handleMutationError(error)
   }
@@ -84,7 +83,7 @@ const addRegistrationToken = async (accountId: any, token: string) => {
     const data = { $push: { registrationTokens: token } }
     const account = await accountModel.updateOne(query, data)
 
-    return { success: true, message: t(updated), code: 200, account }
+    return { success: true, message: i18n.t(updated), code: 200, account }
   } catch (error) {
     return handleMutationError(error)
   }
@@ -96,7 +95,7 @@ const deleteAccount = async (id: any) => {
 
     deleteAccountRelatedData(account)
 
-    return { success: true, message: t(deleted), code: 200, account }
+    return { success: true, message: i18n.t(deleted), code: 200, account }
   } catch (error) {
     return handleMutationError(error)
   }

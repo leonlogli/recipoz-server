@@ -4,7 +4,6 @@ import { NotificationInput } from '../notificationServiceHelper'
 
 const { notificationMessages } = locales
 const { newRecipePublished } = notificationMessages
-const { t } = i18n
 
 const newRecipesNotificationInfo = async (
   input: NotificationInput,
@@ -22,11 +21,11 @@ const newRecipesNotificationInfo = async (
   const recipe = truncate(targetRecipe.name, 30)
 
   if (count === 1) {
-    text = t(newRecipePublished, { user, recipe })
+    text = i18n.t(newRecipePublished, { user, recipe })
   }
 
   if (count > 2) {
-    text = t(newRecipePublished, { user, count })
+    text = i18n.t(newRecipePublished, { user, count })
   }
 
   // Acotors field here is just for type compatibility

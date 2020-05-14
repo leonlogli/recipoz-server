@@ -6,7 +6,6 @@ import getIngredientCategory from './ingredientCategory'
 const { statusMessages, errorMessages } = locales
 const { internalServerError } = errorMessages
 const { added } = statusMessages.shoppingListItem
-const { t } = i18n
 
 let shoppingListModel: ModelService<ShoppingListItemDocument>
 
@@ -27,7 +26,7 @@ const addShoppingListItem = async (input: any, loaders: DataLoaders) => {
     }
 
     const shoppingListItem = await shoppingListModel.createOrUpdate(query, data)
-    const message = t(added, { count: 1 })
+    const message = i18n.t(added, { count: 1 })
 
     return { success: true, message, code: 200, shoppingListItem }
   } catch (error) {
@@ -46,8 +45,8 @@ const addShoppingListItems = async (input: any, loaders: DataLoaders) => {
     const shoppingListItems = res.filter(addedItem => addedItem.success)
 
     const success = shoppingListItems.length > 0
-    const successMsg = t(added, { count: shoppingListItems.length })
-    const message = success ? successMsg : t(internalServerError)
+    const successMsg = i18n.t(added, { count: shoppingListItems.length })
+    const message = success ? successMsg : i18n.t(internalServerError)
 
     return { success, message, code: success ? 201 : 500, shoppingListItems }
   } catch (error) {

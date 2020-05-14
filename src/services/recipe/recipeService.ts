@@ -18,7 +18,6 @@ import {
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.recipe
 const { created, deleted, updated } = statusMessages.recipe
-const { t } = i18n
 
 const recipeModel = new ModelService<RecipeDocument>({
   autocompleteField: 'name',
@@ -52,7 +51,7 @@ const addRecipe = async (input: any, loaders: DataLoaders) => {
 
     addRecipeNotification(recipe, loaders)
 
-    return { success: true, message: t(created), code: 201, recipe }
+    return { success: true, message: i18n.t(created), code: 201, recipe }
   } catch (error) {
     return errorRes(error)
   }
@@ -60,7 +59,7 @@ const addRecipe = async (input: any, loaders: DataLoaders) => {
 
 const suitableErrorResponse = async (recipeId: any) => {
   const exists = await recipeModel.exists(recipeId)
-  const message = t(exists ? errorMessages.forbidden : notFound)
+  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
@@ -74,7 +73,7 @@ const updateRecipe = async (data: any, loaders: DataLoaders) => {
       await loaders.recipeSourceLoader.load(author)
     }
     const recipe = await recipeModel.updateOne(query, { $set: input })
-    const res = { success: true, message: t(updated), code: 200, recipe }
+    const res = { success: true, message: i18n.t(updated), code: 200, recipe }
 
     return recipe ? res : suitableErrorResponse(_id)
   } catch (error) {
@@ -93,7 +92,7 @@ const deleteRecipe = async (input: any, isAdmin = false) => {
     }
     notificationService.deleteNotifications({ data: _id, dataType: 'Recipe' })
 
-    return { success: true, message: t(deleted), code: 200, recipe }
+    return { success: true, message: i18n.t(deleted), code: 200, recipe }
   } catch (error) {
     return errorRes(error)
   }

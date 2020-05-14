@@ -4,7 +4,6 @@ import { NotificationInput } from '../notificationServiceHelper'
 
 const { notificationMessages } = locales
 const { youAreTagged } = notificationMessages
-const { t } = i18n
 
 const tagNotificationInfo = async (
   input: NotificationInput,
@@ -13,7 +12,7 @@ const tagNotificationInfo = async (
   const actor = await loadTagActor(input, loaders)
 
   const user = actor.name
-  const text = t(youAreTagged, { user })
+  const text = i18n.t(youAreTagged, { user })
 
   // Acotors field here is just for type compatibility
   return { text, actor, actors: [actor] }

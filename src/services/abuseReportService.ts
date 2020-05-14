@@ -17,7 +17,6 @@ const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.abuseReport
 const { cannotReportAbuseOnYourData: cannotReport } = errorMessages.account
 const { created, deleted, updated } = statusMessages.abuseReport
-const { t } = i18n
 
 const abuseReportModel = new ModelService<AbuseReportDocument>({
   model: AbuseReport,
@@ -49,14 +48,14 @@ const reportAbuse = async (input: ReportInput, loaders: DataLoaders) => {
     const { data, dataType, type, author } = input
 
     if (await isDataAuthor(input, loaders)) {
-      return { success: false, message: t(cannotReport), code: 422 }
+      return { success: false, message: i18n.t(cannotReport), code: 422 }
     }
     const query = { dataType, data, author }
     const set = { $set: { author, data, dataType, type } }
 
     const abuseReport = await abuseReportModel.createOrUpdate(query, set)
 
-    return { success: true, message: t(created), code: 201, abuseReport }
+    return { success: true, message: i18n.t(created), code: 201, abuseReport }
   } catch (error) {
     return errorRes(error)
   }
@@ -64,7 +63,7 @@ const reportAbuse = async (input: ReportInput, loaders: DataLoaders) => {
 
 const suitableErrorResponse = async (abuseReportId: any) => {
   const exists = await abuseReportModel.exists(abuseReportId)
-  const message = t(exists ? errorMessages.forbidden : notFound)
+  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
@@ -76,7 +75,7 @@ const updateAbuseReport = async (input: ReportInput, isAdmin = false) => {
     const set = { $set: { type, ...(isAdmin && { status }) } }
 
     const abuseReport = await abuseReportModel.updateOne(query, set)
-    const res = { success: true, message: t(updated), code: 200, abuseReport }
+    const res = { success: 1, message: i18n.t(updated), code: 200, abuseReport }
 
     return abuseReport ? res : suitableErrorResponse(_id)
   } catch (error) {
@@ -92,7 +91,7 @@ const changeDataAbuseReportsStatus = async (input: ReportInput) => {
 
     const mutatedCount = res.mutatedCount || 0
     const success = mutatedCount > 0
-    const message = t(success ? updated : notFound)
+    const message = i18n.t(success ? updated : notFound)
 
     return { success, message, code: success ? 200 : 404, mutatedCount }
   } catch (error) {
@@ -106,7 +105,7 @@ const deleteAbuseReport = async (input: ReportInput, isAdmin = false) => {
     const query = { _id, ...(!isAdmin && { author }) }
 
     const abuseReport = await abuseReportModel.deleteOne(query)
-    const res = { success: true, message: t(deleted), code: 200, abuseReport }
+    const res = { success: 1, message: i18n.t(deleted), code: 200, abuseReport }
 
     return abuseReport ? res : suitableErrorResponse(_id)
   } catch (error) {

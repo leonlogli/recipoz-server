@@ -9,7 +9,6 @@ const {
   userRepliedToCommentYouAreTaggedIn,
   usersRepliedToCommentYouAreTaggedIn
 } = notificationMessages
-const { t } = i18n
 
 const commentRepliesNotificationInfo = async (
   input: NotificationInput,
@@ -30,25 +29,28 @@ const commentRepliesNotificationInfo = async (
 
   if (count === 1) {
     if (String(targetComment.author) === String(recipient)) {
-      text = t(userRepliedToYourComment, { user, comment })
+      text = i18n.t(userRepliedToYourComment, { user, comment })
     } else {
-      text = t(userRepliedToCommentYouAreTaggedIn, { user })
+      text = i18n.t(userRepliedToCommentYouAreTaggedIn, { user })
     }
   }
 
   if (count === 2) {
     if (String(targetComment.author) === String(recipient)) {
-      text = t(usersRepliedToYourComment, { user1: user, user2, comment })
+      text = i18n.t(usersRepliedToYourComment, { user1: user, user2, comment })
     } else {
-      text = t(usersRepliedToCommentYouAreTaggedIn, { user1: user, user2 })
+      text = i18n.t(usersRepliedToCommentYouAreTaggedIn, { user1: user, user2 })
     }
   }
 
   if (count > 2) {
     if (String(targetComment.author) === String(recipient)) {
-      text = t(usersRepliedToYourComment, { user, count: count - 1 })
+      text = i18n.t(usersRepliedToYourComment, { user, count: count - 1 })
     } else {
-      text = t(usersRepliedToCommentYouAreTaggedIn, { user, count: count - 1 })
+      text = i18n.t(usersRepliedToCommentYouAreTaggedIn, {
+        user,
+        count: count - 1
+      })
     }
   }
 

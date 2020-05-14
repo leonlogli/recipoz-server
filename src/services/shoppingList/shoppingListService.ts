@@ -6,7 +6,6 @@ import addItems from './addItems'
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.shoppingListItem
 const { deleted, updated } = statusMessages.shoppingListItem
-const { t } = i18n
 
 const shoppingListModel = new ModelService<ShoppingListItemDocument>({
   model: ShoppingListItem,
@@ -21,7 +20,7 @@ const getShoppingListItems = shoppingListModel.search
 
 const suitableErrorResponse = async (itemId: any) => {
   const exists = await shoppingListModel.exists(itemId)
-  const message = t(exists ? errorMessages.forbidden : notFound)
+  const message = i18n.t(exists ? errorMessages.forbidden : notFound)
 
   return { success: false, message, code: exists ? 403 : 404 }
 }
@@ -33,7 +32,7 @@ const updateShoppingListItem = async (input: any, loaders: DataLoaders) => {
     const query = { _id, account }
 
     const item = await shoppingListModel.updateOne(query, set, loaders)
-    const message = t(updated)
+    const message = i18n.t(updated)
     const res = { success: true, message, code: 200, shoppingListItem: item }
 
     return item ? res : suitableErrorResponse(_id)
@@ -47,7 +46,7 @@ const deleteShoppingListItem = async (input: any) => {
     const { id: _id, account } = input
 
     const shoppingListItem = await shoppingListModel.deleteOne({ _id, account })
-    const message = t(deleted, { count: 1 })
+    const message = i18n.t(deleted, { count: 1 })
     const res = { success: true, message, code: 200, shoppingListItem }
 
     return shoppingListItem ? res : suitableErrorResponse(_id)
@@ -63,7 +62,7 @@ const clearCheckedItems = async (accountId: any, loaders: DataLoaders) => {
 
     const res = await ShoppingListItem.deleteMany(query).exec()
     const deletedCount = res.deletedCount || 0
-    const message = t(deleted, { count: deletedCount })
+    const message = i18n.t(deleted, { count: deletedCount })
 
     return { success: deletedCount === count, message, code: 200, deletedCount }
   } catch (error) {
@@ -78,7 +77,7 @@ const clearShoppingList = async (accountId: any, loaders?: DataLoaders) => {
 
     const res = await ShoppingListItem.deleteMany(query).exec()
     const deletedCount = res.deletedCount || 0
-    const message = t(deleted, { count: deletedCount })
+    const message = i18n.t(deleted, { count: deletedCount })
 
     return { success: deletedCount === count, message, code: 200, deletedCount }
   } catch (error) {
