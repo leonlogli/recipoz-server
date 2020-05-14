@@ -1,5 +1,5 @@
 import { Category, CategoryDocument, Recipe } from '../models'
-import ModelService from './base/ModelService'
+import { ModelService } from './base'
 import {
   DataLoaders,
   buildFilterQuery,

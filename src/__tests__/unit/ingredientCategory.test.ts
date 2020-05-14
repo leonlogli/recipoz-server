@@ -1,8 +1,8 @@
 /* eslint-disable quotes */
 import { expect } from 'chai'
-import { getIngredientCategory } from '../../../utils/ingredientDataHelper'
+import { getIngredientCategory } from '../../services/shoppingList'
 
-describe('ingredientData Helper', () => {
+describe('ingredient ctegory handler', () => {
   it('should return the right category for unkown ingredients', () => {
     expect(getIngredientCategory('unknown ingredient.')).to.equal('OTHER')
   })

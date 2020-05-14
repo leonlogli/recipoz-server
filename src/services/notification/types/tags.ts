@@ -1,6 +1,6 @@
 import { DataLoaders, i18n, locales } from '../../../utils'
 import { loadTagActor } from '../actors'
-import { NotificationInput } from '../helper'
+import { NotificationInput } from '../notificationServiceHelper'
 
 const { notificationMessages } = locales
 const { youAreTagged } = notificationMessages

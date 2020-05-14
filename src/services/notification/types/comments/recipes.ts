@@ -1,6 +1,6 @@
 import { DataLoaders, i18n, locales, truncate } from '../../../../utils'
 import { loadCommenters } from '../../actors'
-import { NotificationInput } from '../../helper'
+import { NotificationInput } from '../../notificationServiceHelper'
 
 const { notificationMessages } = locales
 const {

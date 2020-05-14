@@ -8,7 +8,7 @@ import {
   lastReadNotificationId,
   NotificationInput,
   ActorsInfo
-} from './helper'
+} from './notificationServiceHelper'
 import { validateCursorQuery } from '../../validations'
 
 const loadCommentLikers = async (

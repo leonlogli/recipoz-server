@@ -1,18 +1,11 @@
-import { ShoppingListItem, ShoppingListItemDocument } from '../models'
-import {
-  DataLoaders,
-  i18n,
-  clean,
-  getIngredientCategory,
-  errorRes,
-  locales
-} from '../utils'
-import ModelService from './base/ModelService'
+import { ShoppingListItem, ShoppingListItemDocument } from '../../models'
+import { DataLoaders, i18n, errorRes, locales } from '../../utils'
+import { ModelService } from '../base'
+import addItems from './addItems'
 
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.shoppingListItem
-const { internalServerError } = errorMessages
-const { deleted, updated, added } = statusMessages.shoppingListItem
+const { deleted, updated } = statusMessages.shoppingListItem
 const { t } = i18n
 
 const shoppingListModel = new ModelService<ShoppingListItemDocument>({
@@ -25,48 +18,6 @@ const getShoppingListItem = shoppingListModel.findByIds
 const getShoppingListItemsByBatch = shoppingListModel.batchFind
 const getShoppingListItemAndSelect = shoppingListModel.findOne
 const getShoppingListItems = shoppingListModel.search
-
-const addShoppingListItem = async (input: any, loaders: DataLoaders) => {
-  try {
-    const { account, name, quantity, recipe } = input
-    let query: any = clean({ account, name, quantity })
-    const category = getIngredientCategory(name)
-    let data: any = { $set: input, $setOnInsert: { category } }
-
-    if (recipe) {
-      const doc = await loaders.recipeLoader.load(recipe)
-
-      if (doc.ingredients.find((i: any) => i.name === name)) {
-        query = { account, name, recipe }
-      } else data = { ...data, $set: { ...input, recipe: undefined } }
-    }
-    const shoppingListItem = await shoppingListModel.createOrUpdate(query, data)
-    const message = t(added, { count: 1 })
-
-    return { success: true, message, code: 200, shoppingListItem }
-  } catch (error) {
-    return errorRes(error)
-  }
-}
-
-const addShoppingListItems = async (input: any, loaders: DataLoaders) => {
-  try {
-    const { recipe, account, items } = input
-    const data: any[] = items.map((item: any) => ({ ...item, recipe, account }))
-
-    const res = await Promise.all(
-      data.map(item => addShoppingListItem(item, loaders))
-    )
-    const shoppingListItems = res.filter(addedItem => addedItem.success)
-    const success = shoppingListItems.length > 0
-    const successMsg = t(added, { count: shoppingListItems.length })
-    const message = success ? successMsg : t(internalServerError)
-
-    return { success, message, code: success ? 201 : 500, shoppingListItems }
-  } catch (error) {
-    return errorRes(error)
-  }
-}
 
 const suitableErrorResponse = async (itemId: any) => {
   const exists = await shoppingListModel.exists(itemId)
@@ -136,15 +87,14 @@ const clearShoppingList = async (accountId: any, loaders?: DataLoaders) => {
 }
 
 export const shoppingListService = {
+  ...addItems(shoppingListModel),
   getShoppingListItem,
   getShoppingListItems,
   countShoppingListItemsByBatch,
   getShoppingListItemsByBatch,
   getShoppingListItemAndSelect,
-  addShoppingListItem,
   deleteShoppingListItem,
   updateShoppingListItem,
-  addShoppingListItems,
   clearCheckedItems,
   clearShoppingList
 }

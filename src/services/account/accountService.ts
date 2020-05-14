@@ -5,7 +5,10 @@ import { DataLoaders, i18n, locales } from '../../utils'
 import { ModelService } from '../base'
 import { userService } from '../firebase'
 import { isValidFCMToken } from '../firebase/fcmServiceBase'
-import { deleteAccountRelatedData, handleMutationError } from './helper'
+import {
+  deleteAccountRelatedData,
+  handleMutationError
+} from './accountServiceHelper'
 
 const { statusMessages, errorMessages } = locales
 const { notFound, userNotFound } = errorMessages.account

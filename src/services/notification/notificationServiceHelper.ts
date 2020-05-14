@@ -6,7 +6,7 @@ import {
 import { objectIdFromDate, objectIdToDate, DataLoaders } from '../../utils'
 import {
   DAILY_MAX_PUSH_NOTIFICATION,
-  MAX_APP_NOTIFICATION_PAR_ACCOUNT as MAX_NOTIFICATION
+  MAX_APP_NOTIFICATION_PAR_ACCOUNT
 } from '../../config'
 import { validateCursorQuery } from '../../validations'
 
@@ -28,17 +28,19 @@ const canReceivePushNotification = async (
 ) => {
   const { recipient: recipientId, code } = input
   const lastMidnightId = objectIdFromDate(new Date().setUTCHours(0, 0, 0, 0))
-
   const criteria = { _id: { $gt: lastMidnightId }, recipient: recipientId }
-  const query = { criteria, limit: MAX_NOTIFICATION, paginatedField: '_id' }
-  const { notificationByQueryLoader: loader } = loaders
 
-  const { nodes: lastNotifications } = await loader.load(query)
+  const limit = MAX_APP_NOTIFICATION_PAR_ACCOUNT
+  const query = { criteria, limit, paginatedField: '_id' }
+
+  const [{ nodes: lastNotifications }, recipient] = await Promise.all([
+    loaders.notificationByQueryLoader.load(query),
+    loaders.accountLoader.load(recipientId)
+  ])
+
   const isAlreadyNotified = lastNotifications.find(n => n.code === code)
   const hasReachedDailyFrequency =
     lastNotifications.length > DAILY_MAX_PUSH_NOTIFICATION
-
-  const recipient = await loaders.accountLoader.load(recipientId)
 
   return (
     recipient.notificationSettings.push.includes(code) &&

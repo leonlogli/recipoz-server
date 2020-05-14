@@ -1,8 +1,8 @@
 import { RecipeSource, RecipeSourceDocument } from '../models'
 import { i18n, isDuplicateError, errorRes, locales } from '../utils'
-import ModelService from './base/ModelService'
+import { ModelService } from './base'
 import followershipService from './followershipService'
-import recipeService from './recipeService'
+import { recipeService } from './recipe'
 import { logger } from '../config'
 
 const { statusMessages, errorMessages } = locales

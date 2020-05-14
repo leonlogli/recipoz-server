@@ -1,7 +1,10 @@
 import { AccountDocument } from '../../models'
 import { DataLoaders, toGlobalId, getDataLoaderByModel } from '../../utils'
 import { fcmService } from '../firebase'
-import { canReceivePushNotification, NotificationInput } from './helper'
+import {
+  canReceivePushNotification,
+  NotificationInput
+} from './notificationServiceHelper'
 import { likeNotificationInfo } from './types/likes'
 import newRecipesNotificationInfo from './types/newRecipes'
 import commentNotificationInfo from './types/comments'

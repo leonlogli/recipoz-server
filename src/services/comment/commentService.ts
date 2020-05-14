@@ -6,7 +6,7 @@ import {
   errorRes,
   locales
 } from '../../utils'
-import ModelService from '../base/ModelService'
+import { ModelService } from '../base'
 import { logger } from '../../config'
 import { notificationService } from '../notification'
 import {
@@ -14,7 +14,7 @@ import {
   loadCommentRatingSummary,
   CommentInput,
   addCommentNotifications
-} from './helper'
+} from './commentServiceHelper'
 
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.comment

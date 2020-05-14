@@ -1,5 +1,5 @@
 import { DataLoaders } from '../../../../utils'
-import { NotificationInput } from '../../helper'
+import { NotificationInput } from '../../notificationServiceHelper'
 import commentRepliesNotificationInfo from './replies'
 import recipeCommentNotificationInfo from './recipes'
 

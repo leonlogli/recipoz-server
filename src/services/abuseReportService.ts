@@ -10,7 +10,7 @@ import {
   DataLoaders,
   locales
 } from '../utils'
-import ModelService from './base/ModelService'
+import { ModelService } from './base'
 import { logger } from '../config'
 
 const { statusMessages, errorMessages } = locales

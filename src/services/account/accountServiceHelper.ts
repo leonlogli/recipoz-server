@@ -10,11 +10,11 @@ import abuseReportService from '../abuseReportService'
 import { commentReactionService, commentService } from '../comment'
 import { userService } from '../firebase'
 import followershipService from '../followershipService'
-import notificationService from '../notification/notificationService'
+import { notificationService } from '../notification'
 import recipeCollectionService from '../recipeCollectionService'
-import recipeService from '../recipeService'
+import { recipeService } from '../recipe'
 import savedRecipeService from '../savedRecipeService'
-import shoppingListService from '../shoppingListService'
+import { shoppingListService } from '../shoppingList'
 
 const { alreadyExists } = locales.errorMessages.account
 

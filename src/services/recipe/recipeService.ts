@@ -1,4 +1,4 @@
-import { Recipe, RecipeDocument, Followership } from '../models'
+import { Recipe, RecipeDocument } from '../../models'
 import {
   DataLoaders,
   i18n,
@@ -6,17 +6,19 @@ import {
   buildFilterQuery,
   errorRes,
   locales
-} from '../utils'
-import ModelService from './base/ModelService'
-import { logger } from '../config'
-import { notificationService } from './notification'
+} from '../../utils'
+import { ModelService } from '../base'
+import { notificationService } from '../notification'
+import {
+  addRecipeNotification,
+  deleteAccountRecipes,
+  deleteSourceRecipes
+} from './recipeServiceHelper'
 
 const { statusMessages, errorMessages } = locales
 const { notFound } = errorMessages.recipe
 const { created, deleted, updated } = statusMessages.recipe
 const { t } = i18n
-
-const { addNotifications, deleteNotifications } = notificationService
 
 const recipeModel = new ModelService<RecipeDocument>({
   autocompleteField: 'name',
@@ -39,22 +41,6 @@ const search = (
   const filterQuery = buildFilterQuery(filter)
 
   return recipeModel.search(query, page, filterQuery, loaders)
-}
-
-const addRecipeNotification = async (
-  recipe: RecipeDocument,
-  loaders: DataLoaders
-) => {
-  const followedDataType = recipe.source ? 'RecipeSource' : 'Account'
-  const followedData = recipe.source ? recipe.source : recipe.author
-
-  const query = { followedData, followedDataType } as const
-  const docs = await Followership.find(query, 'follower', { lean: true }).exec()
-
-  const followers = docs.map(doc => doc.follower)
-  const msg = { code: 'RECIPES', data: recipe._id, dataType: 'Recipe' } as const
-
-  return addNotifications(msg, followers, loaders)
 }
 
 const addRecipe = async (input: any, loaders: DataLoaders) => {
@@ -105,31 +91,12 @@ const deleteRecipe = async (input: any, isAdmin = false) => {
     if (!recipe) {
       suitableErrorResponse(_id)
     }
-    deleteNotifications({ data: _id, dataType: 'Recipe' })
+    notificationService.deleteNotifications({ data: _id, dataType: 'Recipe' })
 
     return { success: true, message: t(deleted), code: 200, recipe }
   } catch (error) {
     return errorRes(error)
   }
-}
-
-const deleteAccountRecipes = async (accountId: any) => {
-  return Recipe.deleteMany({ author: accountId, source: { $exists: false } })
-    .exec()
-    .catch(e =>
-      logger.error(`Error deleting account (${accountId}) recipes: `, e)
-    )
-}
-
-const deleteSourceRecipes = async (recipeSourceId: any) => {
-  return Recipe.deleteMany({ source: recipeSourceId })
-    .exec()
-    .catch(e =>
-      logger.error(
-        `Error deleting recipeSource (${recipeSourceId}) recipes: `,
-        e
-      )
-    )
 }
 
 export const recipeService = {

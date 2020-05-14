@@ -1,8 +1,8 @@
 /* eslint-disable no-useless-escape */
 import pluralize from 'pluralize'
 
-import { detectLanguage, SupportedLanguage } from './i18n'
-import { ingredients } from '../resources'
+import { detectLanguage, SupportedLanguage } from '../../utils/i18n'
+import { ingredients } from '../../resources'
 
 type Item = typeof ingredients.en[number]
 
@@ -89,3 +89,4 @@ const getIngredientCategory = (ingredient: string) => {
 }
 
 export { getIngredientCategory }
+export default getIngredientCategory
