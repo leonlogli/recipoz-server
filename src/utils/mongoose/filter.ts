@@ -104,9 +104,7 @@ const restoreDottedFields = (res: Record<string, any>) => {
     }
 
     if (filterMetaOperators.includes(`${oldKey.slice(1)}` as any)) {
-      res[oldKey].forEach((obj: object) => {
-        restoreDottedFields(obj)
-      })
+      res[oldKey].forEach((obj: object) => restoreDottedFields(obj))
     }
   })
 }

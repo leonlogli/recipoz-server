@@ -29,7 +29,7 @@ const getCategoriesByBatch = categoryModel.batchFind
 const autocomplete = categoryModel.autocompleteSearch
 
 const search = async (query: string, page: OffsetPage, filter?: any) => {
-  const filterQuery = buildFilterQuery(filter)
+  const filterQuery = buildFilterQuery(filter, { parent: 'Category' })
 
   return categoryModel.search(query, page, filterQuery)
 }

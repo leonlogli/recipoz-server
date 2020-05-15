@@ -32,7 +32,7 @@ const getRecipeAndSelect = recipeModel.findOne
 const autocomplete = recipeModel.autocompleteSearch
 
 const search = (query: string, page: OffsetPage, filter?: any) => {
-  const filterQuery = buildFilterQuery(filter)
+  const filterQuery = buildFilterQuery(filter, { categories: 'Category' })
 
   return recipeModel.search(query, page, filterQuery)
 }
