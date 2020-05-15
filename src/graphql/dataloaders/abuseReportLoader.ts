@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader'
 
 import { abuseReportService } from '../../services'
-import { dataByQueryLoaderOptions as options } from '../../utils'
+import { dataByQueryLoaderOptions as options, prime } from '../../utils'
 
 const {
   getAbuseReportsByBatch,
@@ -11,8 +11,18 @@ const {
 
 const abuseReportLoader = () => new DataLoader(getAbuseReports)
 
-const abuseReportByQueryLoader = () => {
-  return new DataLoader(getAbuseReportsByBatch, options)
+type AbuseReportLoader = ReturnType<typeof abuseReportLoader>
+
+const abuseReportByQueryLoader = (loader: AbuseReportLoader) => {
+  return new DataLoader(async queries => {
+    const res = await getAbuseReportsByBatch(queries as any)
+
+    for (const page of res) {
+      prime(loader, ...page.nodes)
+    }
+
+    return res
+  }, options)
 }
 
 const abuseReportCountLoader = () => {

@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader'
 
 import { recipeCollectionService } from '../../services'
-import { dataByQueryLoaderOptions as options } from '../../utils'
+import { dataByQueryLoaderOptions as options, prime } from '../../utils'
 
 const {
   getRecipeCollectionsByBatch,
@@ -11,8 +11,18 @@ const {
 
 const recipeCollectionLoader = () => new DataLoader(getRecipeCollections)
 
-const recipeCollectionByQueryLoader = () => {
-  return new DataLoader(getRecipeCollectionsByBatch, options)
+type RecipeCollectionLoader = ReturnType<typeof recipeCollectionLoader>
+
+const recipeCollectionByQueryLoader = (loader: RecipeCollectionLoader) => {
+  return new DataLoader(async queries => {
+    const res = await getRecipeCollectionsByBatch(queries as any)
+
+    for (const page of res) {
+      prime(loader, ...page.nodes)
+    }
+
+    return res
+  }, options)
 }
 
 const recipeCollectionCountLoader = () => {

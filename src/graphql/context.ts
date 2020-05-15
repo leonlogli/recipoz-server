@@ -2,7 +2,7 @@ import { Request as BaseRequest, Response } from 'express'
 
 import { AuthenticationError, DataLoaders, isValidObjectId } from '../utils'
 import { Role } from '../models'
-import createDataLoaders from './dataloaders'
+import { createDataLoaders } from './dataloaders'
 import { ADMIN } from '../constants'
 
 export type Request = BaseRequest & {

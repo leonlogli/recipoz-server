@@ -1,14 +1,24 @@
 import DataLoader from 'dataloader'
 
 import { accountService } from '../../services'
-import { dataByQueryLoaderOptions as options } from '../../utils'
+import { dataByQueryLoaderOptions as options, prime } from '../../utils'
 
 const { getAccountsByBatch, getAccounts, countAccounts } = accountService
 
 const accountLoader = () => new DataLoader(getAccounts)
 
-const accountByQueryLoader = () => {
-  return new DataLoader(getAccountsByBatch, options)
+type AccountLoader = ReturnType<typeof accountLoader>
+
+const accountByQueryLoader = (loader: AccountLoader) => {
+  return new DataLoader(async queries => {
+    const res = await getAccountsByBatch(queries as any)
+
+    for (const page of res) {
+      prime(loader, ...page.nodes)
+    }
+
+    return res
+  }, options)
 }
 
 const accountCountLoader = () => {

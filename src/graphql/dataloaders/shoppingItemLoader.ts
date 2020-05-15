@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader'
 
 import { shoppingListService } from '../../services'
-import { dataByQueryLoaderOptions as options } from '../../utils'
+import { dataByQueryLoaderOptions as options, prime } from '../../utils'
 
 const {
   getShoppingListItemsByBatch,
@@ -11,8 +11,18 @@ const {
 
 const shoppingListItemLoader = () => new DataLoader(getShoppingListItem)
 
-const shoppingListItemByQueryLoader = () => {
-  return new DataLoader(getShoppingListItemsByBatch, options)
+type ShoppingListItemLoader = ReturnType<typeof shoppingListItemLoader>
+
+const shoppingListItemByQueryLoader = (loader: ShoppingListItemLoader) => {
+  return new DataLoader(async queries => {
+    const res = await getShoppingListItemsByBatch(queries as any)
+
+    for (const page of res) {
+      prime(loader, ...page.nodes)
+    }
+
+    return res
+  }, options)
 }
 
 const shoppingListItemCountLoader = () => {

@@ -28,15 +28,10 @@ const getCategories = categoryModel.findByIds
 const getCategoriesByBatch = categoryModel.batchFind
 const autocomplete = categoryModel.autocompleteSearch
 
-const search = async (
-  query: string,
-  page: OffsetPage,
-  filter?: any,
-  loaders?: DataLoaders
-) => {
+const search = async (query: string, page: OffsetPage, filter?: any) => {
   const filterQuery = buildFilterQuery(filter)
 
-  return categoryModel.search(query, page, filterQuery, loaders)
+  return categoryModel.search(query, page, filterQuery)
 }
 
 const handleMutationError = (error: any) => {

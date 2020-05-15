@@ -1,19 +1,16 @@
 import { Document } from 'mongoose'
 
-import {
-  DataLoaders,
-  toBase64,
-  isEmpty,
-  concatValues,
-  OffsetPage
-} from '../../utils'
 import ModelServiceBase from './ModelServiceBase'
 import {
   buildCursorQuery,
   CursorPagingQuery,
-  buildSortDirectives
-} from '../../utils/mongoose/pagination'
-import buildPagedResponse from '../../utils/mongoose/pagination/result'
+  buildSortDirectives,
+  toBase64,
+  isEmpty,
+  concatValues,
+  OffsetPage,
+  buildPagedResponse
+} from '../../utils'
 
 class ModelService<T extends Document> extends ModelServiceBase<T> {
   findById = async (id: any): Promise<T> => {
@@ -66,53 +63,49 @@ class ModelService<T extends Document> extends ModelServiceBase<T> {
     return concatValues(tagsArray)
   }
 
-  search = async (
-    query: string,
-    page: OffsetPage,
-    filter?: any,
-    loaders?: DataLoaders
-  ) => {
+  search = async (query: string, page: OffsetPage, filter?: any) => {
     const textScore = { score: { $meta: 'textScore' } }
     const conditions = { $text: { $search: query }, ...filter }
     const projection = textScore
+
     const skip = page.size * (page.number - 1)
     const opts = { lean: true, skip, limit: page.size, sort: textScore }
-
     const docs: T[] = await this.model.find(conditions, projection, opts).exec()
-    const count = this.model.countDocuments(conditions).exec()
 
-    this.primeDataLoader(loaders, ...docs)
+    docs.forEach((doc: any) => {
+      doc.__typename = this.modelName
+    })
+    const count = this.model.countDocuments(conditions).exec()
 
     return { content: docs, count, query: { criteria: conditions, page } }
   }
 
-  /**
-   * Find docs by batch
-   */
-  batchFind = async (
-    queries: readonly CursorPagingQuery[],
-    loaders?: DataLoaders
-  ) => {
+  /** Find docs by batch */
+  batchFind = async (queries: readonly CursorPagingQuery[]) => {
     const _queries = queries.map(query => {
       const { criteria, limit } = query
       const cursorQuery = buildCursorQuery(query)
+
       const $match: any = isEmpty(criteria)
         ? cursorQuery
         : { $and: [cursorQuery, criteria] }
+
       const $sort = buildSortDirectives(query)
       const values = [{ $match }, { $sort }, { $limit: limit + 1 }]
 
       return [toBase64(query), values]
     })
 
-    const docs = await this.model
+    const data = await this.model
       .aggregate([{ $facet: Object.fromEntries(_queries) }])
       .exec()
-    const res: Record<string, T[]> = docs[0]
+    const res: Record<string, T[]> = data[0]
 
-    if (loaders) {
-      Object.values(res).forEach(d => this.primeDataLoader(loaders, ...d))
-    }
+    Object.values(res).forEach(docs => {
+      docs.forEach((doc: any) => {
+        doc.__typename = this.modelName
+      })
+    })
 
     return queries.map(query => buildPagedResponse(res[toBase64(query)], query))
   }

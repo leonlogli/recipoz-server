@@ -7,7 +7,6 @@ import {
   DataLoaders,
   getDataLoaderByModel,
   updateDataLoaderCache,
-  prime,
   ModelName
 } from '../../utils'
 import TextAutocompleteService, {
@@ -130,17 +129,6 @@ class ModelServiceBase<T extends Document> {
 
   get notFoundError() {
     return new ApiError(this.options.onNotFound, '404')
-  }
-
-  primeDataLoader = (dataLoaders?: DataLoaders, ...docs: T[]) => {
-    if (!dataLoaders) {
-      return
-    }
-    const dataLoader = getDataLoaderByModel(this.modelName, dataLoaders)
-
-    if (dataLoader) {
-      prime(dataLoader, ...docs)
-    }
   }
 }
 

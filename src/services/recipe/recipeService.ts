@@ -31,15 +31,10 @@ const getRecipesByBatch = recipeModel.batchFind
 const getRecipeAndSelect = recipeModel.findOne
 const autocomplete = recipeModel.autocompleteSearch
 
-const search = (
-  query: string,
-  page: OffsetPage,
-  filter?: any,
-  loaders?: DataLoaders
-) => {
+const search = (query: string, page: OffsetPage, filter?: any) => {
   const filterQuery = buildFilterQuery(filter)
 
-  return recipeModel.search(query, page, filterQuery, loaders)
+  return recipeModel.search(query, page, filterQuery)
 }
 
 const addRecipe = async (input: any, loaders: DataLoaders) => {

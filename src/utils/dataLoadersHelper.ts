@@ -22,7 +22,6 @@ import { ApiError } from './errors'
 import { ModelName } from './mongoose'
 
 export type DataLoaders = {
-  userLoader: DataLoader<string, UserDocument | null>
   recipeLoader: DataLoader<string, RecipeDocument | ApiError>
   recipeSourceLoader: DataLoader<string, RecipeSourceDocument | ApiError>
   accountLoader: DataLoader<string, AccountDocument | ApiError>
@@ -32,6 +31,7 @@ export type DataLoaders = {
   commentLoader: DataLoader<string, CommentDocument | ApiError>
   recipeCollectionLoader: DataLoader<string, RecipeCollectionDoc | ApiError>
   shoppingListItemLoader: DataLoader<string, ShoppingListItemDoc | ApiError>
+  userLoader: DataLoader<string, UserDocument | null>
   recipeByQueryLoader: DataLoader<Query, Page<CategoryDocument>>
   recipeSourceByQueryLoader: DataLoader<Query, Page<RecipeSourceDocument>>
   accountByQueryLoader: DataLoader<Query, Page<AccountDocument>>
@@ -94,7 +94,7 @@ const prime = (dataLoader: DataLoader<any, any>, ...docs: Document[]) => {
   docs
     .filter(doc => doc && doc._id)
     .forEach(doc => {
-      dataLoader.prime(doc._id, doc)
+      dataLoader.prime(String(doc._id), doc)
     })
 
   return dataLoader
