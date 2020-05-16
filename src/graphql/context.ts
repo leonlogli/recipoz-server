@@ -1,9 +1,8 @@
 import { Request as BaseRequest, Response } from 'express'
-
-import { AuthenticationError, DataLoaders, isValidObjectId } from '../utils'
-import { Role } from '../models'
-import { createDataLoaders } from './dataloaders'
 import { ADMIN } from '../constants'
+import { Role } from '../models'
+import { AuthenticationError, DataLoaders, isValidObjectId } from '../utils'
+import { createDataLoaders } from './dataloaders'
 
 export type Request = BaseRequest & {
   /**
@@ -27,11 +26,11 @@ export type Request = BaseRequest & {
 
 export type Context = Pick<Request, 'accountId' | 'userRoles' | 'error'> & {
   /**
-   * Indicates whether the current user has `ADMIN` role or not
+   * Indicates whether the current user has `ADMIN` role
    */
   isAdmin: boolean
   /**
-   * Indicates whether the current user is authenticated or not
+   * Indicates whether the current user is authenticated
    */
   isAuth: boolean
   /**

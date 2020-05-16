@@ -1,13 +1,12 @@
-import { Model, Document } from 'mongoose'
-
+import { Document, Model } from 'mongoose'
+import { isEmpty } from '../../Util'
 import {
-  buildSortDirectives,
-  buildCursorQuery,
   buildCursorParams,
+  buildCursorQuery,
+  buildSortDirectives,
   CursorPagingQuery
 } from './query'
 import buildPagedResponse from './result'
-import { isEmpty } from '../../Util'
 
 export type CursorPagingQueryBase = {
   /** The find query criteria */
@@ -38,11 +37,11 @@ export type Edge<T extends Document = Document> = {
 
 export type PageInfo = {
   /**
-   * Indicates whether next data exist or not
+   * Indicates whether next data exist
    */
   hasNextPage: boolean
   /**
-   * Indicates whether previous data exist or not
+   * Indicates whether previous data exist
    */
   hasPreviousPage: boolean
   /**

@@ -1,10 +1,9 @@
-import { Model, Document } from 'mongoose'
-
+import { Document, Model } from 'mongoose'
 import {
-  dotify,
   appendLangsToFields,
-  removeStopwords,
-  detectLanguage
+  detectLanguage,
+  dotify,
+  removeStopwords
 } from '../../utils'
 
 export type TextAutocompleteServiceOptions = {
@@ -100,7 +99,7 @@ class TextAutocompleteService {
    * @param input input to update. if specified, the service checks is it has
    * autocomplete field, then update the autocomplete tags accordingly.
    * Specify it only in case of doc updates
-   * @param refresh Indicates whether to refresh autocomplete tags or not.
+   * @param refresh Indicates whether to refresh autocomplete tags.
    * Specify it only in case of doc delete
    */
   async start(doc: Document, input?: Record<string, any>, refresh = false) {
