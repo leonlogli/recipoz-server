@@ -46,7 +46,7 @@
     "posttest:coverage": "open-cli coverage/lcov-report/index.html",
     "validate": "yarn lint && yarn test",
     "postpublish": "git push --tags",
-    "apollo:push": "npx apollo service:push --endpoint=http://localhost:4000/graphql --tag=production"
+    "apollo:push": "npx apollo service:push --endpoint=http://localhost:4000/graphql --variant=production"
   },
   "keywords": [
     "apollo",
