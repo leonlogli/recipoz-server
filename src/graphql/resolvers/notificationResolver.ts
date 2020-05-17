@@ -72,7 +72,7 @@ export default {
         notification.text = res?.text
       }
 
-      return dataLoaders.accountLoader.load(notification.text)
+      return notification.text
     },
     recipient: async ({ recipient }: any, _: any, { dataLoaders }: Context) => {
       return dataLoaders.accountLoader.load(recipient)

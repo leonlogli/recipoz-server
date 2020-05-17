@@ -32,8 +32,6 @@ describe('Account followership graph', () => {
     const res = await client.useMutation(UNFOLLOW, input, ctx)
     const { following, me } = res.data.unfollow
 
-    console.log(res)
-
     expect(me).to.deep.include({ allergies: ['DAIRY'] })
     expect(following).to.deep.include({ allergies: ['EGG'] })
   })

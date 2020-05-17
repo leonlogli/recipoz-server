@@ -10,8 +10,8 @@ const newFollowersNotificationInfo = async (
   loaders: DataLoaders
 ) => {
   const followers = await loadFollowers(input, loaders)
-
   const { actors, actorsCount: count } = followers
+
   const user = actors[0].name
   const user2 = actors[1]?.name
   let text

@@ -16,7 +16,7 @@ i18next
     },
     fallbackLng: APP_DEFAULT_LANGUAGE,
     preload: Array.from(supportedLanguages || []),
-    ns: ['errorMessages', 'statusMessages'],
+    ns: ['errorMessages', 'statusMessages', 'notificationMessages'],
     defaultNS: 'statusMessages',
     keySeparator: false,
     detection: {

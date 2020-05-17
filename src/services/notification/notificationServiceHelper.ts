@@ -54,17 +54,20 @@ const buildNotificationActors = async (
   loaders: DataLoaders,
   ...actors: (AccountDocument | RecipeSourceDocument)[]
 ): Promise<Actor[]> => {
-  return actors.map(async (actor: any) => {
-    if (actor.logo) {
-      const { logo: photo, name, _id: id } = actor
+  return Promise.all(
+    actors.map(async (actor: any) => {
+      if (actor.logo) {
+        const { logo: photo, name, _id: id } = actor
 
-      return { id, photo, name, __typename: 'RecipeSource' } as Actor
-    }
-    const user = await loaders.userLoader.load(actor.user)
-    const { photoURL: photo, displayName: name } = user || {}
+        return { id, photo, name, __typename: 'RecipeSource' } as Actor
+      }
+      const user = await loaders.userLoader.load(actor.user)
+      const { photoURL: photo, displayName, email } = user || {}
+      const name = displayName || email?.substring(0, email.indexOf('@'))
 
-    return { id: actor._id, photo, name, __typename: 'Account' } as Actor
-  }) as any[]
+      return { id: actor._id, photo, name, __typename: 'Account' } as Actor
+    })
+  )
 }
 
 const lastReadNotificationId = async (
@@ -78,7 +81,7 @@ const lastReadNotificationId = async (
   const { notificationByQueryLoader } = loaders
 
   const lastReadNotification = await notificationByQueryLoader.load(query)
-  const id = lastReadNotification.nodes[0]._id || 0
+  const id = lastReadNotification.nodes[0]?._id || 0
 
   return objectIdFromDate(objectIdToDate(id))
 }

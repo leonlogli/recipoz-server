@@ -93,12 +93,15 @@ const loadFollowers = async (
 
   const query = validateCursorQuery({ first: 2, criteria })
   const followership = await followershipByQueryLoader.load(query)
-  const accounts = loadFollowersFromFollowerships(followership, loaders).nodes
 
-  const actors = buildNotificationActors(loaders, ...accounts)
+  const accounts = await Promise.all(
+    loadFollowersFromFollowerships(followership, loaders).nodes
+  )
+  const actors = await buildNotificationActors(loaders, ...accounts)
+
   const actorsCount =
-    followership.totalCount || followershipCountLoader.load(criteria)
-  const actorsInfo: ActorsInfo = { actors, actorsCount } as any
+    followership.totalCount || (await followershipCountLoader.load(criteria))
+  const actorsInfo: ActorsInfo = { actors, actorsCount }
 
   return actorsInfo
 }
