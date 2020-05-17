@@ -1,7 +1,7 @@
 import { DEFAULT_PAGE_SIZE } from '../../../config'
 import { fromBase64 } from '../../base64'
 import { CursorPagingQueryBase } from './paginate'
-import { toObjectId } from '../docUtils'
+import { toObjectId, isValidObjectId } from '../docUtils'
 
 /**
  * Decoded cursor object
@@ -33,6 +33,20 @@ export type CursorPagingQuery = Omit<
     before?: Cursor
   }
 
+const buildCriteria = (opts?: CursorPagingQueryBase) => {
+  const criteria: Record<string, any> = { ...opts?.criteria }
+
+  Object.keys(criteria).forEach(key => {
+    const value = criteria[key]
+
+    if (typeof value === 'string' && isValidObjectId(value)) {
+      criteria[key] = toObjectId(value)
+    }
+  })
+
+  return criteria
+}
+
 const buildCursorParams = (opts?: CursorPagingQueryBase) => {
   const params: any = opts || {}
 
@@ -56,7 +70,7 @@ const buildCursorParams = (opts?: CursorPagingQueryBase) => {
 
   params.limit = opts?.first || opts?.last || DEFAULT_PAGE_SIZE
   params.paginatedField = opts?.paginatedField || '_id'
-  params.criteria = opts?.criteria || {}
+  params.criteria = buildCriteria(opts)
 
   return params as CursorPagingQuery
 }

@@ -1,5 +1,6 @@
 import { dotify, toNestedObject } from '../Util'
 import { toLocalIds, toLocalId } from '../globalIdHelper'
+import { toObjectId } from './docUtils'
 
 /**
  * Filter meta operators that joins query clauses with 'or', 'and', 'nor' operators
@@ -87,8 +88,9 @@ const buildFilterValue = (
     if (Array.isArray(oldValue)) {
       return toLocalIds(oldValue, type || '')
     }
+    const id = type && toLocalId(oldValue, type).id
 
-    return toLocalId(oldValue, type || '').id
+    return id ? toObjectId(id) : null
   }
 
   return oldValue
