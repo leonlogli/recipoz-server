@@ -1,7 +1,7 @@
 import { ADMIN_EMAIL } from '../../config'
 import { ADMIN, USER } from '../../constants'
 import { Account, AccountDocument, Role, UserDocument } from '../../models'
-import { DataLoaders, i18n, locales } from '../../utils'
+import { DataLoaders, i18n, locales, dotify } from '../../utils'
 import { ModelService } from '../base'
 import { userService } from '../firebase'
 import { isValidFCMToken } from '../firebase/fcmServiceBase'
@@ -63,9 +63,15 @@ const addAccountForExistingUser = async (idToken: string) => {
 const updateAccount = async (input: any, loaders?: DataLoaders) => {
   try {
     const { id, user, ...data } = input
-    const account = await accountModel.update(id, data, loaders)
+    const { notificationSettings, household, mealTimes, ...others } = data
+    const dottedKeys = dotify({ notificationSettings, household, mealTimes })
 
-    await userService.updateUser(account.user as any, user, loaders)
+    const set = { ...others, ...dottedKeys }
+    const account = await accountModel.update(id, set, loaders)
+
+    if (user) {
+      await userService.updateUser(account.user as any, user, loaders)
+    }
 
     return { success: true, message: i18n.t(updated), code: 200, account }
   } catch (error) {

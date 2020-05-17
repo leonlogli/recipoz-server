@@ -69,7 +69,8 @@ const recipeSchema = new Schema(
     cost: { type: String, enum: costs },
     ingredients: [{ quantity: String, name: String, group: String }],
     instructions: [{ step: Number, text: String, image: String }],
-    tips: String
+    tips: String,
+    _tags: [String]
   },
   { timestamps: true }
 )
@@ -92,6 +93,12 @@ recipeSchema.index(
 
 // Index for cursor based pagination (because we allow recipes to be order by 'createdAt')
 recipeSchema.index({ createdAt: 1, _id: 1 })
+
+// Autocomplete tags index
+recipeSchema.index(
+  { _tags: 1 },
+  { partialFilterExpression: { '_tags.0': { $exists: true } } }
+)
 
 recipeSchema.pre('save', function save(next) {
   const { instructions } = this as RecipeDocument

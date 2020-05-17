@@ -40,7 +40,7 @@ const getUsers = async (ids: readonly string[]) => {
   return Promise.all(ids.map(id => getUserById(id)))
 }
 
-const extractDataToUpdate = (dataToUpdate: UpdateRequest) => {
+const extractDataToUpdate = (input: UpdateRequest) => {
   const {
     disabled,
     displayName,
@@ -50,7 +50,7 @@ const extractDataToUpdate = (dataToUpdate: UpdateRequest) => {
     photoURL,
     password,
     ...additionalUserInfo
-  } = dataToUpdate || {}
+  } = input
 
   const userInfo = clean({
     disabled,
@@ -80,14 +80,12 @@ const updateUser = async (
   if (Object.keys({ ...additionalUserInfo }).length > 0) {
     // Update user additional profile info that is not handled by default in firebase authentification
     await usersRef.child(id).update(additionalUserInfo)
-    user = {
-      ...User.transform(user),
-      ...(await usersRef.child(user.uid).once('value')).val()
-    }
   }
+  const additionalInfo = (await usersRef.child(user.uid).once('value')).val()
 
+  user = { ...User.transform(user), ...additionalInfo }
   if (loaders) {
-    updateDataLoaderCache(loaders.userLoader, user as UserDocument)
+    updateDataLoaderCache(loaders.userLoader, user)
   }
 
   return user as UserDocument

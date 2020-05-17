@@ -2,7 +2,6 @@ import { Document } from 'mongoose'
 
 import {
   ApiError,
-  dotify,
   appendLangsToFields,
   DataLoaders,
   getDataLoaderByModel,
@@ -70,9 +69,7 @@ class ModelServiceBase<T extends Document> {
   }
 
   update = async (id: any, data: any, loaders?: DataLoaders) => {
-    const set = { $set: dotify(data) }
-
-    return this.updateOne({ _id: id }, set, loaders)
+    return this.updateOne({ _id: id }, { $set: data }, loaders)
   }
 
   /**

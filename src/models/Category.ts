@@ -16,7 +16,6 @@ const categorySchema = new Schema({
   name: I18NUniqueString('name'),
   description: I18NString,
   thumbnail: String,
-  // Autocomplete words
   _tags: [String]
 })
 
@@ -24,6 +23,7 @@ const { indexes, weights } = createTextIndex('name.*', 'description.*')
 
 categorySchema.index(indexes, { weights })
 
+// Autocomplete tags index
 categorySchema.index(
   { _tags: 1 },
   { partialFilterExpression: { '_tags.0': { $exists: true } } }

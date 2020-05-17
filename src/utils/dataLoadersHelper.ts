@@ -104,7 +104,7 @@ const updateDataLoaderCache = (
   dataLoader: DataLoader<string, any>,
   data: Document | UserDocument
 ) => {
-  dataLoader.clear(data._id)
+  dataLoader.clear(String(data._id))
 
   return prime(dataLoader, data as Document)
 }
