@@ -6,7 +6,8 @@ import {
   objectIdFromDate,
   removeStopwords,
   toObjectId,
-  objectIdToDate
+  objectIdToDate,
+  toSafeObjectId
 } from '../../../../utils/mongoose/docUtils'
 
 describe('Mongoose docs helper', () => {
@@ -14,6 +15,30 @@ describe('Mongoose docs helper', () => {
     const id = toObjectId(1)
 
     expect(String(id)).to.have.lengthOf(24)
+  })
+
+  it('should safely convert value to ObjectId', () => {
+    const id = toSafeObjectId('5edbf2c568041456e417caeb')
+
+    expect(String(id)).to.equal('5edbf2c568041456e417caeb')
+  })
+
+  it('should safely return null when converting undefined value to ObjectId', () => {
+    const id = toSafeObjectId(undefined)
+
+    expect(id).to.equal(null)
+  })
+
+  it('should safely return null when converting null value to ObjectId', () => {
+    const id = toSafeObjectId(null)
+
+    expect(id).to.equal(null)
+  })
+
+  it('should safely return null when converting invalid id value to ObjectId', () => {
+    const id = toSafeObjectId('2')
+
+    expect(id).to.equal(null)
   })
 
   it('should convert datetime to ObjectId', () => {

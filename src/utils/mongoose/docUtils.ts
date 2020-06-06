@@ -31,14 +31,31 @@ const objectIdToDate = (objectId: any) => {
   return ObjectId(objectId).getTimestamp()
 }
 
-const toObjectId = (value: any) => ObjectId(value)
-
 const isValidObjectId = (id: any) => {
   if (!ObjectId.isValid(id)) {
     return false
   }
 
   return new ObjectId(id).toString() === String(id)
+}
+
+const toObjectId = (value: any) => ObjectId(value)
+
+/**
+ * Convert the specified value to object id or returns null when error occurs or invalid objectId.
+ * @param value id value
+ * @returns the objectId if valid id, null otherwise.
+ */
+const toSafeObjectId = (value: any) => {
+  try {
+    if (!isValidObjectId(value)) {
+      return null
+    }
+
+    return toObjectId(value)
+  } catch (e) {
+    return null
+  }
 }
 
 const removeStopwords = (text: string, language: SupportedLanguage) => {
@@ -61,6 +78,7 @@ const isDuplicateError = (error: any) => {
 export {
   objectIdToDate,
   toObjectId,
+  toSafeObjectId,
   removeStopwords,
   objectIdFromDate,
   isValidObjectId,

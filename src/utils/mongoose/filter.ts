@@ -1,6 +1,6 @@
 import { dotify, toNestedObject } from '../Util'
 import { toLocalIds, toLocalId } from '../globalIdHelper'
-import { toObjectId } from './docUtils'
+import { toSafeObjectId } from './docUtils'
 
 /**
  * Filter meta operators that joins query clauses with 'or', 'and', 'nor' operators
@@ -85,12 +85,16 @@ const buildFilterValue = (
   if (globalIdPathMap) {
     const type = globalIdPathMap && Object.values(globalIdPathMap).pop()
 
+    console.log(oldValue)
+
     if (Array.isArray(oldValue)) {
-      return toLocalIds(oldValue, type || '')
+      const ids = toLocalIds(oldValue, type || '')
+
+      return ids.map(id => toSafeObjectId(id))
     }
     const id = type && toLocalId(oldValue, type).id
 
-    return id ? toObjectId(id) : null
+    return toSafeObjectId(id)
   }
 
   return oldValue

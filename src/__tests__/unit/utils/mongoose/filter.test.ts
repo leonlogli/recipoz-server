@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 
 import { buildFilterQuery } from '../../../../utils/mongoose/filter'
+import { toObjectId } from '../../../../utils'
 
 describe('Mongoose filter builder', () => {
   it('should return empty query when then the filter expression is empty', () => {
@@ -38,15 +39,24 @@ describe('Mongoose filter builder', () => {
   })
 
   it('should build filter query that contains id paths', () => {
-    const obj = {
-      user: { eq: 'VXNlcjoy' },
-      recipes: { in: ['UmVjaXBlOjE=', 'fakeId'] }
+    const query = { user: { eq: 'VXNlcjo1ZWRiZjJjNTY4MDQxNDU2ZTQxN2NhZWI=' } }
+    const res = buildFilterQuery(query, { user: 'User' })
+    const expectedId = toObjectId('5edbf2c568041456e417caeb')
+
+    expect(res).to.eql({ user: { $eq: expectedId } })
+  })
+
+  it('should build filter query that contains array of ids', () => {
+    const query = {
+      recipes: {
+        in: ['UmVjaXBlOjAwMDAwMDAxYmE3MmQxNTY0ODgzOTExYg==', 'fakeId']
+      }
     }
-    const res = buildFilterQuery(obj, { user: 'User' }, { recipes: 'Recipe' })
 
-    const expected = { user: { $eq: '2' }, recipes: { $in: ['1', null] } }
+    const res = buildFilterQuery(query, { recipes: 'Recipe' })
+    const expectedIds = [toObjectId('00000001ba72d1564883911b'), null]
 
-    expect(res).to.eql(expected)
+    expect(res).to.eql({ recipes: { $in: expectedIds } })
   })
 
   it('should build composed filter query with meta operator', () => {
