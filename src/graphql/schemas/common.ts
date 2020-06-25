@@ -11,6 +11,11 @@ export default gql`
     node(id: ID!): Node
   }
 
+  extend type Mutation {
+    "Delete cloudinary uploaded file"
+    deleteUploadedFile(publicId: String): String @auth
+  }
+
   "Offset based page response"
   type Page {
     "Page number"

@@ -1,7 +1,8 @@
 import {
   fromGlobalId,
   getDataLoaderByModel,
-  isValidObjectId
+  isValidObjectId,
+  deleteFile
 } from '../../utils'
 import { Context } from '../context'
 import { logger } from '../../config'
@@ -19,6 +20,11 @@ export default {
       return dataLoader.load(id).catch((e: Error) => {
         logger.error(`Error fetching node (${id}): `, e)
       })
+    }
+  },
+  Mutation: {
+    deleteUploadedFile: (_: any, { publicId }: any) => {
+      return deleteFile(publicId)
     }
   },
   Node: {

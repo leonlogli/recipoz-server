@@ -11,6 +11,11 @@ export default gql`
     phoneNumber: String
     photoURL: String
     coverImageUrl: String
+    """
+    We don't need to use Account graphql here since User does not extends Node interface.
+    Instead, we refer to account GUID only to ease firebase auth on the client side
+    """
+    accountGUID: String!
     gender: Gender
     location: String
     language: String

@@ -9,7 +9,7 @@ const instructionSchema = Joi.object({
     .required()
     .min(3)
     .max(280),
-  image: uri
+  image: Joi.string()
 })
 
 const ingredientSchema = Joi.object({
@@ -44,10 +44,10 @@ const recipeSchema = Joi.object({
   description: Joi.string()
     .min(20)
     .max(280),
-  image: uri.when('$isNew', { is: true, then: required }),
-  video: uri,
+  image: Joi.string().when('$isNew', { is: true, then: required }),
+  video: Joi.string(),
   additionalImages: Joi.array()
-    .items(uri.required())
+    .items(Joi.string().required())
     .unique()
     .min(1)
     .max(10)

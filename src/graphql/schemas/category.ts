@@ -60,7 +60,7 @@ export default gql`
   input AddCategoryInput {
     name: String!
     description: String
-    thumbnail: URL!
+    thumbnail: String!
     parent: ID
     language: Language!
     clientMutationId: String
@@ -70,7 +70,7 @@ export default gql`
     id: ID!
     name: String
     description: String
-    thumbnail: URL
+    thumbnail: String
     parent: ID
     language: Language!
     clientMutationId: String

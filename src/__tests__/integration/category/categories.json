@@ -2,37 +2,37 @@
   {
     "name": "Vegetarian",
     "description": "The vegetarian diet is a diet that excludes animal proteins from food for ethical, environmental or health reasons.",
-    "thumbnail": "https://cloudinary.com/Vegetarian.jpg",
+    "thumbnail": "Vegetarian",
     "language": "EN"
   },
   {
     "name": "Togolese",
     "description": "It is a particularly rich cuisine, very diverse and renowned throughout Africa",
-    "thumbnail": "https://cloudinary.com/Togolese.jpg",
+    "thumbnail": "Togolese",
     "language": "EN"
   },
   {
     "name": "Beninese",
     "description": "Beninese cuisine is mainly based on corn paste in the south of the country and yam in the north.",
-    "thumbnail": "https://cloudinary.com/Beninese.jpg",
+    "thumbnail": "Beninese",
     "language": "EN"
   },
   {
     "name": "Breakfast",
     "description": "The first meal of the day especially when taken in the morning",
-    "thumbnail": "https://cloudinary.com/Breakfast.jpg",
+    "thumbnail": "Breakfast",
     "language": "EN"
   },
   {
     "name": "Moroccan",
     "description": "Moroccan cuisine is typically a mix of Berber, Arab, Andalusi, and Mediterranean cuisines, with slight European and sub-Saharan influences",
-    "thumbnail": "https://cloudinary.com/Diet.jpg",
+    "thumbnail": "Moroccan",
     "language": "EN"
   },
   {
     "name": "Cuisine",
     "description": "Classic recipes from around the world",
-    "thumbnail": "https://cloudinary.com/Cuisine.jpg",
+    "thumbnail": "Cuisine",
     "language": "EN"
   }
 ]

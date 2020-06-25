@@ -1,7 +1,7 @@
 import { ADMIN_EMAIL } from '../../config'
 import { ADMIN, USER } from '../../constants'
 import { Account, AccountDocument, Role, UserDocument } from '../../models'
-import { DataLoaders, i18n, locales, dotify } from '../../utils'
+import { DataLoaders, i18n, locales, dotify, toGlobalId } from '../../utils'
 import { ModelService } from '../base'
 import { userService } from '../firebase'
 import { isValidFCMToken } from '../firebase/fcmServiceBase'
@@ -31,7 +31,10 @@ const addAccount = async (user: UserDocument) => {
 
   await userService.setRoles(user.uid, ...roles)
   const account = await accountModel.create({ user: user.uid })
-  const userDefaults = { languages: [i18n.currentLanguage] }
+  const userDefaults = {
+    languages: [i18n.currentLanguage],
+    accountGUID: toGlobalId('Account', account._id.toString())
+  }
 
   await userService.updateUser(account.user as any, userDefaults)
 

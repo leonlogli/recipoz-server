@@ -15,8 +15,9 @@ export default gql`
   input AddRecipeInput {
     name: String!
     description: String
-    image: URL!
+    image: String!
     servings: Int!
+    video: String
     "Recipe source. Only admin can specity it"
     source: ID
     "The url of the original recipe. Required when 'source' is specified"
@@ -43,7 +44,8 @@ export default gql`
     id: ID!
     name: String
     description: String
-    image: URL
+    image: String
+    video: String
     servings: Int
     "Recipe source. Only admin can specity it"
     source: ID

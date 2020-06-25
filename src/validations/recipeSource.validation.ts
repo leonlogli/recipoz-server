@@ -1,7 +1,7 @@
 import Joi from '@hapi/joi'
 
 import { checkAndSendValidationErrors } from '../utils'
-import { id, uri, required } from './common.validation'
+import { id, required } from './common.validation'
 
 const recipeSourceSchema = Joi.object({
   id,
@@ -12,7 +12,7 @@ const recipeSourceSchema = Joi.object({
   website: Joi.string()
     .uri()
     .when('$isNew', { is: true, then: required }),
-  logo: uri.when('$isNew', { is: true, then: required }),
+  logo: Joi.string().when('$isNew', { is: true, then: required }),
   biography: Joi.string()
     .min(20)
     .max(280)
