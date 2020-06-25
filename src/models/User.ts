@@ -5,10 +5,6 @@ import { ADMIN, USER } from '../constants'
  * User additionnal info that aren't handled in the authentication
  */
 export interface UserAdditionalInfo {
-  /**
-   * GUID of the assigned account
-   */
-  accountGUID?: string
   coverImageUrl?: string
   gender?: string
   location?: string
