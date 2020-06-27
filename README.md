@@ -8,6 +8,8 @@
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Application Structure](#application-structure)
+- [Authentication](#authentication)
+- [Error Handling](#error-handling)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
 - [Testing](#testing)
@@ -113,6 +115,7 @@ yarn start
 
 The API server must become available at [http://localhost:4000/graphql](http://localhost:4000/graphql)
 [WIP] - Currently i am working on the frontend app to bring this idea to live
+
 
 ## Testing
 
