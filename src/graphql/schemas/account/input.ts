@@ -51,10 +51,10 @@ export default gql`
   }
 
   input RegisterInput {
-    email: String
-    password: String
+    email: String!
+    password: String!
     phoneNumber: String
-    displayName: String
+    displayName: String!
     clientMutationId: String
   }
 `

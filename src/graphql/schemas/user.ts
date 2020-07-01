@@ -7,7 +7,7 @@ export default gql`
   type User {
     email: String
     emailVerified: Boolean!
-    displayName: String
+    displayName: String!
     phoneNumber: String
     photoURL: String
     coverImageUrl: String
