@@ -13,7 +13,7 @@ export default gql`
     coverImageUrl: String
     gender: Gender
     location: String
-    language: String
+    languages: [String!]!
     theme: String
     website: String
     biography: String
@@ -90,7 +90,7 @@ export default gql`
     coverImageUrl: URL
     gender: Gender
     location: String
-    language: String
+    languages: [String!]
     theme: String
     website: URL
     biography: String
