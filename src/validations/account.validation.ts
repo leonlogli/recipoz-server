@@ -7,7 +7,7 @@ import { id, uri } from './common.validation'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const customJoi = Joi.extend(require('joi-phone-number'))
 
-const userRegisterSchemaObject = {
+const userRegisterSchema = Joi.object({
   displayName: Joi.string()
     .min(2)
     .max(50)
@@ -19,12 +19,7 @@ const userRegisterSchemaObject = {
   password: Joi.string()
     .min(6)
     .max(50)
-    .required(),
-  photoURL: uri
-}
-
-const userRegisterSchema = Joi.object({
-  ...userRegisterSchemaObject
+    .required()
 })
   .with('email', 'password')
   .with('phoneNumber', 'password')
@@ -88,7 +83,15 @@ const dislikedIngredientsSchema = Joi.array()
 const accountSchema = Joi.object({
   id,
   user: Joi.object({
-    ...userRegisterSchemaObject,
+    displayName: Joi.string()
+      .min(2)
+      .max(50),
+    email: Joi.string().email(),
+    phoneNumber: customJoi.string().phoneNumber({ format: 'e164' }),
+    password: Joi.string()
+      .min(6)
+      .max(50),
+    photoURL: uri,
     emailVerified: Joi.boolean(),
     location: Joi.string()
       .min(3)
