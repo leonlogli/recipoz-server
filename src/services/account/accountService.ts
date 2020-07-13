@@ -47,14 +47,20 @@ const addAccountForNewUser = async (newUser: any) => {
 
 const addAccountForExistingUser = async (idToken: string) => {
   try {
-    const { uid } = await userService.verifyIdToken(idToken)
+    const { uid, roles } = await userService.verifyIdToken(idToken)
     const user = await userService.getUserById(uid)
 
     if (!user) {
       return { success: true, message: i18n.t(userNotFound), code: 404 }
     }
+    const res = await addAccount(user)
 
-    return await addAccount(user)
+    const accessToken = userService.generateAccessToken({
+      id: res.account._id,
+      roles
+    })
+
+    return { ...res, accessToken }
   } catch (error) {
     return handleMutationError(error)
   }

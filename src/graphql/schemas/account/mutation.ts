@@ -19,6 +19,7 @@ export default gql`
     message: String!
     clientMutationId: String
     account: Account
+    accessToken: Token
   }
 
   type UpdateAccountPayload {
