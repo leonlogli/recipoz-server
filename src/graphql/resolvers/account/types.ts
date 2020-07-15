@@ -14,6 +14,23 @@ export default {
     user: ({ user }: any, _: any, { dataLoaders }: Context) => {
       return dataLoaders.userLoader.load(user)
     },
+    isOwner: async ({ _id }: any, _: any, ctx: Context) => {
+      if (!ctx.isAuth) {
+        return false
+      }
+
+      return String(ctx.accountId) === String(_id)
+    },
+    isFollowing: async (_parent: any, _: any, ctx: Context) => {
+      if (!ctx.isAuth) {
+        return false
+      }
+      const { dataLoaders, accountId } = ctx
+      const { followershipCountLoader } = dataLoaders
+      const criteria = { follower: accountId }
+
+      return followershipCountLoader.load(criteria).then(count => count > 0)
+    },
     followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
       const criteria = { followedDataType: 'Account', followedData: _id }
       const query = validateCursorQuery({ ...args, criteria })

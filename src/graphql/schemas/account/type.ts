@@ -12,6 +12,10 @@ export default gql`
     cookingExperience: CookingExperience
     createdAt: DateTime!
     updatedAt: DateTime
+    "Check whether the current user is followig this account"
+    isFollowing: Boolean!
+    "Check whether the current user is the owner of this account"
+    isOwner: Boolean!
     followers(
       first: Int
       after: String
