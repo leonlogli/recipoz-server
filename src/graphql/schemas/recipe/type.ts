@@ -24,9 +24,9 @@ export default gql`
     createdAt: DateTime!
     updatedAt: DateTime
     "Check if the current user saved this recipe as favorite."
-    isFavorite: Boolean!
+    isFavorite: Boolean @auth
     "Check if the current user made this recipe"
-    isMade: Boolean!
+    isMade: Boolean @auth
     rating: RatingSummary
     "Recipe reviews"
     comments(

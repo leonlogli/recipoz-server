@@ -40,6 +40,17 @@ export default {
     }
   },
   RecipeSource: {
+    isFollowed: async ({ _id }: any, _: any, ctx: Context) => {
+      const { dataLoaders, accountId } = ctx
+      const { followershipCountLoader } = dataLoaders
+      const criteria = {
+        followedDataType: 'RecipeSource',
+        followedData: _id,
+        follower: accountId
+      }
+
+      return followershipCountLoader.load(criteria).then(count => count > 0)
+    },
     followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
       const criteria = { followedData: _id, followedDataType: 'RecipeSource' }
       const query = validateCursorQuery({ ...args, criteria })

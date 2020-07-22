@@ -15,19 +15,16 @@ export default {
       return dataLoaders.userLoader.load(user)
     },
     isOwner: async ({ _id }: any, _: any, ctx: Context) => {
-      if (!ctx.isAuth) {
-        return false
-      }
-
       return String(ctx.accountId) === String(_id)
     },
-    isFollowing: async (_parent: any, _: any, ctx: Context) => {
-      if (!ctx.isAuth) {
-        return false
-      }
+    isFollowed: async ({ _id }: any, _: any, ctx: Context) => {
       const { dataLoaders, accountId } = ctx
       const { followershipCountLoader } = dataLoaders
-      const criteria = { follower: accountId }
+      const criteria = {
+        followedDataType: 'Account',
+        followedData: _id,
+        follower: accountId
+      }
 
       return followershipCountLoader.load(criteria).then(count => count > 0)
     },

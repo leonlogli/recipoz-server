@@ -7,6 +7,8 @@ export default gql`
     website: String!
     logo: String!
     biography: String
+    "Check whether this recipe source is followed the current user"
+    isFollowed: Boolean @auth
     followers(
       first: Int
       after: String

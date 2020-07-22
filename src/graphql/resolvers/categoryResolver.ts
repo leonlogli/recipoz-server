@@ -61,6 +61,17 @@ export default {
 
       return categoryByQueryLoader.load(query)
     },
+    isFollowed: async ({ _id }: any, _: any, ctx: Context) => {
+      const { dataLoaders, accountId } = ctx
+      const { followershipCountLoader } = dataLoaders
+      const criteria = {
+        followedDataType: 'Category',
+        followedData: _id,
+        follower: accountId
+      }
+
+      return followershipCountLoader.load(criteria).then(count => count > 0)
+    },
     followers: async ({ _id }: any, args: any, { dataLoaders }: Context) => {
       const criteria = { followedData: _id, followedDataType: 'Category' }
       const query = validateCursorQuery({ ...args, criteria })

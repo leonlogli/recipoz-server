@@ -5,6 +5,7 @@ export default gql`
   Firebase auth user
   """
   type User {
+    uid: String!
     email: String
     emailVerified: Boolean!
     displayName: String!
@@ -25,7 +26,7 @@ export default gql`
     disabled: Boolean!
     metadata: UserMetadata!
     providerData: [UserInfo!]
-    roles: [Role!]!
+    roles: [Role!] @auth
     tokensValidAfterTime: String
     tenantId: String
   }

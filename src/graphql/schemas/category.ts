@@ -7,6 +7,8 @@ export default gql`
     description: String @i18n
     thumbnail: String!
     parent: Category
+    "Check whether this category is followed the current user"
+    isFollowed: Boolean @auth
     subCategories(
       first: Int
       after: String

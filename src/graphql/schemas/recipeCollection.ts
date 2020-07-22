@@ -84,7 +84,7 @@ export default gql`
       after: String
       last: Int
       before: String
-    ): RecipeCollectionConnection!
+    ): RecipeCollectionConnection! @auth
     myRecipeCollections(
       first: Int
       after: String

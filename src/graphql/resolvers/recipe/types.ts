@@ -33,9 +33,6 @@ export default {
       return dataLoaders.commentByQueryLoader.load(query)
     },
     isFavorite: async ({ _id: recipe }: any, _: any, ctx: Context) => {
-      if (!ctx.isAuth) {
-        return false
-      }
       const { dataLoaders, accountId: account } = ctx
       const { savedRecipeCountLoader } = dataLoaders
       const criteria = { account, recipe, collectionType: 'FAVORITE' }
@@ -43,9 +40,6 @@ export default {
       return savedRecipeCountLoader.load(criteria).then(count => count > 0)
     },
     isMade: async ({ _id: recipe }: any, _: any, ctx: Context) => {
-      if (!ctx.isAuth) {
-        return false
-      }
       const { dataLoaders, accountId: account } = ctx
       const { savedRecipeCountLoader } = dataLoaders
       const criteria = { account, recipe, collectionType: 'MADE' }

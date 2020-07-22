@@ -8,7 +8,6 @@ import {
 } from '../../utils'
 import {
   validateCursorQuery,
-  validateRecipeCollection as validateCollection,
   validateRecipeCollection
 } from '../../validations'
 import { Context } from '../context'
@@ -35,7 +34,7 @@ export default {
   Mutation: {
     addRecipeCollection: (_: any, { input }: any, ctx: Context) => {
       const { accountId: account, dataLoaders: loaders } = ctx
-      const data = validateCollection({ ...input, account })
+      const data = validateRecipeCollection({ ...input, account })
       const payload = recipeCollectionService.addCollection(data, loaders)
 
       return withClientMutationId(payload, input)
@@ -45,7 +44,7 @@ export default {
       const { id } = toLocalId(input.id, 'RecipeCollection')
 
       const value = { ...input, id, account }
-      const data = validateCollection(value, false)
+      const data = validateRecipeCollection(value, false)
       const payload = recipeCollectionService.updateCollection(data, loaders)
 
       return withClientMutationId(payload, input)
