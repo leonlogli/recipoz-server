@@ -86,6 +86,7 @@ recipeSchema.index(indexes, { weights })
 
 // For the frequent access
 recipeSchema.index({ author: 1 })
+recipeSchema.index({ categories: 1 })
 recipeSchema.index(
   { source: 1 },
   { partialFilterExpression: { source: { $exists: true } } }

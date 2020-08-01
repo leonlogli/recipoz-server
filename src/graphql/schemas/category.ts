@@ -21,6 +21,13 @@ export default gql`
       last: Int
       before: String
     ): AccountConnection!
+    recipes(
+      orderBy: RecipeOrderBy
+      first: Int
+      after: String
+      last: Int
+      before: String
+    ): RecipeConnection!
   }
 
   type CategoryEdge {

@@ -27,6 +27,7 @@ const countCategories = categoryModel.countByBatch
 const getCategories = categoryModel.findByIds
 const getCategoriesByBatch = categoryModel.batchFind
 const autocomplete = categoryModel.autocompleteSearch
+const getCategoriesAndSelect = categoryModel.findAndSelect
 
 const search = async (query: string, page: OffsetPage, filter?: any) => {
   const filterQuery = buildFilterQuery(filter, { parent: 'Category' })
@@ -103,6 +104,7 @@ export const categoryService = {
   addCategory,
   deleteCategory,
   updateCategory,
-  countCategories
+  countCategories,
+  getCategoriesAndSelect
 }
 export default categoryService

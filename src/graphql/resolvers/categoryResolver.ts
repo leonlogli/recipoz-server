@@ -80,6 +80,18 @@ export default {
       return followershipByQueryLoader.load(query).then(followership => {
         return loadFollowersFromFollowerships(followership, dataLoaders)
       })
+    },
+    recipes: async ({ _id }: any, args: any, ctx: Context) => {
+      const subCategories = await categoryService.getCategoriesAndSelect(
+        { parent: _id },
+        '_id'
+      )
+      const subCategoryIds = subCategories.map(c => c._id)
+
+      const criteria = { categories: { $in: [_id, subCategoryIds] } }
+      const query = validateCursorQuery({ ...args, criteria })
+
+      return ctx.dataLoaders.recipeByQueryLoader.load(query)
     }
   },
   CategoryConnection: {
