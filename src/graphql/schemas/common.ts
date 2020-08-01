@@ -12,8 +12,14 @@ export default gql`
   }
 
   extend type Mutation {
-    "Delete cloudinary uploaded file"
-    deleteUploadedFile(publicId: String): String @auth
+    """
+    Delete cloudinary uploaded files. Returns publicIds of the
+    deleted resources in the same order as they are specified in parameter
+    """
+    deleteUploads(
+      "Public ids of the uploaded files"
+      publicIds: [String!]!
+    ): [String]! @auth
   }
 
   "Offset based page response"

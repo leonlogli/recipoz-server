@@ -4,7 +4,7 @@ const cloudinary = require('cloudinary').v2
  * Delete cloudinary uploaded file
  * @param publicId file public id
  */
-const deleteFile = (publicId: string) => {
+const deleteUpload = (publicId: string): Promise<string | null> => {
   return cloudinary.uploader
     .destroy(publicId)
     .then((res: any) => {
@@ -40,4 +40,4 @@ const uploadFile = async (file: any) => {
   })
 }
 
-export { deleteFile, uploadFile }
+export { deleteUpload, uploadFile }

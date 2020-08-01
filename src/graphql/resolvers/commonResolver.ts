@@ -2,7 +2,7 @@ import {
   fromGlobalId,
   getDataLoaderByModel,
   isValidObjectId,
-  deleteFile
+  deleteUpload
 } from '../../utils'
 import { Context } from '../context'
 import { logger } from '../../config'
@@ -23,8 +23,10 @@ export default {
     }
   },
   Mutation: {
-    deleteUploadedFile: (_: any, { publicId }: any) => {
-      return deleteFile(publicId)
+    deleteUploads: (_: any, { publicIds }: any) => {
+      return Promise.all(
+        publicIds.map((publicId: string) => deleteUpload(publicId))
+      )
     }
   },
   Node: {
