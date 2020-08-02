@@ -2,7 +2,7 @@ import { expect } from 'chai'
 
 import { client } from '../setup.test'
 import { addCategories } from './util'
-import { GET_CATEGORIES, SEARCH, CATEGORY } from './graph'
+import { GET_CATEGORIES, SEARCH } from './graph'
 
 describe('Category graph', () => {
   let dbCategories: any[] = []
@@ -22,24 +22,6 @@ describe('Category graph', () => {
     const res = await client.queryNode('fakeGlobalId')
 
     expect(res.data.node).to.equal(null)
-  })
-
-  it('should fetch category with its sub categories', async () => {
-    const cuisineId = dbCategories.find(c => c.name === 'Cuisine').id
-    const res = await client.useQuery(CATEGORY, { id: cuisineId })
-
-    const expected = {
-      nodes: [{ name: 'Togolese' }, { name: 'Beninese' }, { name: 'Moroccan' }]
-    }
-
-    expect(res.data.node.subCategories).to.eql(expected)
-  })
-
-  it('should fetch category with its parent', async () => {
-    const togo = dbCategories.find(c => c.name === 'Togolese').id
-    const res = await client.useQuery(CATEGORY, { id: togo })
-
-    expect(res.data.node.parent).to.eql({ name: 'Cuisine' })
   })
 
   describe('Forward pagination', () => {
@@ -73,7 +55,7 @@ describe('Category graph', () => {
       expect(categories.edges).to.have.lengthOf(4)
       expect(categories.edges[0]).to.have.keys('cursor', 'node')
       expect(categories.nodes[0]).to.deep.include({ name: 'Beninese' })
-      expect(categories.nodes[3]).to.deep.include({ name: 'Cuisine' })
+      expect(categories.nodes[3]).to.deep.include({ name: 'Dairy' })
       expect(categories.pageInfo).to.include(expectPageInfo)
     })
 
@@ -108,11 +90,11 @@ describe('Category graph', () => {
       expect(categories.edges[0]).to.have.keys('cursor', 'node')
       expect(categories.edges[1]).to.have.keys('cursor', 'node')
       expect(categories.nodes[0]).to.deep.include({ name: 'Moroccan' })
-      expect(categories.nodes[1]).to.deep.include({ name: 'Cuisine' })
+      expect(categories.nodes[1]).to.deep.include({ name: 'Dairy' })
       expect(categories.pageInfo).to.include(expectPageInfo)
     })
 
-    it('should fetch the last four categories with a cursor', async () => {
+    it('should fetch the last four categories before a cursor', async () => {
       const { data } = await client.useQuery(GET_CATEGORIES, { last: 2 })
       const before = data.categories.pageInfo.startCursor
 
@@ -155,12 +137,11 @@ describe('Category graph', () => {
     })
     const { search } = res.data
 
-    expect(search.totalCount).to.equal(4)
+    expect(search.totalCount).to.equal(3)
     expect(search.page).to.eql({ number: 1, size: 20, count: 1 })
-    expect(search.content[0]).to.deep.include({ name: 'Cuisine' })
-    expect(search.content[1]).to.deep.include({ name: 'Moroccan' })
-    expect(search.content[2]).to.deep.include({ name: 'Togolese' })
-    expect(search.content[3]).to.deep.include({ name: 'Beninese' })
+    expect(search.content[0]).to.deep.include({ name: 'Moroccan' })
+    expect(search.content[1]).to.deep.include({ name: 'Togolese' })
+    expect(search.content[2]).to.deep.include({ name: 'Beninese' })
   })
 
   it('should paging category search result', async () => {
@@ -168,12 +149,12 @@ describe('Category graph', () => {
       query: 'cuisine',
       type: 'CATEGORY',
       pageNumber: 2,
-      pageSize: 3
+      pageSize: 2
     })
     const { search } = res.data
 
-    expect(search.totalCount).to.equal(4)
-    expect(search.page).to.eql({ number: 2, size: 3, count: 2 })
+    expect(search.totalCount).to.equal(3)
+    expect(search.page).to.eql({ number: 2, size: 2, count: 2 })
     expect(search.content[0]).to.deep.include({ name: 'Beninese' })
   })
 })

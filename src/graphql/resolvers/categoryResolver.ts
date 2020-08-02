@@ -12,7 +12,7 @@ import { Context } from '../context'
 export default {
   Query: {
     categories: (_: any, { filter, ...options }: any, ctx: Context) => {
-      const criteria = buildFilterQuery(filter, { parent: 'Category' })
+      const criteria = buildFilterQuery(filter)
       const query = validateCursorQuery({ ...options, criteria })
       const { categoryByQueryLoader } = ctx.dataLoaders
 
@@ -20,19 +20,16 @@ export default {
     }
   },
   Mutation: {
-    addCategory: (_: any, { input }: any, { dataLoaders }: Context) => {
-      const parent = input.parent && toLocalId(input.parent, 'Category').id
-
-      const data = validateCategory({ ...input, parent })
-      const payload = categoryService.addCategory(data, dataLoaders)
+    addCategory: (_: any, { input }: any) => {
+      const data = validateCategory(input)
+      const payload = categoryService.addCategory(data)
 
       return withClientMutationId(payload, input)
     },
     updateCategory: (_: any, { input }: any, { dataLoaders }: Context) => {
       const { id } = toLocalId(input.id, 'Category')
-      const parent = input.parent && toLocalId(input.parent, 'Category').id
 
-      const category = validateCategory({ ...input, id, parent }, false)
+      const category = validateCategory({ ...input, id }, false)
       const payload = categoryService.updateCategory(category, dataLoaders)
 
       return withClientMutationId(payload, input)
@@ -50,17 +47,6 @@ export default {
     }
   },
   Category: {
-    parent: ({ parent }: any, _: any, ctx: Context) => {
-      const { categoryLoader } = ctx.dataLoaders
-
-      return parent && categoryLoader.load(parent)
-    },
-    subCategories: ({ _id: parent }: any, args: any, ctx: Context) => {
-      const query = validateCursorQuery({ ...args, criteria: { parent } })
-      const { categoryByQueryLoader } = ctx.dataLoaders
-
-      return categoryByQueryLoader.load(query)
-    },
     isFollowed: async ({ _id }: any, _: any, ctx: Context) => {
       const { dataLoaders, accountId } = ctx
       const { followershipCountLoader } = dataLoaders
@@ -82,13 +68,7 @@ export default {
       })
     },
     recipes: async ({ _id }: any, args: any, ctx: Context) => {
-      const subCategories = await categoryService.getCategoriesAndSelect(
-        { parent: _id },
-        '_id'
-      )
-      const subCategoryIds = subCategories.map(c => c._id)
-
-      const criteria = { categories: { $in: [_id, subCategoryIds] } }
+      const criteria = { categories: _id }
       const query = validateCursorQuery({ ...args, criteria })
 
       return ctx.dataLoaders.recipeByQueryLoader.load(query)

@@ -1,12 +1,15 @@
 import Joi from '@hapi/joi'
 
-import { language, objectId, id, required } from './common.validation'
+import { language, id, required } from './common.validation'
 import { checkAndSendValidationErrors, renameI18nKeys } from '../utils'
+import { categoryGroups } from '../models'
 
 const categorySchema = Joi.object({
   id,
   language,
-  parent: objectId,
+  group: Joi.string()
+    .valid(...categoryGroups)
+    .when('$isNew', { is: true, then: required }),
   name: Joi.string()
     .min(3)
     .max(100)

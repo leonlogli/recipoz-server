@@ -28,7 +28,7 @@ export default gql`
     prepTime: PositiveInt
     "Recipe directions. At least one instruction is required"
     instructions: [InstructionInput!]!
-    "At least two categories are required"
+    "At least one category is required"
     categories: [ID!]!
     "Recipe ingredients.  At least one ingredient is required"
     ingredients: [IngredientInput!]!
@@ -57,7 +57,7 @@ export default gql`
     prepTime: PositiveInt
     "Recipe directions. At least one Instruction is required"
     instructions: [InstructionInput!]
-    "At least two categories are required"
+    "At least one category is required"
     categories: [ID!]
     "Recipe ingredients.  At least one ingredient is required"
     ingredients: [IngredientInput!]

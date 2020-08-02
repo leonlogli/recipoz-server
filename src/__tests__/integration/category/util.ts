@@ -1,5 +1,5 @@
 import { client } from '../setup.test'
-import { ADD_CATEGORY, UPDATE_CATEGORY } from './graph'
+import { ADD_CATEGORY } from './graph'
 import categories from './categories.json'
 import { toObjectId } from '../../../utils'
 
@@ -11,29 +11,9 @@ const addCategory = async (input: any) => {
   return res.data?.addCategory.category
 }
 
-const updateCategory = async (input: any) => {
-  const { useMutation } = client
-  const ctx = { accountId: String(toObjectId(1)), userRoles: ['ADMIN', 'USER'] }
-  const res = await useMutation(UPDATE_CATEGORY, input, ctx as any)
-
-  return res.data?.updateCategory.category
-}
-
 const addCategories = async () => {
   const dbCategories = await Promise.all(
     categories.map(data => addCategory(data))
-  )
-
-  const moroccan = dbCategories.find(c => c.name === 'Moroccan')
-  const togo = dbCategories.find(c => c.name === 'Togolese')
-  const benin = dbCategories.find(c => c.name === 'Beninese')
-
-  // Parent category
-  const cuisine = dbCategories.find(c => c.name === 'Cuisine')
-  const input = { parent: cuisine.id, language: 'EN' }
-
-  await Promise.all(
-    [togo, benin, moroccan].map(data => updateCategory({ ...data, ...input }))
   )
 
   return dbCategories

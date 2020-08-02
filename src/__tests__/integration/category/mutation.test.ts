@@ -36,7 +36,12 @@ describe('Category graph', () => {
     })
 
     it('should throw invalid error when providing invalid input', async () => {
-      const input = { name: '', thumbnail: 'https://test.com', language: 'EN' }
+      const input = {
+        name: '',
+        thumbnail: 'img',
+        group: 'COURSE',
+        language: 'EN'
+      }
 
       const res = await client.useMutation(ADD_CATEGORY, input)
 
@@ -45,7 +50,7 @@ describe('Category graph', () => {
     })
   })
 
-  describe('Update new product', () => {
+  describe('Update category', () => {
     it('should properly update category', async () => {
       const dbCategories = await addCategories()
       const input = { id: dbCategories[0].id, name: 'Updated', language: 'EN' }

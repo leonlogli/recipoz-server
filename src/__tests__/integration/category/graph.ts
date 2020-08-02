@@ -11,25 +11,6 @@ export const NODE = gql`
   }
 `
 
-export const CATEGORY = gql`
-  query node($id: ID!) {
-    node(id: $id) {
-      id
-      ... on Category {
-        name
-        parent {
-          name
-        }
-        subCategories {
-          nodes {
-            name
-          }
-        }
-      }
-    }
-  }
-`
-
 export const SEARCH = gql`
   query search(
     $query: String!

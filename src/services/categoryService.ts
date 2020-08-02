@@ -27,10 +27,9 @@ const countCategories = categoryModel.countByBatch
 const getCategories = categoryModel.findByIds
 const getCategoriesByBatch = categoryModel.batchFind
 const autocomplete = categoryModel.autocompleteSearch
-const getCategoriesAndSelect = categoryModel.findAndSelect
 
 const search = async (query: string, page: OffsetPage, filter?: any) => {
-  const filterQuery = buildFilterQuery(filter, { parent: 'Category' })
+  const filterQuery = buildFilterQuery(filter)
 
   return categoryModel.search(query, page, filterQuery)
 }
@@ -43,12 +42,9 @@ const handleMutationError = (error: any) => {
   return errorRes(error)
 }
 
-const addCategory = async (data: any, loaders: DataLoaders) => {
+const addCategory = async (input: any) => {
   try {
-    if (data.parent) {
-      await loaders.categoryLoader.load(data.parent)
-    }
-    const category = await categoryModel.create(data)
+    const category = await categoryModel.create(input)
 
     return { success: true, message: i18n.t(created), code: 201, category }
   } catch (error) {
@@ -56,18 +52,8 @@ const addCategory = async (data: any, loaders: DataLoaders) => {
   }
 }
 
-const updateCategory = async (value: any, loaders: DataLoaders) => {
-  const { id, ...data } = value
-
+const updateCategory = async ({ id, ...data }: any, loaders: DataLoaders) => {
   try {
-    if (data.parent) {
-      if (data.parent === id) {
-        const message = 'The category must be different from its parent'
-
-        return { success: false, message, code: 422 }
-      }
-      await loaders.categoryLoader.load(data.parent)
-    }
     const category = await categoryModel.update(id, data, loaders)
 
     return { success: true, message: i18n.t(updated), code: 200, category }
@@ -104,7 +90,6 @@ export const categoryService = {
   addCategory,
   deleteCategory,
   updateCategory,
-  countCategories,
-  getCategoriesAndSelect
+  countCategories
 }
 export default categoryService

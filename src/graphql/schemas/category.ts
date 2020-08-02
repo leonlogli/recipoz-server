@@ -6,15 +6,9 @@ export default gql`
     name: String! @i18n
     description: String @i18n
     thumbnail: String!
-    parent: Category
+    group: CategoryGroup!
     "Check whether this category is followed the current user"
     isFollowed: Boolean @auth
-    subCategories(
-      first: Int
-      after: String
-      last: Int
-      before: String
-    ): CategoryConnection!
     followers(
       first: Int
       after: String
@@ -28,6 +22,16 @@ export default gql`
       last: Int
       before: String
     ): RecipeConnection!
+  }
+
+  enum CategoryGroup {
+    COURSE
+    HEALTH
+    PREPARATION_METHOD
+    CUISINE
+    INGREDIENT
+    SEASONAL
+    OTHER
   }
 
   type CategoryEdge {
@@ -70,7 +74,7 @@ export default gql`
     name: String!
     description: String
     thumbnail: String!
-    parent: ID
+    group: CategoryGroup!
     language: Language!
     clientMutationId: String
   }
@@ -80,7 +84,7 @@ export default gql`
     name: String
     description: String
     thumbnail: String
-    parent: ID
+    group: CategoryGroup
     language: Language!
     clientMutationId: String
   }
@@ -97,7 +101,7 @@ export default gql`
     nor: [CategoryFilter!]
     name: I18NFilter
     description: I18NFilter
-    parent: IDFilter
+    group: StringFilter
   }
 
   #################################################

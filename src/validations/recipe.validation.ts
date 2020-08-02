@@ -83,7 +83,7 @@ const recipeSchema = Joi.object({
   sourceLink: uri,
   categories: Joi.array()
     .items(objectId.required())
-    .min(2)
+    .min(1)
     .unique()
     .when('$isNew', { is: true, then: required }),
   tips: Joi.string()
