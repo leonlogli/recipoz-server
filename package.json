@@ -85,7 +85,7 @@
     "i18next-fs-backend": "^1.0.1",
     "i18next-http-middleware": "^1.0.0",
     "joi-phone-number": "^4.1.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^5.9.5",
     "mongoose-cursor-paginate": "^1.0.1",
     "pluralize": "^8.0.0",
